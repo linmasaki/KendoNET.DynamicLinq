@@ -2,8 +2,10 @@
   "version": "1.0.1-*",
 
   "dependencies": {
+    "Microsoft.CSharp": "4.3.0",
     "NETStandard.Library": "1.6.0",
     "System.AppDomain": "2.0.11",
+    "System.Dynamic.Runtime": "4.3.0",
     "System.Linq.Dynamic.Core": "1.0.6.9",
     "System.Linq.Queryable": "4.3.0",
     "System.Runtime.Serialization.Primitives": "4.3.0"
