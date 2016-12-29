@@ -1,14 +1,15 @@
 #Kendo.DynamicLinqCore
 
 # Note
-Kendo.DynamicLinqCore is referred to Kendo.DynamicLinq by [kendo-labs](https://github.com/kendo-labs/dlinq-helpers). Related Notes can refer it.
+Kendo.DynamicLinqCore is referred to Kendo.DynamicLinq by [kendo-labs](https://github.com/kendo-labs/dlinq-helpers). 
+Related notes can refer it.
 
 ## Description
 Kendo.DynamicLinqCore implements server paging, filtering, sorting and aggregating via Dynamic Linq for Net Core.
 
 ## Build NuGet package
 1. Open command line console
-2. Switch to project root directory.
+2. Switch to project root directory.(src\Kendo.DynamicLinqCore)
 3. Run "dotnet restore"
 4. Run "dotnet pack --configuration release" 
 
