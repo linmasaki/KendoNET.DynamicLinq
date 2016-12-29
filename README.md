@@ -52,7 +52,7 @@ Kendo.DynamicLinqCore implements server paging, filtering, sorting and aggregati
 
 ## Examples
 
-The following examples use Kendo.DynamicLinq.
+The following examples use Kendo.DynamicLinq(Not Kendo.DynamicLinqCore, but similar) and you can consult.
 
 - [ASP.NET MVC](https://github.com/telerik/kendo-examples-asp-net-mvc/tree/master/grid-crud)
 - [ASP.NET Web Forms and Page Methods](https://github.com/telerik/kendo-examples-asp-net/tree/master/grid-page-methods-crud)
