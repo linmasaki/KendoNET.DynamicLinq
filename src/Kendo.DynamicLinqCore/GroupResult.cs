@@ -20,7 +20,7 @@ namespace Kendo.DynamicLinqCore
         public int Count { get; set; }
 
         [DataMember(Name = "aggregates")]
-        public List<Aggregator> Aggregates { get; set; }
+        public IEnumerable<Aggregator> Aggregates { get; set; }
 
         [DataMember(Name = "items")]
         public dynamic Items { get; set; }

@@ -7,19 +7,20 @@ namespace Kendo.DynamicLinqCore
 {
     public static class EnumerableExtenstions
     {
-        public static dynamic GroupByMany<TElement>(this IEnumerable<TElement> elements, params string[] groupSelectors)
+        public static dynamic GroupByMany<TElement>(this IEnumerable<TElement> elements, IEnumerable<Group> groupSelectors)
         {
             //create a new list of Kendo Group Selectors 
-            var selectors = new List<GroupSelector<TElement>>(groupSelectors.Length);
+            var selectors = new List<GroupSelector<TElement>>(groupSelectors.Count());
             foreach (var selector in groupSelectors)
             {
                 //compile the Dynamic Expression Lambda for each one
-                var expression = DynamicExpressionParser.ParseLambda(false, typeof(TElement), typeof(object), selector);
+                var expression = DynamicExpressionParser.ParseLambda(false, typeof(TElement), typeof(object), selector.Field);
                 //add it to the list
                 selectors.Add(new GroupSelector<TElement>
                 {
                     Selector = (Func<TElement, object>)expression.Compile(),
-                    Field = selector
+                    Field = selector.Field,
+                    Aggregates = selector.Aggregates
                 });
             }
             //call the actual group by method
@@ -39,18 +40,11 @@ namespace Kendo.DynamicLinqCore
                                 g => new GroupResult
                                 {
                                     Value = g.Key,
-                                    Aggregates = new List<Aggregator>
-                                    {
-                                        //todo fix that and make it dynamic from the request
-                                        new Aggregator
-                                        {
-                                            Field = selector.ToString(),
-                                            Aggregate = "count"
-                                        }
-                                    },
+                                    Aggregates = selector.Aggregates,
                                     HasSubgroups = groupSelectors.Length > 1,
                                     Count = g.Count(),
-                                    Items = g.GroupByMany(nextSelectors), //recursivly group the next selectors
+                                    //recursivly group the next selectors
+                                    Items = g.GroupByMany(nextSelectors),
                                     SelectorField = selector.Field
                                 });
             }

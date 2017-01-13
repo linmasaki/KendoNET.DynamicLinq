@@ -19,6 +19,11 @@ namespace Kendo.DynamicLinqCore
         public IEnumerable Data { get; set; }
 
         /// <summary>
+        /// Represents a single page of processed grouped data.
+        /// </summary>
+        public IEnumerable Group { get; set; }
+
+        /// <summary>
         /// The total number of records available.
         /// </summary>
         public int Total { get; set; }
@@ -43,24 +48,8 @@ namespace Kendo.DynamicLinqCore
                 return new Type[0];
             }
 
-            return assembly.GetTypes()
-                           .Where(t => t.Name.StartsWith("DynamicClass"))
-                           .ToArray();
+            return assembly.GetTypes().Where(t => t.Name.StartsWith("DynamicClass")).ToArray();
         }
 
-        /// <summary>
-        /// Specifies the requested sort order.
-        /// </summary>
-        public IEnumerable<Sort> Sort { get; set; }
-
-        /// <summary>
-        /// Specifies the requested grouping .
-        /// </summary>
-        public IEnumerable<Sort> Group { get; set; }
-
-        /// <summary>
-        /// Specifies the requested filter.
-        /// </summary>
-        public Filter Filter { get; set; }
     }
 }
