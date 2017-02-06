@@ -51,5 +51,7 @@ namespace Kendo.DynamicLinqCore
             return assembly.GetTypes().Where(t => t.Name.StartsWith("DynamicClass")).ToArray();
         }
 
+        public object Errors { get; set; }
+
     }
 }
