@@ -5,7 +5,7 @@ using System.Linq.Dynamic.Core;
 
 namespace Kendo.DynamicLinqCore
 {
-    public static class EnumerableExtenstions
+    public static class EnumerableExtensions
     {
         public static dynamic GroupByMany<TElement>(this IEnumerable<TElement> elements, IEnumerable<Group> groupSelectors)
         {
