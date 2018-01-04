@@ -37,15 +37,20 @@ namespace Kendo.DynamicLinqCore
             {
                 case "max":
                 case "min":
-                    return GetMethod(CultureInfo.InvariantCulture.TextInfo.ToTitleCase(Aggregate), MinMaxFunc().GetMethodInfo(), 2).MakeGenericMethod(type, proptype);
+                    return
+                        GetMethod(CultureInfo.InvariantCulture.TextInfo.ToTitleCase(Aggregate),
+                            MinMaxFunc().GetMethodInfo(), 2).MakeGenericMethod(type, proptype);
                 case "average":
                 case "sum":
                     return GetMethod(CultureInfo.InvariantCulture.TextInfo.ToTitleCase(Aggregate),
-                        ((Func<Type, Type[]>)this.GetType().GetMethod("SumAvgFunc", BindingFlags.Static | BindingFlags.NonPublic)
-                        .MakeGenericMethod(proptype).Invoke(null, null)).GetMethodInfo(), 1).MakeGenericMethod(type);
+                    ((Func<Type, Type[]>)
+                        this.GetType().GetMethod("SumAvgFunc", BindingFlags.Static | BindingFlags.NonPublic)
+                            .MakeGenericMethod(proptype).Invoke(null, null)).GetMethodInfo(), 1).MakeGenericMethod(type);
                 case "count":
                     return GetMethod(CultureInfo.InvariantCulture.TextInfo.ToTitleCase(Aggregate),
-                        Nullable.GetUnderlyingType(proptype) != null ? CountNullableFunc().GetMethodInfo() : CountFunc().GetMethodInfo(), 1).MakeGenericMethod(type);
+                        Nullable.GetUnderlyingType(proptype) != null
+                            ? CountNullableFunc().GetMethodInfo()
+                            : CountFunc().GetMethodInfo(), 1).MakeGenericMethod(type);
             }
             return null;
         }
@@ -53,48 +58,63 @@ namespace Kendo.DynamicLinqCore
         private static MethodInfo GetMethod(string methodName, MethodInfo methodTypes, int genericArgumentsCount)
         {
             var methods = from method in typeof(Queryable).GetMethods(BindingFlags.Public | BindingFlags.Static)
-                          let parameters = method.GetParameters()
-                          let genericArguments = method.GetGenericArguments()
-                          where method.Name == methodName &&
-                            genericArguments.Length == genericArgumentsCount
-                            //&& parameters.Select(p => p.ParameterType).SequenceEqual((Type[])methodTypes.Invoke(null, genericArguments))
-                          select method;
+                let parameters = method.GetParameters()
+                let genericArguments = method.GetGenericArguments()
+                where method.Name == methodName &&
+                      genericArguments.Length == genericArgumentsCount &&
+                      parameters.Select(p => p.ParameterType).SequenceEqual((Type[]) methodTypes.Invoke(null, genericArguments))
+                select method;
             return methods.FirstOrDefault();
         }
 
         private static Func<Type, Type[]> CountNullableFunc()
         {
-            return (T) => new[]
-                {
-                    typeof(IQueryable<>).MakeGenericType(T),
-                    typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(T, typeof(bool)))
-                };
+            return CountNullableDelegate;
+        }
+
+        private static Type[] CountNullableDelegate(Type t)
+        {
+            return new[]
+            {
+                typeof(IQueryable<>).MakeGenericType(t),
+                typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(t, typeof(bool)))
+            };
         }
 
         private static Func<Type, Type[]> CountFunc()
         {
             return (T) => new[]
-                {
-                    typeof(IQueryable<>).MakeGenericType(T)
-                };
+            {
+                typeof(IQueryable<>).MakeGenericType(T)
+            };
         }
 
         private static Func<Type, Type, Type[]> MinMaxFunc()
         {
-            return (T, U) => new[]
+            return MinMaxDelegate;
+        }
+
+        private static Type[] MinMaxDelegate(Type a, Type b)
+        {
+            return new[]
             {
-                typeof (IQueryable<>).MakeGenericType(T),
-                typeof (Expression<>).MakeGenericType(typeof (Func<,>).MakeGenericType(T, U))
+                typeof(IQueryable<>).MakeGenericType(a),
+                typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(a, b))
             };
         }
 
-        private static Func<Type, Type[]> SumAvgFunc<U>()
+        private static Func<Type, Type[]> SumAvgFunc<TU>()
         {
-            return (T) => new[]
-                {
-                    typeof (IQueryable<>).MakeGenericType(T),
-                    typeof (Expression<>).MakeGenericType(typeof (Func<,>).MakeGenericType(T, typeof(U)))
-                };
+            return SumAvgDelegate<TU>;
+        }
+
+        private static Type[] SumAvgDelegate<TU>(Type t)
+        {
+            return new[]
+            {
+                typeof (IQueryable<>).MakeGenericType(t),
+                typeof (Expression<>).MakeGenericType(typeof (Func<,>).MakeGenericType(t, typeof(TU)))
+            };
         }
     }
 }

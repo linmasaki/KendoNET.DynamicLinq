@@ -18,13 +18,13 @@ namespace Kendo.DynamicLinqCore
         /// <param name="skip">Specifies how many items to skip.</param>
         /// <param name="sort">Specifies the current sort order.</param>
         /// <param name="filter">Specifies the current filter.</param>
-        /// <param name="group">Specifies the current groups.</param>
         /// <param name="aggregates">Specifies the current aggregates.</param>
+        /// <param name="group">Specifies the current groups.</param>
         /// <returns>A DataSourceResult object populated from the processed IQueryable.</returns>
-        public static DataSourceResult ToDataSourceResult<T>(this IQueryable<T> queryable, int take, int skip, IEnumerable<Sort> sort, Filter filter, IEnumerable<Aggregator> aggregates, IEnumerable<Sort> group)
+        public static DataSourceResult ToDataSourceResult<T>(this IQueryable<T> queryable, int take, int skip, IEnumerable<Sort> sort, Filter filter, IEnumerable<Aggregator> aggregates, IEnumerable<Group> group)
         {
             //the way this extension works it pages the records using skip and take in order to do that we need at least one sorted property
-            if ((sort != null) && !sort.Any())
+            if (sort == null)
             {
                 var elementType = queryable.ElementType;
                 var properties = elementType.GetProperties().ToList();
@@ -55,10 +55,6 @@ namespace Kendo.DynamicLinqCore
                 }
                 sort = new List<Sort> { sortByObject };
             }
-            else
-            {
-                sort = new List<Sort>();
-            }
 
             // Filter the data first
             queryable = Filter(queryable, filter);
@@ -87,7 +83,7 @@ namespace Kendo.DynamicLinqCore
             // Finally page the data
             if (take > 0)
             {
-                queryable = Page(queryable, take, skip, true);
+                queryable = Page(queryable, take, skip);
             }
 
             var result = new DataSourceResult
@@ -96,16 +92,10 @@ namespace Kendo.DynamicLinqCore
                 Aggregates = aggregate
             };
 
-            //to use add this to your DataSource
-            //schema: {
-            //          groups: "Group",
-            //          data: "Data"
-            //}
-
             // Group By
             if ((group != null) && group.Any())
             {
-                var groupedQuery = queryable.ToList().GroupByMany(group.Select(p => p.Field).ToArray());
+                var groupedQuery = queryable.ToList().GroupByMany(group);
                 result.Group = groupedQuery;
             }
             else
@@ -156,7 +146,7 @@ namespace Kendo.DynamicLinqCore
         {
             yield return item;
 
-            foreach (var i in source)
+            foreach (T i in source)
             {
                 yield return i;
             }
@@ -167,7 +157,7 @@ namespace Kendo.DynamicLinqCore
             if ((filter != null) && (filter.Logic != null))
             {
                 // Collect a flat list of all filters
-                var filters = filter.All().Distinct().ToList();
+                var filters = filter.All();
 
                 // Get all filter values as array (needed by the Where method of Dynamic Linq)
                 var values = filters.Select(f => f.Value is string ? f.Value.ToString().ToLower() : f.Value).ToArray();
@@ -321,13 +311,9 @@ namespace Kendo.DynamicLinqCore
             return queryable;
         }
 
-        private static IQueryable<T> Page<T>(IQueryable<T> queryable, int take, int skip, bool sorted)
-        {
-            if (sorted)
-            {
-                return queryable.Skip(skip).Take(take);
-            }
-            return queryable.Take(take);
+        private static IQueryable<T> Page<T>(IQueryable<T> queryable, int take, int skip)
+        {            
+            return queryable.Skip(skip).Take(take); 
         }
     }
 }
