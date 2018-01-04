@@ -24,7 +24,7 @@ namespace Kendo.DynamicLinqCore
         public static DataSourceResult ToDataSourceResult<T>(this IQueryable<T> queryable, int take, int skip, IEnumerable<Sort> sort, Filter filter, IEnumerable<Aggregator> aggregates, IEnumerable<Group> group)
         {
             //the way this extension works it pages the records using skip and take in order to do that we need at least one sorted property
-            if ((sort != null) && !sort.Any())
+            if (sort == null)
             {
                 var elementType = queryable.ElementType;
                 var properties = elementType.GetProperties().ToList();
@@ -55,10 +55,6 @@ namespace Kendo.DynamicLinqCore
                 }
                 sort = new List<Sort> { sortByObject };
             }
-            else
-            {
-                sort = new List<Sort>();
-            }
 
             // Filter the data first
             queryable = Filter(queryable, filter);
@@ -87,7 +83,7 @@ namespace Kendo.DynamicLinqCore
             // Finally page the data
             if (take > 0)
             {
-                queryable = Page(queryable, take, skip, sort.Any());
+                queryable = Page(queryable, take, skip);
             }
 
             var result = new DataSourceResult
@@ -315,13 +311,9 @@ namespace Kendo.DynamicLinqCore
             return queryable;
         }
 
-        private static IQueryable<T> Page<T>(IQueryable<T> queryable, int take, int skip, bool sorted)
-        {
-            if (sorted)
-            {
-                return queryable.Skip(skip).Take(take);
-            }
-            return queryable.Take(take);
+        private static IQueryable<T> Page<T>(IQueryable<T> queryable, int take, int skip)
+        {            
+            return queryable.Skip(skip).Take(take); 
         }
     }
 }
