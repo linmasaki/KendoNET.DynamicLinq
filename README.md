@@ -1,5 +1,7 @@
 #Kendo.DynamicLinqCore
 
+[![Version](https://img.shields.io/nuget/vpre/Kendo.DynamicLinqCore.svg)](https://www.nuget.org/packages/Kendo.DynamicLinqCore)
+
 # Note
 Kendo.DynamicLinqCore is referred to Kendo.DynamicLinq by [kendo-labs](https://github.com/kendo-labs/dlinq-helpers). 
 Related notes can refer it.
