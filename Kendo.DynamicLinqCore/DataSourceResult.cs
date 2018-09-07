@@ -40,8 +40,8 @@ namespace Kendo.DynamicLinqCore
         private static Type[] GetKnownTypes()
         {
             var assembly = AppDomain.CurrentDomain
-                                    .GetAssemblies()
-                                    .FirstOrDefault(a => a.FullName.StartsWith("DynamicClasses"));
+                            .GetAssemblies()
+                            .FirstOrDefault(a => a.FullName.StartsWith("DynamicClasses"));
 
             if (assembly == null)
             {

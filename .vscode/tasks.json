@@ -1,0 +1,15 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/Kendo.DynamicLinqCore.Test/Kendo.DynamicLinqCore.Test.csproj"
+            ],
+            "problemMatcher": "$msCompile"
+        }
+    ]
+}

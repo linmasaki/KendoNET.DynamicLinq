@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard1.6;netstandard2.0</TargetFrameworks>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>Kendo.DynamicLinqCore</PackageId>    
+    <AssemblyName>Kendo.DynamicLinqCore</AssemblyName>
+    <Title>Kendo.DynamicLinqCore</Title>
+    <Authors>CoCo Lin</Authors>
+    <Description>Kendo.DynamicLinqCore implements server paging, filtering, sorting and aggregating via Dynamic Linq for Net Core.</Description>
+    <PackageProjectUrl>https://github.com/linmasaki/Kendo.DynamicLinqCore</PackageProjectUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/linmasaki/CoCoPackageIcon/master/cocodotnet64.png</PackageIconUrl>
+    <PackageTags>netcore kendo linq dynamic</PackageTags>
+    <PackageVersion>2.0.0</PackageVersion>
+    <Version>2.0.0</Version> 
+    <Copyright>Copyright © 2017-2018 CoCo Lin</Copyright>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)'=='netstandard1.6'">
+    <PackageReference Include="System.AppDomain" Version="2.0.11" />
+    <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />    
+    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.0.8.11" />    
+  </ItemGroup>
+
+  
+
+</Project>
