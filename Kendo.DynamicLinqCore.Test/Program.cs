@@ -8,8 +8,8 @@ namespace Kendo.DynamicLinqCore.Test
     {
         static void Main(string[] args)
         {
-            var people = new[] { new Person { Age = 50 }, new Person { Age = 20 } };
-            var result = people.AsQueryable().ToDataSourceResult(1, 2, null, null, new[]
+            var peoples = new[] { new Person { Age = 50 }, new Person { Age = 20 } };
+            var result = peoples.AsQueryable().ToDataSourceResult(1, 2, null, null, new[]
             {
                 new Aggregator
                 {
@@ -18,7 +18,7 @@ namespace Kendo.DynamicLinqCore.Test
                 }
             }, null);
 
-            Console.Write(result.Aggregates);
+            Console.WriteLine(result.Aggregates);
             Console.ReadKey();
         }
     }
