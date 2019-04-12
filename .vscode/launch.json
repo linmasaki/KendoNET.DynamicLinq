@@ -10,9 +10,9 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/Kendo.DynamicLinqCore.Test/bin/Debug/netcoreapp1.0/Kendo.DynamicLinqCore.Test.dll",
+            "program": "${workspaceFolder}/src/Kendo.DynamicLinqCore.Test/bin/Debug/netcoreapp1.0/Kendo.DynamicLinqCore.Test.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/Kendo.DynamicLinqCore.Test",
+            "cwd": "${workspaceFolder}/src/Kendo.DynamicLinqCore.Test",
             // For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
             "console": "internalConsole",
             "stopAtEntry": false,

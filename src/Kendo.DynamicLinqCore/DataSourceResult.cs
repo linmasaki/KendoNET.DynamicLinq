@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 
@@ -32,6 +31,11 @@ namespace Kendo.DynamicLinqCore
         /// Represents a requested aggregates.
         /// </summary>
         public object Aggregates { get; set; }
+        
+        /// <summary>
+        /// Represents error information from server-side.
+        /// </summary>
+        public object Errors { get; set; }
 
         /// <summary>
         /// Used by the KnownType attribute which is required for WCF serialization support
@@ -39,19 +43,13 @@ namespace Kendo.DynamicLinqCore
         /// <returns></returns>
         private static Type[] GetKnownTypes()
         {
-            var assembly = AppDomain.CurrentDomain
-                            .GetAssemblies()
-                            .FirstOrDefault(a => a.FullName.StartsWith("DynamicClasses"));
+            var assembly = AppDomain.CurrentDomain.GetAssemblies()
+                           .FirstOrDefault(a => a.FullName.StartsWith("DynamicClasses"));
 
-            if (assembly == null)
-            {
-                return new Type[0];
-            }
+            if (assembly == null) return new Type[0];
 
             return assembly.GetTypes().Where(t => t.Name.StartsWith("DynamicClass")).ToArray();
         }
-
-        public object Errors { get; set; }
 
     }
 }

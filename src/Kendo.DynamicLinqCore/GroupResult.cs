@@ -6,12 +6,13 @@ namespace Kendo.DynamicLinqCore
     [DataContract(Name = "groupresult")]
     public class GroupResult
     {
-        //small letter properties are kendo js properties so please execuse the warnings
+        //small letter properties are kendo js properties so please excuse the warnings
         //for more info check http://docs.telerik.com/kendo-ui/api/javascript/data/datasource#configuration-schema.groups
         [DataMember(Name = "value")]
         public object Value { get; set; }
 
         public string SelectorField { get; set; }
+        
         [DataMember(Name = "field")]
         public string Field
         {

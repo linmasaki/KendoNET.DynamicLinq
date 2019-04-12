@@ -37,33 +37,41 @@ namespace Kendo.DynamicLinqCore
             {
                 case "max":
                 case "min":
-                    return
-                        GetMethod(CultureInfo.InvariantCulture.TextInfo.ToTitleCase(Aggregate),
-                            MinMaxFunc().GetMethodInfo(), 2).MakeGenericMethod(type, proptype);
+                    return GetMethod(ConvertTitleCase(Aggregate), MinMaxFunc().GetMethodInfo(), 2).MakeGenericMethod(type, proptype);
                 case "average":
                 case "sum":
-                    return GetMethod(CultureInfo.InvariantCulture.TextInfo.ToTitleCase(Aggregate),
-                    ((Func<Type, Type[]>)
-                        this.GetType().GetMethod("SumAvgFunc", BindingFlags.Static | BindingFlags.NonPublic)
-                            .MakeGenericMethod(proptype).Invoke(null, null)).GetMethodInfo(), 1).MakeGenericMethod(type);
+                    return GetMethod(ConvertTitleCase(Aggregate), 
+                           ((Func<Type, Type[]>)GetType().GetMethod("SumAvgFunc", BindingFlags.Static | BindingFlags.NonPublic).MakeGenericMethod(proptype).Invoke(null, null))
+                           .GetMethodInfo(), 1).MakeGenericMethod(type);
                 case "count":
-                    return GetMethod(CultureInfo.InvariantCulture.TextInfo.ToTitleCase(Aggregate),
-                        Nullable.GetUnderlyingType(proptype) != null
-                            ? CountNullableFunc().GetMethodInfo()
-                            : CountFunc().GetMethodInfo(), 1).MakeGenericMethod(type);
+                    return GetMethod(ConvertTitleCase(Aggregate),
+                           Nullable.GetUnderlyingType(proptype) != null ? CountNullableFunc().GetMethodInfo() : CountFunc().GetMethodInfo(), 1).MakeGenericMethod(type);
             }
+
             return null;
+        }
+        
+        private static string ConvertTitleCase(string str)
+        {
+            var tokens = str.Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries);
+            for (var i = 0; i < tokens.Length; i++)
+            {
+                var token = tokens[i];
+                tokens[i] = token.Substring(0, 1).ToUpper() + token.Substring(1);
+            }
+
+            return string.Join(" ", tokens);
         }
 
         private static MethodInfo GetMethod(string methodName, MethodInfo methodTypes, int genericArgumentsCount)
         {
             var methods = from method in typeof(Queryable).GetMethods(BindingFlags.Public | BindingFlags.Static)
-                let parameters = method.GetParameters()
-                let genericArguments = method.GetGenericArguments()
-                where method.Name == methodName &&
-                      genericArguments.Length == genericArgumentsCount &&
-                      parameters.Select(p => p.ParameterType).SequenceEqual((Type[]) methodTypes.Invoke(null, genericArguments))
-                select method;
+                          let parameters = method.GetParameters()                
+                          let genericArguments = method.GetGenericArguments()
+                          where method.Name == methodName &&
+                          genericArguments.Length == genericArgumentsCount &&
+                          parameters.Select(p => p.ParameterType).SequenceEqual((Type[])methodTypes.Invoke(null, genericArguments))
+                          select method;
             return methods.FirstOrDefault();
         }
 
@@ -83,9 +91,14 @@ namespace Kendo.DynamicLinqCore
 
         private static Func<Type, Type[]> CountFunc()
         {
-            return (T) => new[]
+            return CountDelegate;
+        }
+
+        private static Type[] CountDelegate(Type t)
+        {
+            return new []
             {
-                typeof(IQueryable<>).MakeGenericType(T)
+                typeof(IQueryable<>).MakeGenericType(t)
             };
         }
 
@@ -116,5 +129,6 @@ namespace Kendo.DynamicLinqCore
                 typeof (Expression<>).MakeGenericType(typeof (Func<,>).MakeGenericType(t, typeof(TU)))
             };
         }
+        
     }
 }

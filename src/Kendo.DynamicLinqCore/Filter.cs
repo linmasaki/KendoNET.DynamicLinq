@@ -44,7 +44,7 @@ namespace Kendo.DynamicLinqCore
         /// <summary>
         /// Mapping of Kendo DataSource filtering operators to Dynamic Linq
         /// </summary>
-        private static readonly IDictionary<string, string> operators = new Dictionary<string, string>
+        private static readonly IDictionary<string, string> Operators = new Dictionary<string, string>
         {
             {"eq", "="},
             {"neq", "!="},
@@ -65,6 +65,7 @@ namespace Kendo.DynamicLinqCore
         {
             var filters = new List<Filter>();
             Collect(filters);
+            
             return filters;
         }
 
@@ -72,9 +73,8 @@ namespace Kendo.DynamicLinqCore
         {
             if (Filters != null && Filters.Any())
             {
-                foreach (Filter filter in Filters)
+                foreach (var filter in Filters)
                 {
-                    filters.Add(filter);
                     filter.Collect(filters);
                 }
             }
@@ -96,7 +96,7 @@ namespace Kendo.DynamicLinqCore
             }
 
             int index = filters.IndexOf(this);
-            string comparison = operators[Operator];
+            var comparison = Operators[Operator];
 
             if (Operator == "doesnotcontain")
             {
