@@ -52,10 +52,14 @@ namespace Kendo.DynamicLinqCore
             {"lte", "<="},
             {"gt", ">"},
             {"gte", ">="},
+            {"isnull", "="},
+            {"isnotnull", "!="},
             {"startswith", "StartsWith"},
             {"endswith", "EndsWith"},
             {"contains", "Contains"},
-            {"doesnotcontain", "Contains"}
+            {"doesnotcontain", "Contains"},
+            {"isempty", ""},
+            {"isnotempty", "!" }
         };
 
         /// <summary>
@@ -98,9 +102,16 @@ namespace Kendo.DynamicLinqCore
             int index = filters.IndexOf(this);
             var comparison = Operators[Operator];
 
-            if (Operator == "doesnotcontain")
+            switch (Operator)
             {
-                return String.Format("!{0}.{1}(@{2})", Field, comparison, index);
+                case "doesnotcontain":
+                    return $"!{Field}.{comparison}(@{index})";
+                case "isnotnull":
+                case "isnull":
+                    return $"{Field} {comparison} null";
+                case "isempty":
+                case "isnotempty":
+                    return $"{comparison}string.IsNullOrEmpty({Field})";
             }
 
             if (comparison == "StartsWith" || comparison == "EndsWith" || comparison == "Contains")
