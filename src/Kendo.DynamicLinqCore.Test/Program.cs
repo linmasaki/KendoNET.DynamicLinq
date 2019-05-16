@@ -110,7 +110,7 @@ namespace Kendo.DynamicLinqCore.Test
                         Field ="Identification",
                         Operator = "doesnotcontain",
                         Value = "4d"
-                    }
+                    }                    
                 },
                 Logic = "and"
             }, null, null);

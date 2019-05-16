@@ -108,21 +108,37 @@ namespace Kendo.DynamicLinqCore
             var typeProperties = type.GetRuntimeProperties();
             var currentPropertyType = typeProperties.FirstOrDefault(f=>f.Name.Equals(Field,StringComparison.OrdinalIgnoreCase))?.PropertyType;
 
+            //switch(Operator)
+            //{
+            //    case "doesnotcontain":
+            //        if(currentPropertyType == typeof(System.String))
+            //            return String.Format("!{0}.{1}(@{2})", Field, comparison, index);
+            //        else    
+            //            return String.Format("({0} != null && !{0}.ToString().{1}(@{2}))", Field, comparison, index);  
+            //    case "isnull":   
+            //    case "isnotnull":   
+            //        return String.Format("{0} {1} null", Field, comparison);                    
+            //    case "isempty":   
+            //    case "isnotempty":  
+            //        if(currentPropertyType == typeof(System.String))
+            //            return String.Format("{0} {1} String.Empty", Field, comparison);
+            //        else
+            //            throw new NotSupportedException(String.Format("Operator {0} not support non-string type", Operator));
+            //    case "isnullorempty":   
+            //    case "isnotnullorempty": 
+            //        if(currentPropertyType == typeof(System.String))
+            //            return String.Format("{0}String.IsNullOrEmpty({1})", comparison, Field);
+            //        else
+            //            throw new NotSupportedException(String.Format("Operator {0} not support non-string type", Operator));
+            //}
+
             if (Operator == "doesnotcontain")
             {
                 if(currentPropertyType == typeof(System.String))
                     return String.Format("!{0}.{1}(@{2})", Field, comparison, index);
                 else    
                     return String.Format("({0} != null && !{0}.ToString().{1}(@{2}))", Field, comparison, index);        
-            }
-
-            if (comparison == "StartsWith" || comparison == "EndsWith" || comparison == "Contains")
-            {
-                if(currentPropertyType == typeof(System.String))
-                    return String.Format("{0}.{1}(@{2})", Field, comparison, index);
-                else    
-                    return String.Format("({0} != null && {0}.ToString().{1}(@{2}))", Field, comparison, index);                
-            }
+            }           
 
             if (Operator == "isnull" || Operator == "isnotnull")
             {
@@ -143,6 +159,14 @@ namespace Kendo.DynamicLinqCore
                     return String.Format("{0}String.IsNullOrEmpty({1})", comparison, Field);
                 else
                     throw new NotSupportedException(String.Format("Operator {0} not support non-string type", Operator));
+            }
+
+            if (comparison == "StartsWith" || comparison == "EndsWith" || comparison == "Contains")
+            {
+                if(currentPropertyType == typeof(System.String))
+                    return String.Format("{0}.{1}(@{2})", Field, comparison, index);
+                else    
+                    return String.Format("({0} != null && {0}.ToString().{1}(@{2}))", Field, comparison, index);                
             }
 
             return String.Format("{0} {1} @{2}", Field, comparison, index);
