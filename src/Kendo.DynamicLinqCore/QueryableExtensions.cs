@@ -49,9 +49,11 @@ namespace Kendo.DynamicLinqCore
         /// <param name="group">Specifies the current groups.</param>
         /// <returns>A DataSourceResult object populated from the processed IQueryable.</returns>
         public static DataSourceResult ToDataSourceResult<T>(this IQueryable<T> queryable, int take, int skip, IEnumerable<Sort> sort, Filter filter, IEnumerable<Aggregator> aggregates, IEnumerable<Group> group)
-        {
+        {            
+            var errors = new List<object>();
+
             // Filter the data first
-            queryable = Filter(queryable, filter);
+            queryable = Filter(queryable, filter, errors);
 
             // Calculate the total number of records (needed for paging)            
             var total = queryable.Count();
@@ -99,11 +101,17 @@ namespace Kendo.DynamicLinqCore
             {
                 result.Data = queryable.ToList();
             }
+
+            // Set errors if any
+            if(errors.Any())
+            {
+                result.Errors = errors;
+            }
             
             return result;
         }
         
-        private static IQueryable<T> Filter<T>(IQueryable<T> queryable, Filter filter)
+        private static IQueryable<T> Filter<T>(IQueryable<T> queryable, Filter filter, List<object> errors)
         {
             if ((filter != null) && (filter.Logic != null))
             {
@@ -116,11 +124,20 @@ namespace Kendo.DynamicLinqCore
                 // Get all filter values as array (needed by the Where method of Dynamic Linq)
                 var values = filters.Select(f => f.Value).ToArray();
 
-                // Create a predicate expression e.g. Field1 = @0 And Field2 > @1
-                var predicate = filter.ToExpression(filters);
+                string predicate;
+                try 
+                {
+                    // Create a predicate expression e.g. Field1 = @0 And Field2 > @1
+                    predicate = filter.ToExpression(typeof(T),filters);                     
+                }
+                catch(Exception ex)
+                {
+                    errors.Add(ex.Message);
+                    return queryable;
+                }
 
                 // Use the Where method of Dynamic Linq to filter the data
-                queryable = queryable.Where(predicate, values); 
+                queryable = queryable.Where(predicate, values);
             }
 
             return queryable;

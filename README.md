@@ -22,7 +22,8 @@ schema: {
     data: "Data",
     total: "Total",
     aggregates: "Aggregates",
-    groups: "Group"
+    groups: "Group",
+    errors: "Errors"
 }
 ```  
 4. The completed code like below.
@@ -37,6 +38,7 @@ dataSource: {
         total: "Total",
         aggregates: "Aggregates",
         groups: "Group",
+        errors: "Errors",
         ...
     },
     transport: {
@@ -56,6 +58,10 @@ dataSource: {
             return JSON.stringify(data);
         }
     },
+    error: function(e) {
+        console.log(e.errors); // Your error information
+        e.sender.cancelChanges();
+    },
     pageSize: 20,
     serverPaging: true,
     serverFiltering: true,
@@ -66,7 +72,7 @@ dataSource: {
 ..... Other kendo grid code .....
 ```
 5. Import the Kendo.DynamicLinqCore namespace.
-6. Use the `ToDataSourceResult` extension method to apply paging, sorting and filtering.
+6. Use the `ToDataSourceResult` extension method to apply paging, sorting and filtering
 ```c#
 using Kendo.DynamicLinqCore
 
@@ -76,16 +82,39 @@ public static DataSourceResult Products(int take, int skip, IEnumerable<Sort> so
     using (var northwind = new Northwind())
     {
         return northwind.Products
-            .OrderBy(p => p.ProductID) // EF requires ordering for paging                    
-            .Select(p => new ProductViewModel // Use a view model to avoid serializing internal Entity Framework properties as JSON
-            {
-                ProductID = p.ProductID,
-                ProductName = p.ProductName,
-                UnitPrice = p.UnitPrice,
-                UnitsInStock = p.UnitsInStock,
-                Discontinued = p.Discontinued
-            })
-           .ToDataSourceResult(take, skip, sort, filter, aggregates, group);
+               .OrderBy(p => p.ProductID) // EF requires ordering for paging                    
+               .Select(p => new ProductViewModel // Use a view model to avoid serializing internal Entity Framework properties as JSON
+               {
+                   ProductID = p.ProductID,
+                   ProductName = p.ProductName,
+                   UnitPrice = p.UnitPrice,
+                   UnitsInStock = p.UnitsInStock,
+                   Discontinued = p.Discontinued
+               })
+               .ToDataSourceResult(take, skip, sort, filter, aggregates, group);
+    }
+}
+```
+
+or from Kendo UI request
+```c#
+using Kendo.DynamicLinqCore
+
+[HttpPost]
+public IActionResult Products([FromBody] DataSourceRequest requestModel)
+{
+    using (var northwind = new Northwind())
+    {
+        return northwind.Products                  
+               .Select(p => new ProductViewModel // Use a view model to avoid serializing internal Entity Framework properties as JSON
+               {
+                   ProductID = p.ProductID,
+                   ProductName = p.ProductName,
+                   UnitPrice = p.UnitPrice,
+                   UnitsInStock = p.UnitsInStock,
+                   Discontinued = p.Discontinued
+               })
+               .ToDataSourceResult(requestModel.Take, requestModel.Skip, requestModel.Sort, requestModel.Filter);
     }
 }
 ```
@@ -111,7 +140,7 @@ public class MyContext : DbContext
 1. Open command line console
 2. Switch to project root directory.(src\Kendo.DynamicLinqCore)
 3. Run "dotnet restore"
-4. Run "dotnet pack --configuration release"
+4. Run "dotnet pack --configuration Release"
 
 ## Note
 Kendo.DynamicLinqCore is referred to Kendo.DynamicLinq by [kendo-labs](https://github.com/kendo-labs/dlinq-helpers). Related notes can refer it.

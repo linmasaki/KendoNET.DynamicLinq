@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Serialization;
 
 namespace Kendo.DynamicLinqCore
@@ -55,7 +56,13 @@ namespace Kendo.DynamicLinqCore
             {"startswith", "StartsWith"},
             {"endswith", "EndsWith"},
             {"contains", "Contains"},
-            {"doesnotcontain", "Contains"}
+            {"doesnotcontain", "Contains"},
+            {"isnull", "="},
+            {"isnotnull", "!="},
+            {"isempty", "="},
+            {"isnotempty", "!="},
+            {"isnullorempty", ""},
+            {"isnotnullorempty", "!"}
         };
 
         /// <summary>
@@ -88,24 +95,54 @@ namespace Kendo.DynamicLinqCore
         /// Converts the filter expression to a predicate suitable for Dynamic Linq e.g. "Field1 = @1 and Field2.Contains(@2)"
         /// </summary>
         /// <param name="filters">A list of flattened filters.</param>
-        public string ToExpression(IList<Filter> filters)
+        public string ToExpression(Type type, IList<Filter> filters)
         {
             if (Filters != null && Filters.Any())
             {
-                return "(" + String.Join(" " + Logic + " ", Filters.Select(filter => filter.ToExpression(filters)).ToArray()) + ")";
+                return "(" + String.Join(" " + Logic + " ", Filters.Select(filter => filter.ToExpression(type,filters)).ToArray()) + ")";
             }
 
             int index = filters.IndexOf(this);
             var comparison = Operators[Operator];
 
+            var typeProperties = type.GetRuntimeProperties();
+            var currentPropertyType = typeProperties.FirstOrDefault(f=>f.Name.Equals(Field,StringComparison.OrdinalIgnoreCase))?.PropertyType;
+
             if (Operator == "doesnotcontain")
             {
-                return String.Format("!{0}.{1}(@{2})", Field, comparison, index);
+                if(currentPropertyType == typeof(System.String))
+                    return String.Format("!{0}.{1}(@{2})", Field, comparison, index);
+                else    
+                    return String.Format("({0} != null && !{0}.ToString().{1}(@{2}))", Field, comparison, index);        
             }
 
             if (comparison == "StartsWith" || comparison == "EndsWith" || comparison == "Contains")
             {
-                return String.Format("{0}.{1}(@{2})", Field, comparison, index);
+                if(currentPropertyType == typeof(System.String))
+                    return String.Format("{0}.{1}(@{2})", Field, comparison, index);
+                else    
+                    return String.Format("({0} != null && {0}.ToString().{1}(@{2}))", Field, comparison, index);                
+            }
+
+            if (Operator == "isnull" || Operator == "isnotnull")
+            {
+                return String.Format("{0} {1} null", Field, comparison);
+            }
+
+            if (Operator == "isempty" || Operator == "isnotempty")
+            {
+                if(currentPropertyType == typeof(System.String))
+                    return String.Format("{0} {1} String.Empty", Field, comparison);
+                else
+                    throw new NotSupportedException(String.Format("Operator {0} not support non-string type", Operator));
+            }
+
+            if (Operator == "isnullorempty" || Operator == "isnotnullorempty")
+            {
+                if(currentPropertyType == typeof(System.String))
+                    return String.Format("{0}String.IsNullOrEmpty({1})", comparison, Field);
+                else
+                    throw new NotSupportedException(String.Format("Operator {0} not support non-string type", Operator));
             }
 
             return String.Format("{0} {1} @{2}", Field, comparison, index);

@@ -21,18 +21,15 @@ Supported platforms:
     </Description>
     <PackageReleaseNotes>
     
-1. Fix the problem that when query with conditions for a large amount of data will throw exception.
-2. Fix when the filter condition is too much, the logic will be incorrect and the result will be unexpected.
-3. Fix using aggregate count when the framework is .NET Core 1.0 will throw an exception.
-4. Optimize performance and remove unnecessary properties.
-5. When the filter condition has a datetime type value, the time is automatically changed to the server's local time.
+1. Support new filtering operators of "is null", "is not null", "is empty", "is not empty", "has value", and "has no value" in grid.
+2. Filtering Operators of "is empty", "is not empty", "has value", and "has no value" doesn't support non-string types.
 
     </PackageReleaseNotes>
     <PackageProjectUrl>https://github.com/linmasaki/Kendo.DynamicLinqCore</PackageProjectUrl>
     <PackageIconUrl>https://raw.githubusercontent.com/linmasaki/CoCoPackageIcon/master/cocodotnet64.png</PackageIconUrl>
     <PackageTags>netcore netstandard kendo kendo-ui linq dynamic</PackageTags>
-    <PackageVersion>2.0.2</PackageVersion>
-    <Version>2.0.2</Version> 
+    <PackageVersion>2.1.0</PackageVersion>
+    <Version>2.1.0</Version>
     <Copyright>Copyright © 2017-2019 CoCo Lin</Copyright>
   </PropertyGroup>
 
