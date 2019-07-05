@@ -120,7 +120,7 @@ public IActionResult Products([FromBody] DataSourceRequest requestModel)
 ```
 
 ## Known Issues
-When server side filterable options is enabled and apply a query with filter condition that contains datetime type column, then EntityFramework Core would throw a exception  `System.Data.SqlClient.SqlException (0x80131904): Conversion failed when converting date and/or time from character string`. The error is caused by a known issue in some old EntityFramework Core versions. The workaround is adding `datetime` value to related column in DbContext. e.g.
+When server-side filterable options are enabled and apply a query with filter condition that contains DateTime type column, then EntityFramework Core would throw an exception  `System.Data.SqlClient.SqlException (0x80131904): Conversion failed when converting date and/or time from character string`. The error is caused by a known issue in some old EntityFramework Core versions. The workaround is adding `datetime` value to the related column in DbContext. e.g.
 
 ```c#
 public class MyContext : DbContext
@@ -138,12 +138,12 @@ public class MyContext : DbContext
 
 ## How To Build NuGet Package
 1. Open command line console
-2. Switch to project root directory.(src\Kendo.DynamicLinqCore)
+2. Switch to project root directory(src\Kendo.DynamicLinqCore).
 3. Run "dotnet restore"
 4. Run "dotnet pack --configuration Release"
 
 ## Note
-Kendo.DynamicLinqCore is referred to Kendo.DynamicLinq by [Ali Sarkis](https://github.com/mshtawythug/dlinq-helpers).
+Kendo.DynamicLinqCore is a reference to [Ali Sarkis's](https://github.com/mshtawythug/dlinq-helpers) Kendo.DynamicLinq.
 
 ## Kendo UI Documentation
 The following links are Kendo UI online docs(related to this package) and you can refer to.
