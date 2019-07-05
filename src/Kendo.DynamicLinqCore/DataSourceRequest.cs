@@ -18,6 +18,11 @@ namespace Kendo.DynamicLinqCore
         /// Specifies the requested sort order.
         /// </summary>
         public IEnumerable<Sort> Sort { get; set; }
+        
+        /// <summary>
+        /// Specifies the requested filter.
+        /// </summary>
+        public Filter Filter { get; set; }
 
         /// <summary>
         /// Specifies the requested grouping .
@@ -28,10 +33,5 @@ namespace Kendo.DynamicLinqCore
         /// Specifies the requested aggregators.
         /// </summary>
         public IEnumerable<Aggregator> Aggregate { get; set; }
-
-        /// <summary>
-        /// Specifies the requested filter.
-        /// </summary>
-        public Filter Filter { get; set; }
     }
 }

@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/Kendo.DynamicLinqCore.Test/Kendo.DynamicLinqCore.Test.csproj"
+                "${workspaceFolder}/src/Kendo.DynamicLinqCore.Test/Kendo.DynamicLinqCore.Test.csproj"
             ],
             "problemMatcher": "$msCompile"
         }
