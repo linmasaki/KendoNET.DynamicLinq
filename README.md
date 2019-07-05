@@ -120,7 +120,7 @@ public IActionResult Products([FromBody] DataSourceRequest requestModel)
 ```
 
 ## Known Issues
-When server-side filterable options are enabled and apply a query with filter condition that contains DateTime type column, then EntityFramework Core would throw an exception  `System.Data.SqlClient.SqlException (0x80131904): Conversion failed when converting date and/or time from character string`. The error is caused by a known issue in some old EntityFramework Core versions. The workaround is adding `datetime` value to the related column in DbContext. e.g.
+When server-side filterable options are enabled and apply a query with filter condition that contains `DateTime` type column, then EntityFramework Core would throw an exception  `System.Data.SqlClient.SqlException (0x80131904): Conversion failed when converting date and/or time from character string`. The error is caused by a known issue in some old EntityFramework Core versions. The workaround is adding `datetime` value to the related column in DbContext. e.g.
 
 ```c#
 public class MyContext : DbContext
