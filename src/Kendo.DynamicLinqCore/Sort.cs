@@ -21,6 +21,12 @@ namespace Kendo.DynamicLinqCore
         public string Dir { get; set; }
 
         /// <summary>
+        /// Gets or sets the compare expression.
+        /// </summary>
+        //[DataMember(Name = "compare")]
+        //public string Compare { get; set; }
+
+        /// <summary>
         /// Converts to form required by Dynamic Linq e.g. "Field1 desc"
         /// </summary>
         public string ToExpression()

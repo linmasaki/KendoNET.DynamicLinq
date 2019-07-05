@@ -59,7 +59,7 @@ namespace Kendo.DynamicLinqCore
             var total = queryable.Count();
 
             // Calculate the aggregates
-            var aggregate = Aggregate(queryable, aggregates);
+            var aggregate = Aggregates(queryable, aggregates);
 
             if (group != null && group.Any())
             {
@@ -94,8 +94,8 @@ namespace Kendo.DynamicLinqCore
             // Group By
             if ((group != null) && group.Any())
             {
-                var groupedQuery = queryable.ToList().GroupByMany(group);
-                result.Group = groupedQuery;
+                //result.Groups = queryable.ToList().GroupByMany(group);                
+                result.Groups = queryable.GroupByMany(group);
             }
             else
             {
@@ -143,7 +143,7 @@ namespace Kendo.DynamicLinqCore
             return queryable;
         }
 
-        private static object Aggregate<T>(IQueryable<T> queryable, IEnumerable<Aggregator> aggregates)
+        private static object Aggregates<T>(IQueryable<T> queryable, IEnumerable<Aggregator> aggregates)
         {
             if (aggregates != null && aggregates.Any())
             {

@@ -1,13 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Runtime.Serialization;
+﻿using System.Runtime.Serialization;
 
 namespace Kendo.DynamicLinqCore
 {
+    //The response format of the group schema : https://docs.telerik.com/kendo-ui/api/javascript/data/datasource/configuration/schema#schemagroups
     [DataContract(Name = "groupresult")]
     public class GroupResult
     {
-        //small letter properties are kendo js properties so please excuse the warnings
-        //for more info check http://docs.telerik.com/kendo-ui/api/javascript/data/datasource#configuration-schema.groups
+        //Small letter properties are kendo js properties so please excuse the warnings
         [DataMember(Name = "value")]
         public object Value { get; set; }
 
@@ -17,21 +16,17 @@ namespace Kendo.DynamicLinqCore
         public string Field
         {
             get { return string.Format("{0} ({1})", this.SelectorField, this.Count); }
+            //get { return SelectorField; }
         }
         public int Count { get; set; }
 
         [DataMember(Name = "aggregates")]
-        public IEnumerable<Aggregator> Aggregates { get; set; }
+        public object Aggregates { get; set; }
 
         [DataMember(Name = "items")]
         public dynamic Items { get; set; }
 
         [DataMember(Name = "hasSubgroups")]
         public bool HasSubgroups { get; set; } // true if there are subgroups
-
-        public override string ToString()
-        {
-            return string.Format("{0} ({1})", this.Value, this.Count);
-        }
     }
 }

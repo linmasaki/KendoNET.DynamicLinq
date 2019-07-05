@@ -20,17 +20,17 @@ namespace Kendo.DynamicLinqCore
         /// <summary>
         /// Represents a single page of processed grouped data.
         /// </summary>
-        public IEnumerable Group { get; set; }
-
-        /// <summary>
-        /// The total number of records available.
-        /// </summary>
-        public int Total { get; set; }
+        public IEnumerable Groups { get; set; }
 
         /// <summary>
         /// Represents a requested aggregates.
         /// </summary>
         public object Aggregates { get; set; }
+
+        /// <summary>
+        /// The total number of records available.
+        /// </summary>
+        public int Total { get; set; }
         
         /// <summary>
         /// Represents error information from server-side.

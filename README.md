@@ -4,7 +4,7 @@
 [![Downloads](https://img.shields.io/nuget/dt/Kendo.DynamicLinqCore.svg)](https://www.nuget.org/packages/Kendo.DynamicLinqCore)
 
 ## Description
-Kendo.DynamicLinqCore implements server paging, filtering, sorting and aggregating to Kendo UI via Dynamic Linq for .Net Core App(1.x ~ 2.x).
+Kendo.DynamicLinqCore implements server paging, filtering, sorting, grouping and aggregating to Kendo UI via Dynamic Linq for .Net Core App(1.x ~ 2.x).
 
 ## Usage
 1. Add the Kendo.DynamicLinqCore NuGet package to your project.
@@ -22,7 +22,7 @@ schema: {
     data: "Data",
     total: "Total",
     aggregates: "Aggregates",
-    groups: "Group",
+    groups: "Groups",
     errors: "Errors"
 }
 ```  
@@ -37,7 +37,7 @@ dataSource: {
         data: "Data",
         total: "Total",
         aggregates: "Aggregates",
-        groups: "Group",
+        groups: "Groups",
         errors: "Errors",
         ...
     },
@@ -72,12 +72,12 @@ dataSource: {
 ..... Other kendo grid code .....
 ```
 5. Import the Kendo.DynamicLinqCore namespace.
-6. Use the `ToDataSourceResult` extension method to apply paging, sorting and filtering
+6. Use the `ToDataSourceResult` extension method to apply paging, sorting, filtering, grouping and aggregating.
 ```c#
 using Kendo.DynamicLinqCore
 
 [WebMethod]
-public static DataSourceResult Products(int take, int skip, IEnumerable<Sort> sort, Filter filter, IEnumerable<Aggregator> aggregates, IEnumerable<Sort> group)
+public static DataSourceResult Products(int take, int skip, IEnumerable<Sort> sort, Filter filter, IEnumerable<Aggregator> aggregates, IEnumerable<Group> groups)
 {
     using (var northwind = new Northwind())
     {
@@ -91,7 +91,7 @@ public static DataSourceResult Products(int take, int skip, IEnumerable<Sort> so
                    UnitsInStock = p.UnitsInStock,
                    Discontinued = p.Discontinued
                })
-               .ToDataSourceResult(take, skip, sort, filter, aggregates, group);
+               .ToDataSourceResult(take, skip, sort, filter, aggregates, groups);
     }
 }
 ```
@@ -114,7 +114,7 @@ public IActionResult Products([FromBody] DataSourceRequest requestModel)
                    UnitsInStock = p.UnitsInStock,
                    Discontinued = p.Discontinued
                })
-               .ToDataSourceResult(requestModel.Take, requestModel.Skip, requestModel.Sort, requestModel.Filter);
+               .ToDataSourceResult(requestModel.Take, requestModel.Skip, requestModel.Sort, requestModel.Filter, requestModel.Aggregate, requestModel.Group);
     }
 }
 ```
@@ -143,17 +143,14 @@ public class MyContext : DbContext
 4. Run "dotnet pack --configuration Release"
 
 ## Note
-Kendo.DynamicLinqCore is referred to Kendo.DynamicLinq by [kendo-labs](https://github.com/kendo-labs/dlinq-helpers). Related notes can refer it.
+Kendo.DynamicLinqCore is referred to Kendo.DynamicLinq by [Ali Sarkis](https://github.com/mshtawythug/dlinq-helpers).
 
-## Examples
-The following examples use Kendo.DynamicLinq(Not Kendo.DynamicLinqCore, but similar) and you can consult.
+## Kendo UI Documentation
+The following links are Kendo UI online docs(related to this package) and you can refer to.
 
-- [ASP.NET MVC](https://github.com/telerik/kendo-examples-asp-net-mvc/tree/master/grid-crud)
-- [ASP.NET Web Forms and Page Methods](https://github.com/telerik/kendo-examples-asp-net/tree/master/grid-page-methods-crud)
-- [ASP.NET Web Forms and WCF](https://github.com/telerik/kendo-examples-asp-net/tree/master/grid-wcf-crud)
-- [ASP.NET Web Forms and Web Services](https://github.com/telerik/kendo-examples-asp-net/tree/master/grid-web-service-crud)
-- [ASP.NET Web Forms and Web API](https://github.com/telerik/kendo-examples-asp-net/tree/master/grid-webapi-crud)
+- [Kendo UI Grid](https://docs.telerik.com/kendo-ui/api/javascript/ui/grid)
+- [Kendo DataSource](https://docs.telerik.com/kendo-ui/api/javascript/data/datasource)
 
-More Kendo UI Grid configuration can refer to [here](https://demos.telerik.com/kendo-ui/) 
+More Kendo UI configuration can refer to [here](https://demos.telerik.com/kendo-ui/)
 
 

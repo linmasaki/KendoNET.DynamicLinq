@@ -9,7 +9,7 @@
     <AssemblyName>Kendo.DynamicLinqCore</AssemblyName>
     <Title>Kendo.DynamicLinqCore</Title>
     <Authors>CoCo Lin</Authors>
-    <Description>Kendo.DynamicLinqCore implements server paging, filtering, sorting and aggregating to Kendo UI via Dynamic Linq for .Net Core App(1.x ~ 2.x).
+    <Description>Kendo.DynamicLinqCore implements server paging, filtering, sorting, grouping and aggregating to Kendo UI via Dynamic Linq for .Net Core App(1.x ~ 2.x).
 
 Supported platforms:
 
@@ -21,15 +21,16 @@ Supported platforms:
     </Description>
     <PackageReleaseNotes>
     
-1. Support new filtering operators of "is null", "is not null", "is empty", "is not empty", "has value", and "has no value" in grid.
-2. Filtering Operators of "is empty", "is not empty", "has value", and "has no value" doesn't support non-string types.
+1. Change the property "Group" of DataSourceResult to "Groups".
+2. Add new property "Aggregate" to DataSourceRequest.
+3. Fixed getting wrong grouping data in the request using aggregates in grouping configuration.  
 
     </PackageReleaseNotes>
     <PackageProjectUrl>https://github.com/linmasaki/Kendo.DynamicLinqCore</PackageProjectUrl>
     <PackageIconUrl>https://raw.githubusercontent.com/linmasaki/CoCoPackageIcon/master/cocodotnet64.png</PackageIconUrl>
     <PackageTags>netcore netstandard kendo kendo-ui linq dynamic</PackageTags>
-    <PackageVersion>2.1.0</PackageVersion>
-    <Version>2.1.0</Version>
+    <PackageVersion>2.2.0</PackageVersion>
+    <Version>2.2.0</Version>
     <Copyright>Copyright © 2017-2019 CoCo Lin</Copyright>
   </PropertyGroup>
 
@@ -42,7 +43,5 @@ Supported platforms:
     <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />    
     <PackageReference Include="System.Linq.Dynamic.Core" Version="1.0.10" />    
   </ItemGroup>
-
-  
 
 </Project>

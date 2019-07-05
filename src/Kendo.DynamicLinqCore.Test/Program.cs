@@ -12,7 +12,7 @@ namespace Kendo.DynamicLinqCore.Test
                 Identification = Guid.Parse("F057D609-F1F3-4E5C-BC09-0AC0BBE1007D"),
                 Name = "Monie",
                 Introduce = "I'm Monie",
-                Salary = 1000000,
+                Salary = 1000,
                 EmployeeNumber = 10,
                 Birthday = new DateTime(2000,5,5) 
             }, 
@@ -20,14 +20,14 @@ namespace Kendo.DynamicLinqCore.Test
                 Identification = Guid.Parse("F586A608-4095-4E8E-8F21-AEFC0DFDB61F"),
                 Name = "CoCo",
                 Introduce = "I'm CoCo",
-                Salary = 2500000,
+                Salary = 2500,
                 EmployeeNumber = 77,
                 Birthday = new DateTime(1986,10,10) 
             },
             new Person { 
                 Identification = Guid.Parse("F4FFE20C-4DE5-4DC5-9686-955FB74EE05E"),
                 Name = "Kirin",
-                Salary = 3000000,
+                Salary = 3000,
                 EmployeeNumber = 66,
                 Birthday = new DateTime(1984,7,8) 
             },
@@ -35,7 +35,7 @@ namespace Kendo.DynamicLinqCore.Test
                 Identification = Guid.Parse("CCAB16DB-070B-4A93-846A-81AEEFDD42EE"),
                 Name = "Rock",
                 Introduce = "",
-                Salary = 1750000,
+                Salary = 1750,
                 EmployeeNumber = 35,
                 Birthday = new DateTime(1976,11,6) 
             },
@@ -43,14 +43,22 @@ namespace Kendo.DynamicLinqCore.Test
                 Identification = null,
                 Name = "Pikachu",
                 Introduce = "Pika~ Pika~",
-                Salary = 66000,
+                Salary = 6600,
                 EmployeeNumber = 18,
                 Birthday = new DateTime(2005,3,16) 
             }
         };
 
         static void Main(string[] args)
-        {            
+        {    
+            #if NETCOREAPP1_0 || NETCOREAPP1_1
+                Console.WriteLine("/---------- Net Core App 1.x ----------/");
+            #else
+                Console.WriteLine("/---------- Net Core App 2.x ----------/");
+            #endif
+
+            Console.WriteLine("----------------------------------------");
+
             /* Test 1 */
             var result = people.AsQueryable().ToDataSourceResult(1, 2, null, null, new[]
             {
@@ -58,11 +66,16 @@ namespace Kendo.DynamicLinqCore.Test
                 {
                     Aggregate = "sum",
                     Field = "Salary"
+                },
+                new Aggregator
+                {
+                    Aggregate = "average",
+                    Field = "Salary"
                 }
             }, null);
 
-            Console.WriteLine("/********** Test 1 **********/");
-            Console.WriteLine(result.Aggregates);
+            Console.WriteLine("\r\n/********** Test 1 **********/");
+            Console.WriteLine(result.Aggregates);   // { Salary = { sum = 14850, average = 2970 } }
 
 
             /* Test 2 */
@@ -79,10 +92,10 @@ namespace Kendo.DynamicLinqCore.Test
                 Logic = "and"
             }, null, null);
             
-            Console.WriteLine("/********** Test 2 **********/");
+            Console.WriteLine("\r\n/********** Test 2 **********/");
             foreach (var p in result.Data)
             {
-                Console.WriteLine((p as Person).Name);
+                Console.WriteLine((p as Person).Name);  // Kirin, Rock
             }
             
 
@@ -115,10 +128,10 @@ namespace Kendo.DynamicLinqCore.Test
                 Logic = "and"
             }, null, null);
 
-            Console.WriteLine("/********** Test 3 **********/");
+            Console.WriteLine("\r\n/********** Test 3 **********/");
             foreach (var p in result.Data)
             {
-                Console.WriteLine((p as Person).Name);
+                Console.WriteLine((p as Person).Name);  // CoCo, Monie
             }
 
             Console.ReadKey();
