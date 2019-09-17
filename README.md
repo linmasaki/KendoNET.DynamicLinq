@@ -142,6 +142,7 @@ public class MyContext : DbContext
 2. Switch to project root directory(src\Kendo.DynamicLinqCore).
 3. Run "dotnet restore"
 4. Run "dotnet pack --configuration Release"
+5. Add `<repository type="git" url="https://github.com/linmasaki/Kendo.DynamicLinqCore.git" />` to package metadata of nupkg to show repository URL at Nuget
 
 ## Note
 Kendo.DynamicLinqCore is a reference to [Ali Sarkis's](https://github.com/mshtawythug/dlinq-helpers) Kendo.DynamicLinq.

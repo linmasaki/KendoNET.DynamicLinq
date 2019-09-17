@@ -29,10 +29,10 @@ Supported platforms:
     <RepositoryUrl>https://github.com/linmasaki/Kendo.DynamicLinqCore</RepositoryUrl>
     <PackageIconUrl>https://raw.githubusercontent.com/linmasaki/CoCoPackageIcon/master/cocodotnet64.png</PackageIconUrl>
     <PackageTags>netcore netstandard kendo kendo-ui linq dynamic</PackageTags>
-    <PackageVersion>2.2.1</PackageVersion>
-    <Version>2.2.1</Version>
+    <PackageVersion>2.2.2</PackageVersion>
+    <Version>2.2.2</Version>
     <Copyright>Copyright © 2017-2019 CoCo Lin</Copyright>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='netstandard1.6'">
@@ -43,6 +43,10 @@ Supported platforms:
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />    
     <PackageReference Include="System.Linq.Dynamic.Core" Version="1.0.10" />    
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../../LICENSE" Pack="true" PackagePath="" />
   </ItemGroup>
 
 </Project>
