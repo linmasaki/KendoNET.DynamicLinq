@@ -21,17 +21,18 @@ Supported platforms:
     </Description>
     <PackageReleaseNotes>
     
-1. Change the property "Group" of DataSourceResult to "Groups".
-2. Add new property "Aggregate" to DataSourceRequest.
-3. Fixed getting wrong grouping data in the request using aggregates in grouping configuration.  
+1. Remove "Append" and "Prepend" method of IEnumeration extension. (.NET Standard built-in).
+2. Remove the duplicate "Aggregates" method.
 
     </PackageReleaseNotes>
     <PackageProjectUrl>https://github.com/linmasaki/Kendo.DynamicLinqCore</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/linmasaki/Kendo.DynamicLinqCore</RepositoryUrl>
     <PackageIconUrl>https://raw.githubusercontent.com/linmasaki/CoCoPackageIcon/master/cocodotnet64.png</PackageIconUrl>
     <PackageTags>netcore netstandard kendo kendo-ui linq dynamic</PackageTags>
-    <PackageVersion>2.2.0</PackageVersion>
-    <Version>2.2.0</Version>
+    <PackageVersion>2.2.1</PackageVersion>
+    <Version>2.2.1</Version>
     <Copyright>Copyright © 2017-2019 CoCo Lin</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='netstandard1.6'">
