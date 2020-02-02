@@ -143,7 +143,7 @@ namespace Kendo.DynamicLinqCore
             return queryable;
         }
 
-        private static object Aggregates<T>(IQueryable<T> queryable, IEnumerable<Aggregator> aggregates)
+        internal static object Aggregates<T>(IQueryable<T> queryable, IEnumerable<Aggregator> aggregates)
         {
             if (aggregates != null && aggregates.Any())
             {
@@ -183,7 +183,6 @@ namespace Kendo.DynamicLinqCore
                 type = DynamicClassFactory.CreateType(objProps.Keys.ToList());
 
                 var obj = Activator.CreateInstance(type);
-
                 foreach (var p in objProps.Keys)
                 {
                     type.GetProperty(p.Name).SetValue(obj, objProps[p], null);

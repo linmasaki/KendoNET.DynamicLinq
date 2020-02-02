@@ -2,6 +2,7 @@
 
 [![Version](https://img.shields.io/nuget/vpre/Kendo.DynamicLinqCore.svg)](https://www.nuget.org/packages/Kendo.DynamicLinqCore)
 [![Downloads](https://img.shields.io/nuget/dt/Kendo.DynamicLinqCore.svg)](https://www.nuget.org/packages/Kendo.DynamicLinqCore)
+[![.NET Standard](https://img.shields.io/badge/.NET%20Standard-%3E%3D%201.6-red.svg)](#)
 
 ## Description
 Kendo.DynamicLinqCore implements server paging, filtering, sorting, grouping and aggregating to Kendo UI via Dynamic Linq for .Net Core App(1.x ~ 2.x).
@@ -141,6 +142,7 @@ public class MyContext : DbContext
 2. Switch to project root directory(src\Kendo.DynamicLinqCore).
 3. Run "dotnet restore"
 4. Run "dotnet pack --configuration Release"
+5. Add `<repository type="git" url="https://github.com/linmasaki/Kendo.DynamicLinqCore.git" />` to package metadata of nupkg to show repository URL at Nuget
 
 ## Note
 Kendo.DynamicLinqCore is a reference to [Ali Sarkis's](https://github.com/mshtawythug/dlinq-helpers) Kendo.DynamicLinq.
