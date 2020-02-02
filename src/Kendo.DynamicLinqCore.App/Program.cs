@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Runtime.Serialization;
 
-namespace Kendo.DynamicLinqCore.Test
+namespace Kendo.DynamicLinqCore.Sample
 {
     class Program
     {
