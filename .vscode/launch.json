@@ -25,12 +25,32 @@
             }
         },
         {
-            "name": ".NET Core Launch 2.0(console)",
+            "name": ".NET Core Launch 2.1(console)",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
             "program": "${workspaceFolder}/src/Kendo.DynamicLinqCore.App/bin/Debug/netcoreapp2.1/Kendo.DynamicLinqCore.App.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/src/Kendo.DynamicLinqCore.App",
+            // For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
+            "console": "internalConsole",
+            "stopAtEntry": false,
+            "internalConsoleOptions": "openOnSessionStart",
+            "logging": {
+                "engineLogging": false,
+                "moduleLoad": false,
+                "exceptions": true,
+                "browserStdOut": false
+            }
+        },
+        {
+            "name": ".NET Core Launch 3.1(console)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            // If you have changed target frameworks, make sure to update the program path.
+            "program": "${workspaceFolder}/src/Kendo.DynamicLinqCore.App/bin/Debug/netcoreapp3.1/Kendo.DynamicLinqCore.App.dll",
             "args": [],
             "cwd": "${workspaceFolder}/src/Kendo.DynamicLinqCore.App",
             // For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window

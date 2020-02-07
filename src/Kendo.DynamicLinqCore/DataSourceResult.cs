@@ -43,12 +43,8 @@ namespace Kendo.DynamicLinqCore
         /// <returns></returns>
         private static Type[] GetKnownTypes()
         {
-            var assembly = AppDomain.CurrentDomain.GetAssemblies()
-                           .FirstOrDefault(a => a.FullName.StartsWith("DynamicClasses"));
-
-            if (assembly == null) return new Type[0];
-
-            return assembly.GetTypes().Where(t => t.Name.StartsWith("DynamicClass")).ToArray();
+            var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.FullName.StartsWith("DynamicClasses"));
+            return assembly == null ? new Type[0] : assembly.GetTypes().Where(t => t.Name.StartsWith("DynamicClass")).ToArray();
         }
 
     }

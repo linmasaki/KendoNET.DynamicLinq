@@ -29,11 +29,11 @@ namespace Kendo.DynamicLinqCore
         /// </summary>
         /// <typeparam name="T">The type of the IQueryable.</typeparam>
         /// <param name="queryable">The IQueryable which should be processed.</param>
-        /// <param name="request">The DataSourceRequest object containing take, skip, order, and filter data.</param>
+        /// <param name="request">The DataSourceRequest object containing take, skip, sort, filter, aggregates, and groups data.</param>
         /// <returns>A DataSourceResult object populated from the processed IQueryable.</returns>
         public static DataSourceResult ToDataSourceResult<T>(this IQueryable<T> queryable, DataSourceRequest request)
         {
-            return queryable.ToDataSourceResult(request.Take, request.Skip, request.Sort, request.Filter, null, request.Group);
+            return queryable.ToDataSourceResult(request.Take, request.Skip, request.Sort, request.Filter, request.Aggregate, request.Group);
         }
         
         /// <summary>
@@ -113,7 +113,7 @@ namespace Kendo.DynamicLinqCore
         
         private static IQueryable<T> Filter<T>(IQueryable<T> queryable, Filter filter, List<object> errors)
         {
-            if ((filter != null) && (filter.Logic != null))
+            if (filter?.Logic != null)
             {
                 // Pretreatment some work
                 filter = PreliminaryWork(filter);
@@ -128,7 +128,7 @@ namespace Kendo.DynamicLinqCore
                 try 
                 {
                     // Create a predicate expression e.g. Field1 = @0 And Field2 > @1
-                    predicate = filter.ToExpression(typeof(T),filters);                     
+                    predicate = filter.ToExpression(typeof(T),filters);          
                 }
                 catch(Exception ex)
                 {
@@ -137,7 +137,20 @@ namespace Kendo.DynamicLinqCore
                 }
 
                 // Use the Where method of Dynamic Linq to filter the data
-                queryable = queryable.Where(predicate, values);
+                //queryable = queryable.Where(predicate, values);     
+
+
+                // p
+                var parameter = Expression.Parameter(typeof(T), "p");
+                
+                // p.Parent.Name == "CoCo"
+                var expression = filter.ToLambdaExpression<T>(parameter, filters);  
+
+                // p => p.Parent.Name == "CoCo"
+                var predicateExpression = Expression.Lambda<Func<T, bool>>(expression, parameter);
+                queryable = queryable.Where(predicateExpression); 
+
+                Console.WriteLine(expression.ToString());
             }
 
             return queryable;
@@ -214,7 +227,7 @@ namespace Kendo.DynamicLinqCore
         }
 
         /// <summary>
-        /// Pretreatment of specific datetime condition and disallowed value type 
+        /// Pretreatment of specific DateTime type and convert some illegal value type
         /// </summary>
         /// <param name="filter"></param>
         /// <returns></returns>
@@ -229,6 +242,12 @@ namespace Kendo.DynamicLinqCore
                 }
 
                 filter.Filters = newFilters;
+            }
+
+            // Convert datetime string
+            if(DateTime.TryParse(filter.Value?.ToString(), out DateTime dateTime))
+            {
+                filter.Value = dateTime;
             }
             
             // Used when the datetime's operator value is eq and local time is 00:00:00 
@@ -273,7 +292,7 @@ namespace Kendo.DynamicLinqCore
             }
 
             // When we have a decimal value it gets converted to double and the query will break
-            if(filter.Value is Double)
+            if(filter.Value is double)
             {               
                 filter.Value = Convert.ToDecimal(filter.Value);
             }
@@ -282,7 +301,7 @@ namespace Kendo.DynamicLinqCore
         }
         
         /// <summary>
-        /// The way this extension works it pages the records using skip and take in order to do that we need at least one sorted property.
+        /// The way this extension works it pages the records using skip and takes to do that we need at least one sort property.
         /// </summary>
         private static IEnumerable<Sort> GetDefaultSort(Type type, IEnumerable<Sort> sort)
         {

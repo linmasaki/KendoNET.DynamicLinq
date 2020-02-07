@@ -34,7 +34,7 @@ namespace Kendo.DynamicLinqCore.Sample
             new Person { 
                 Identification = Guid.Parse("CCAB16DB-070B-4A93-846A-81AEEFDD42EE"),
                 Name = "Rock",
-                Introduce = "",
+                Introduce = "I'm Rock",
                 Salary = 1750,
                 EmployeeNumber = 35,
                 Birthday = new DateTime(1976,11,6) 
@@ -53,8 +53,10 @@ namespace Kendo.DynamicLinqCore.Sample
         {    
             #if NETCOREAPP1_0 || NETCOREAPP1_1
                 Console.WriteLine("/---------- Net Core App 1.x ----------/");
-            #else
+            #elif NETCOREAPP2_1
                 Console.WriteLine("/---------- Net Core App 2.x ----------/");
+            #else
+                Console.WriteLine("/---------- Net Core App 3.x ----------/");
             #endif
 
             Console.WriteLine("----------------------------------------");
@@ -114,15 +116,20 @@ namespace Kendo.DynamicLinqCore.Sample
                 { 
                     new Filter
                     {
-                        Field ="Identification",
-                        Operator = "startswith",
-                        Value = "f"
+                        Field ="Introduce",
+                        Operator = "isnotnull"
                     },
                     new Filter
                     {
-                        Field ="Identification",
+                        Field ="Introduce",
+                        Operator = "startswith",
+                        Value = "I'm"
+                    },
+                    new Filter
+                    {
+                        Field ="Introduce",
                         Operator = "doesnotcontain",
-                        Value = "4d"
+                        Value = "Monie"
                     }                    
                 },
                 Logic = "and"
