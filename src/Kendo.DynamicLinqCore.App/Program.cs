@@ -13,6 +13,7 @@ namespace Kendo.DynamicLinqCore.Sample
                 Name = "Monie",
                 Introduce = "I'm Monie",
                 Salary = 1000,
+                Weight = 48.5F,
                 EmployeeNumber = 10,
                 Birthday = new DateTime(2000,5,5) 
             }, 
@@ -21,6 +22,7 @@ namespace Kendo.DynamicLinqCore.Sample
                 Name = "CoCo",
                 Introduce = "I'm CoCo",
                 Salary = 2500,
+                Weight = 69.6F,
                 EmployeeNumber = 77,
                 Birthday = new DateTime(1986,10,10) 
             },
@@ -29,6 +31,7 @@ namespace Kendo.DynamicLinqCore.Sample
                 Name = "Kirin",
                 Salary = 3000,
                 EmployeeNumber = 66,
+                Weight = 73.8F,
                 Birthday = new DateTime(1984,7,8) 
             },
             new Person { 
@@ -36,6 +39,7 @@ namespace Kendo.DynamicLinqCore.Sample
                 Name = "Rock",
                 Introduce = "I'm Rock",
                 Salary = 1750,
+                Weight = 82.1F,
                 EmployeeNumber = 35,
                 Birthday = new DateTime(1976,11,6) 
             },
@@ -45,7 +49,17 @@ namespace Kendo.DynamicLinqCore.Sample
                 Introduce = "Pika~ Pika~",
                 Salary = 6600,
                 EmployeeNumber = 18,
-                Birthday = new DateTime(2005,3,16) 
+                Weight = 52.9F,
+                Birthday = new DateTime(2005,3,16,16,0,0) 
+            },
+            new Person { 
+                Identification = null,
+                Name = "Memtwo",
+                Introduce = "Strike!!!",
+                Salary = 9900,
+                EmployeeNumber = 151,
+                Weight = 99.8F,
+                Birthday = new DateTime(2005,3,16,8,0,0) 
             }
         };
 
@@ -113,12 +127,7 @@ namespace Kendo.DynamicLinqCore.Sample
             new Filter 
             {
                 Filters = new [] 
-                { 
-                    new Filter
-                    {
-                        Field ="Introduce",
-                        Operator = "isnotnull"
-                    },
+                {
                     new Filter
                     {
                         Field ="Introduce",
@@ -136,6 +145,63 @@ namespace Kendo.DynamicLinqCore.Sample
             }, null, null);
 
             Console.WriteLine("\r\n/********** Test 3 **********/");
+            foreach (var p in result.Data)
+            {
+                Console.WriteLine((p as Person).Name);  // CoCo, Monie
+            }
+
+            /* Test 4 */
+            result = people.AsQueryable().ToDataSourceResult(10, 0, new [] 
+            { 
+                new Sort
+                {
+                    Field ="Name",
+                    Dir = "asc"
+                } 
+            }, 
+            new Filter {
+                Field ="Birthday",
+                Value = "2005-03-16T00:00:00.000Z",
+                Operator = "eq",
+                Logic = "and"
+            }, null, null);
+
+            Console.WriteLine("\r\n/********** Test 4 **********/");
+            foreach (var p in result.Data)
+            {
+                Console.WriteLine((p as Person).Name);  // Pikachu, Memtwo
+            }
+
+            /* Test 5 */
+            result = people.AsQueryable().ToDataSourceResult(10, 0, new [] 
+            { 
+                new Sort
+                {
+                    Field ="Name",
+                    Dir = "asc"
+                } 
+            }, 
+            new Filter 
+            {
+                Filters = new [] 
+                {
+                    new Filter
+                    {
+                        Field ="Weight",
+                        Operator = "gt",
+                        Value = 50
+                    },
+                    new Filter
+                    {
+                        Field ="Weight",
+                        Operator = "lte",
+                        Value = 82.8
+                    }                    
+                },
+                Logic = "and"
+            }, null, null);
+
+            Console.WriteLine("\r\n/********** Test 5 **********/");
             foreach (var p in result.Data)
             {
                 Console.WriteLine((p as Person).Name);  // CoCo, Monie
@@ -159,5 +225,7 @@ namespace Kendo.DynamicLinqCore.Sample
         public DateTime Birthday {get; set;}
 
         public Decimal Salary {get; set;}
+
+        public float Weight {get; set;}
     }
 }

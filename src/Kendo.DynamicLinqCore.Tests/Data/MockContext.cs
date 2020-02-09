@@ -40,6 +40,7 @@ namespace Kendo.DynamicLinqCore.Tests.Data
                     Name = "Monie",
                     Identification = Guid.Parse("ff5f9bb3-f805-4f52-a5f9-fbd0493d5b8f"),
                     Introduce = "I'm Monie",
+                    Weight = 48.5,
                     Salary = 1000,
                     Birthday = new DateTime(2000,5,5),
                     CompanyId = Guid.Parse("c2cbfe28-f82a-4904-8075-bf98729d434f")
@@ -50,6 +51,7 @@ namespace Kendo.DynamicLinqCore.Tests.Data
                     Name = "CoCo",
                     Introduce = "I'm CoCo",
                     Salary = 2500,
+                    Weight = 69.2,
                     Birthday = new DateTime(1986,10,10),
                     CompanyId = Guid.Parse("c2cbfe28-f82a-4904-8075-bf98729d434f")
                 },
@@ -59,6 +61,7 @@ namespace Kendo.DynamicLinqCore.Tests.Data
                     Name = "Kirin",
                     Introduce = "I'm Kirin",
                     Salary = 3000,
+                    Weight = 73.8,
                     Birthday = new DateTime(1984,7,8),
                     CompanyId = Guid.Parse("5dd641dd-2ba4-4dfd-9572-81325ecd8940")
                 },
@@ -68,6 +71,7 @@ namespace Kendo.DynamicLinqCore.Tests.Data
                     Name = "Rock",
                     Introduce = "I'm Rock",
                     Salary = 1750,
+                    Weight = 82.1,
                     Birthday = new DateTime(1976,11,6),
                     CompanyId = Guid.Parse("80a6570c-ca98-4661-adde-e4d5a8637ee5") 
                 },
@@ -77,6 +81,7 @@ namespace Kendo.DynamicLinqCore.Tests.Data
                     Name = "Pikachu",
                     Introduce = "Pika~ Pika~",
                     Salary = 6600,
+                    Weight = 52.9,
                     Birthday = new DateTime(2005,3,16),
                     CompanyId = Guid.Parse("80a6570c-ca98-4661-adde-e4d5a8637ee5")  
                 }

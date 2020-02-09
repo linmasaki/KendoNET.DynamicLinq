@@ -118,11 +118,14 @@ namespace Kendo.DynamicLinqCore
                 return "(" + String.Join(" " + Logic + " ", Filters.Select(filter => filter.ToExpression(type,filters)).ToArray()) + ")";
             }
 
+            var currentPropertyType = GetLastPropertyType(type, Field);
+            if(currentPropertyType != typeof(String) && StringOperators.Contains(Operator))
+            {
+                throw new NotSupportedException(string.Format("Operator {0} not support non-string type", Operator));
+            }
+
             int index = filters.IndexOf(this);
             var comparison = Operators[Operator];
-
-            var typeProperties = type.GetRuntimeProperties();
-            var currentPropertyType = typeProperties.FirstOrDefault(f=>f.Name.Equals(Field,StringComparison.OrdinalIgnoreCase))?.PropertyType;
 
             //switch(Operator)
             //{
@@ -150,10 +153,7 @@ namespace Kendo.DynamicLinqCore
 
             if (Operator == "doesnotcontain")
             {
-                if(currentPropertyType == typeof(String))
-                    return String.Format("!{0}.{1}(@{2})", Field, comparison, index);
-                else    
-                    return String.Format("({0} != null && !{0}.ToString().{1}(@{2}))", Field, comparison, index);        
+                return String.Format("{0} != null && !{0}.{1}(@{2})", Field, comparison, index);       
             }           
 
             if (Operator == "isnull" || Operator == "isnotnull")
@@ -163,34 +163,26 @@ namespace Kendo.DynamicLinqCore
 
             if (Operator == "isempty" || Operator == "isnotempty")
             {
-                if(currentPropertyType == typeof(String))
-                    return String.Format("{0} {1} String.Empty", Field, comparison);
-                else
-                    throw new NotSupportedException(String.Format("Operator {0} not support non-string type", Operator));
+                return String.Format("{0} {1} String.Empty", Field, comparison);
             }
 
             if (Operator == "isnullorempty" || Operator == "isnotnullorempty")
             {
-                if(currentPropertyType == typeof(String))
-                    return String.Format("{0}String.IsNullOrEmpty({1})", comparison, Field);
-                else
-                    throw new NotSupportedException(String.Format("Operator {0} not support non-string type", Operator));
+                return String.Format("{0}String.IsNullOrEmpty({1})", comparison, Field);
             }
 
             if (comparison == "StartsWith" || comparison == "EndsWith" || comparison == "Contains")
             {
-                if(currentPropertyType == typeof(String))
-                    return String.Format("{0}.{1}(@{2})", Field, comparison, index);
-                else    
-                    return String.Format("({0} != null && {0}.ToString().{1}(@{2}))", Field, comparison, index);                
+                return String.Format("{0} != null && {0}.{1}(@{2})", Field, comparison, index);            
             }
 
             return String.Format("{0} {1} @{2}", Field, comparison, index);
         }
 
         /// <summary>
-        /// Converts the filter expression to a predicate suitable for Dynamic Linq e.g. "Field1 = @1 and Field2.Contains(@2)"
+        /// Converts the filter to a lambda expression suitable for IQueryable e.g. "(p.Field1.Name.Contains("AnyString")) AndAlso (p.Field2 > 100)"
         /// </summary>
+        /// <param name="parameter">Parameter expression</param>
         /// <param name="filters">A list of flattened filters.</param>
         public Expression ToLambdaExpression<T>(ParameterExpression parameter, IList<Filter> filters)
         {
@@ -238,29 +230,38 @@ namespace Kendo.DynamicLinqCore
             {
                 case "contains":
                 case "doesnotcontain":
-                    var containsMethod = typeof(String).GetMethod("Contains", new[] { typeof(String) });
-                    var containsExpression = Expression.Call(left, containsMethod, Expression.Constant(Value, typeof(String)));                    
-                    if(Operator == "contains") 
-                        resultExpression = containsExpression;
-                    else 
-                        resultExpression = Expression.Not(containsExpression);
-                    break;    
-                    //return Operator == "contains" 
-                    //       ? Expression.Lambda<Func<T, bool>>(containsExpression, parameter)
-                    //       : Expression.Lambda<Func<T, bool>>(Expression.Not(containsExpression), parameter);
-
+                case "startswith": 
+                case "endswith":
                 case "isnull":   
-                case "isnotnull":   
+                case "isnotnull":
                     var nullCheckExpression = Expression.Equal(left, Expression.Constant(null, currentPropertyType));
-                    if(Operator == "isnull") 
-                        resultExpression = nullCheckExpression;
-                    else 
-                        resultExpression = Expression.Not(nullCheckExpression);
-                    break;   
 
-                    //return Operator == "isnull" 
-                    //       ? Expression.Lambda<Func<T, bool>>(nullCheckExpression, parameter)
-                    //       : Expression.Lambda<Func<T, bool>>(Expression.Not(nullCheckExpression), parameter);         
+                    if(Operator == "contains" || Operator == "doesnotcontain") 
+                    {
+                        var containsMethod = typeof(String).GetMethod("Contains", new[] { typeof(String) });
+                        var containsExpression = Expression.Call(left, containsMethod, Expression.Constant(Value, typeof(String)));
+                        if(Operator == "contains") 
+                            resultExpression = Expression.AndAlso(Expression.Not(nullCheckExpression), containsExpression);
+                        else
+                            resultExpression = Expression.AndAlso(Expression.Not(nullCheckExpression), Expression.Not(containsExpression));
+                    }
+                    else if(Operator == "startswith")
+                    {
+                        var startswithMethod = typeof(String).GetMethod("StartsWith", new[] { typeof(String) });                        
+                        var startswithExpression = Expression.Call(left, startswithMethod, Expression.Constant(Value, typeof(String)));
+                        resultExpression = Expression.AndAlso(Expression.Not(nullCheckExpression), startswithExpression);
+                    }
+                    else if(Operator == "endswith")
+                    {
+                        var endswithMethod = typeof(String).GetMethod("EndsWith", new[] { typeof(String) });                        
+                        var endswithExpression = Expression.Call(left, endswithMethod, Expression.Constant(Value, typeof(String)));
+                        resultExpression = Expression.AndAlso(Expression.Not(nullCheckExpression), endswithExpression);
+                    }
+                    else if(Operator == "isnull") 
+                        resultExpression = nullCheckExpression;
+                    else // Operator == "isnotnull"
+                        resultExpression = Expression.Not(nullCheckExpression);
+                    break;    
 
                 case "isempty":   
                 case "isnotempty":
@@ -270,10 +271,6 @@ namespace Kendo.DynamicLinqCore
                     else 
                         resultExpression = Expression.Not(emptyCheckExpression);
                     break;
-
-                    //return Operator == "isempty" 
-                    //   ? Expression.Lambda<Func<T, bool>>(emptyCheckExpression, parameter)
-                    //   : Expression.Lambda<Func<T, bool>>(Expression.Not(emptyCheckExpression), parameter);
         
                 case "isnullorempty":   
                 case "isnotnullorempty":
@@ -283,25 +280,7 @@ namespace Kendo.DynamicLinqCore
                         resultExpression = nullOrEmptyExpression;
                     else 
                         resultExpression = Expression.Not(nullOrEmptyExpression);
-                    break; 
-                    
-                    //return Operator == "isnullorempty"
-                    //        ? Expression.Lambda<Func<T, bool>>(nullOrEmptyExpression, parameter)
-                    //        : Expression.Lambda<Func<T, bool>>(Expression.Not(nullOrEmptyExpression), parameter);
-
-                case "startswith": 
-                    var startswithMethod = typeof(String).GetMethod("StartsWith", new[] { typeof(String) });                        
-                    var startswithExpression = Expression.Call(left, startswithMethod, Expression.Constant(Value, typeof(String)));
-                    resultExpression = startswithExpression;
-                    break; 
-                    //return Expression.Lambda<Func<T, bool>>(startswithExpression, parameter);
-                
-                case "endswith": 
-                    var endswithMethod = typeof(String).GetMethod("EndsWith", new[] { typeof(String) });                        
-                    var endswithExpression = Expression.Call(left, endswithMethod, Expression.Constant(Value, typeof(String)));
-                    resultExpression = endswithExpression;
-                    break; 
-                    //return Expression.Lambda<Func<T, bool>>(endswithExpression, parameter);
+                    break;
 
                 case "eq":
                 case "neq":
@@ -323,13 +302,11 @@ namespace Kendo.DynamicLinqCore
                     break;
 
                 case "gt":  
-                    var greaterThanCheckExpression = Expression.GreaterThan(left, Expression.Constant(Value, currentPropertyType));
-                    resultExpression = greaterThanCheckExpression;
+                    resultExpression = Expression.GreaterThan(left, Expression.Constant(Value, currentPropertyType));
                     break;
 
                 case "gte":   
-                    var greaterThanEqualCheckExpression = Expression.GreaterThanOrEqual(left, Expression.Constant(Value, currentPropertyType));
-                    resultExpression = greaterThanEqualCheckExpression;
+                    resultExpression = Expression.GreaterThanOrEqual(left, Expression.Constant(Value, currentPropertyType));
                     break;
 
                 default:
@@ -339,16 +316,24 @@ namespace Kendo.DynamicLinqCore
             return resultExpression;
         }
 
-        private static Type GetLastPropertyType(Type type, string path)
+        internal static Type GetLastPropertyType(Type type, string path)
         {
-            Type currentType = type;
+            Type currentType = type;  
 
+            /* Used in versions above 3.1.0 */         
             foreach (string propertyName in path.Split('.'))
             {
                 PropertyInfo property = currentType.GetProperty(propertyName);
                 currentType = property.PropertyType;
             }
 
+            /* Used in versions under 2.2.2 */
+            //foreach (string propertyName in path.Split('.'))
+            //{
+            //    var typeProperties = currentType.GetRuntimeProperties();
+            //    currentType = typeProperties.FirstOrDefault(f => f.Name.Equals(propertyName, StringComparison.OrdinalIgnoreCase))?.PropertyType;
+            //}
+            
             return currentType;
         }
     }

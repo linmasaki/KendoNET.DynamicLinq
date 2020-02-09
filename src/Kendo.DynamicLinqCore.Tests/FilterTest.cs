@@ -83,5 +83,20 @@ namespace Kendo.DynamicLinqCore.Tests
             Assert.AreEqual(3, result.Total);
         }
 
+        [Test]
+        public void InputDataSourceRequest_ManyFilters_CheckResultCount2()
+        {
+            // source string = {"take":10,"skip":0,"filter":{"logic":"and","filters":[{"field":"Birthday","operator":"gt","value":"1980-11-05T00:00:00.000Z"},{"logic":"and","filters":[{"field":"Salary","operator":"gte","value":1000},{"field":"Salary","operator":"lte","value":6000}]}]}}
+
+            #if NETCOREAPP3_1
+                var request = JsonSerializer.Deserialize<DataSourceRequest>("{\"take\":10,\"skip\":0,\"filter\":{\"logic\":\"and\",\"filters\":[{\"field\":\"Birthday\",\"operator\":\"gt\",\"value\":\"1970-11-05T00:00:00.000Z\"},{\"logic\":\"and\",\"filters\":[{\"field\":\"Weight\",\"operator\":\"gt\",\"value\":50},{\"field\":\"Weight\",\"operator\":\"lt\",\"value\":81.9}]}]}}", jsonSerializerOptions);            
+            #else
+                var request = JsonConvert.DeserializeObject<DataSourceRequest>("{\"take\":10,\"skip\":0,\"filter\":{\"logic\":\"and\",\"filters\":[{\"field\":\"Birthday\",\"operator\":\"gt\",\"value\":\"1970-11-05T00:00:00.000Z\"},{\"logic\":\"and\",\"filters\":[{\"field\":\"Weight\",\"operator\":\"gt\",\"value\":50},{\"field\":\"Weight\",\"operator\":\"lt\",\"value\":81.9}]}]}}");
+            #endif
+
+            var result = _dbContext.Employee.AsQueryable().ToDataSourceResult(request);
+            Assert.AreEqual(3, result.Total);
+        }
+
     }
 }

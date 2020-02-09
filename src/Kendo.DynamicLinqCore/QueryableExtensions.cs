@@ -53,7 +53,7 @@ namespace Kendo.DynamicLinqCore
             var errors = new List<object>();
 
             // Filter the data first
-            queryable = Filter(queryable, filter, errors);
+            queryable = Filters(queryable, filter, errors);
 
             // Calculate the total number of records (needed for paging)            
             var total = queryable.Count();
@@ -111,24 +111,22 @@ namespace Kendo.DynamicLinqCore
             return result;
         }
         
-        private static IQueryable<T> Filter<T>(IQueryable<T> queryable, Filter filter, List<object> errors)
+        private static IQueryable<T> Filters<T>(IQueryable<T> queryable, Filter filter, List<object> errors)
         {
             if (filter?.Logic != null)
             {
                 // Pretreatment some work
-                filter = PreliminaryWork(filter);
+                filter = PreliminaryWork(typeof(T),filter);
                 
                 // Collect a flat list of all filters
                 var filters = filter.All();
 
-                // Get all filter values as array (needed by the Where method of Dynamic Linq)
-                var values = filters.Select(f => f.Value).ToArray();
-
+                /* Used in versions under 2.2.2 */
                 string predicate;
                 try 
                 {
                     // Create a predicate expression e.g. Field1 = @0 And Field2 > @1
-                    predicate = filter.ToExpression(typeof(T),filters);          
+                    predicate = filter.ToExpression(typeof(T), filters);          
                 }
                 catch(Exception ex)
                 {
@@ -136,21 +134,32 @@ namespace Kendo.DynamicLinqCore
                     return queryable;
                 }
 
+                // Get all filter values as array (needed by the Where method of Dynamic Linq)
+                var values = filters.Select(f => f.Value).ToArray();
+
                 // Use the Where method of Dynamic Linq to filter the data
-                //queryable = queryable.Where(predicate, values);     
+                queryable = queryable.Where(predicate, values);     
 
 
-                // p
-                var parameter = Expression.Parameter(typeof(T), "p");
-                
-                // p.Parent.Name == "CoCo"
-                var expression = filter.ToLambdaExpression<T>(parameter, filters);  
+                /* Used in versions above 3.1.0 */
+                // Step.1 Create a parameter "p"
+                //var parameter = Expression.Parameter(typeof(T), "p");
 
-                // p => p.Parent.Name == "CoCo"
-                var predicateExpression = Expression.Lambda<Func<T, bool>>(expression, parameter);
-                queryable = queryable.Where(predicateExpression); 
+                // Step.2 Make up expression e.g. (p.Number >= 3) AndAlso (p.Company.Name.Contains("M"))
+                //Expression expression;
+                //try 
+                //{
+                //    expression = filter.ToLambdaExpression<T>(parameter, filters);         
+                //}
+                //catch(Exception ex)
+                //{
+                //    errors.Add(ex.Message);
+                //    return queryable;
+                //} 
 
-                Console.WriteLine(expression.ToString());
+                // Step.3 The result is e.g. p => (p.Number >= 3) AndAlso (p.Company.Name.Contains("M"))
+                //var predicateExpression = Expression.Lambda<Func<T, bool>>(expression, parameter);
+                //queryable = queryable.Where(predicateExpression);
             }
 
             return queryable;
@@ -231,72 +240,79 @@ namespace Kendo.DynamicLinqCore
         /// </summary>
         /// <param name="filter"></param>
         /// <returns></returns>
-        private static Filter PreliminaryWork(Filter filter)
+        private static Filter PreliminaryWork(Type type, Filter filter)
         {
             if (filter.Filters != null && filter.Logic != null)
             {
                 var newFilters = new List<Filter>();
                 foreach (var f in filter.Filters)
                 {
-                    newFilters.Add(PreliminaryWork(f));
+                    newFilters.Add(PreliminaryWork(type, f));
                 }
 
                 filter.Filters = newFilters;
             }
 
-            // Convert datetime string
-            if(DateTime.TryParse(filter.Value?.ToString(), out DateTime dateTime))
+            if(filter.Value == null) return filter;
+            
+            // When we have a decimal value, it gets converted to an integer/double that will result in the query break
+            var currentPropertyType = Filter.GetLastPropertyType(type, filter.Field);
+            if((currentPropertyType == typeof(decimal)) && decimal.TryParse(filter.Value.ToString(), out decimal number))
+            {               
+                filter.Value = number;
+                return filter;
+            }
+
+            // if(currentPropertyType.GetTypeInfo().IsEnum && int.TryParse(filter.Value.ToString(), out int enumValue))
+            // {           
+            //     filter.Value = Enum.ToObject(currentPropertyType, enumValue);
+            //     return filter;
+            // }
+
+            // Convert datetime-string to DateTime
+            if(currentPropertyType == typeof(DateTime) && DateTime.TryParse(filter.Value.ToString(), out DateTime dateTime))
             {
                 filter.Value = dateTime;
-            }
-            
-            // Used when the datetime's operator value is eq and local time is 00:00:00 
-            if (filter.Value is DateTime utcTime && filter.Operator == "eq")
-            {
-                // Copy the time from the filter
-                var localTime = utcTime.ToLocalTime();
-                if (localTime.Hour != 0 || localTime.Minute != 0 || localTime.Second != 0) 
-                    return filter;
-                
-                var newFilter = new Filter { Logic = "and"};
-                var filtersList = new List<Filter>
-                {
-                    // Instead of comparing for exact equality, we compare as greater than the start of the day...
-                    new Filter
-                    {
-                        Field = filter.Field,
-                        Filters = filter.Filters,
-                        Value = new DateTime(localTime.Year, localTime.Month, localTime.Day, 0, 0, 0),  
-                        Operator = "gte"
-                    },
-                    // ...and less than the end of that same day (we're making an additional filter here)
-                    new Filter
-                    {
-                        Field = filter.Field,
-                        Filters = filter.Filters,
-                        Value = new DateTime(localTime.Year, localTime.Month, localTime.Day, 23, 59, 59),  
-                        Operator = "lte"
-                    }
-                };
 
-                newFilter.Filters = filtersList;
-                    
-                return newFilter;
-            }
-            
-            // Convert datetime to local 
-            if(filter.Value is DateTime utcTime2)
-            {
-                var localTime = utcTime2.ToLocalTime();
+                // Copy the time from the filter
+                var localTime = dateTime.ToLocalTime();
+
+                // Used when the datetime's operator value is eq and local time is 00:00:00 
+                if (filter.Operator == "eq")
+                {
+                    if (localTime.Hour != 0 || localTime.Minute != 0 || localTime.Second != 0) 
+                        return filter;
+
+                    var newFilter = new Filter { Logic = "and"};
+                    var filtersList = new List<Filter>
+                    {
+                        // Instead of comparing for exact equality, we compare as greater than the start of the day...
+                        new Filter
+                        {
+                            Field = filter.Field,
+                            Filters = filter.Filters,
+                            Value = new DateTime(localTime.Year, localTime.Month, localTime.Day, 0, 0, 0),  
+                            Operator = "gte"
+                        },
+                        // ...and less than the end of that same day (we're making an additional filter here)
+                        new Filter
+                        {
+                            Field = filter.Field,
+                            Filters = filter.Filters,
+                            Value = new DateTime(localTime.Year, localTime.Month, localTime.Day, 23, 59, 59),  
+                            Operator = "lte"
+                        }
+                    };
+
+                    newFilter.Filters = filtersList;
+
+                    return newFilter;
+                }
+
+                // Convert datetime to local 
                 filter.Value = new DateTime(localTime.Year, localTime.Month, localTime.Day, localTime.Hour, localTime.Minute, localTime.Second, localTime.Millisecond);
             }
-
-            // When we have a decimal value it gets converted to double and the query will break
-            if(filter.Value is double)
-            {               
-                filter.Value = Convert.ToDecimal(filter.Value);
-            }
-
+            
             return filter;
         }
         

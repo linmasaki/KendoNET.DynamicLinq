@@ -40,7 +40,7 @@ namespace Kendo.DynamicLinqCore.Tests
                     return l;
                 }
 
-                return reader.GetDecimal();
+                return reader.GetDouble();
             }
 
             if (reader.TokenType == JsonTokenType.String)
