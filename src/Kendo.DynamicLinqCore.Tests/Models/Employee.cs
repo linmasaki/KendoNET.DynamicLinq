@@ -13,6 +13,8 @@ namespace Kendo.DynamicLinqCore.Tests.Models
 
         public Guid? Identification { get; set; }
 
+        public Gender Gender { get; set; }
+
         public string Introduce { get; set; }
 
         public DateTime Birthday {get; set;}

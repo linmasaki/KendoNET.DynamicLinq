@@ -11,7 +11,7 @@ namespace Kendo.DynamicLinqCore
         public object Value { get; set; }
 
         public string SelectorField { get; set; }
-        
+
         [DataMember(Name = "field")]
         public string Field
         {

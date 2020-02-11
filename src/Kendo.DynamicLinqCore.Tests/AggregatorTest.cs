@@ -50,7 +50,7 @@ namespace Kendo.DynamicLinqCore.Tests
         }
 
         [Test]
-        public void InputParameter_SalarySum_CheckResultAggregates()
+        public void InputParameter_DecimalSum_CheckResultObjectString()
         {
             var result = _dbContext.Employee.AsQueryable().ToDataSourceResult(10, 0, null, null, new[]
             {
@@ -66,7 +66,7 @@ namespace Kendo.DynamicLinqCore.Tests
         }
 
         [TestCaseSource(nameof(DataSourceRequestWithAggregateSalarySum))]
-        public void InputDataSourceRequest_SalarySum_CheckResultAggregates(DataSourceRequest dataSourceRequest)
+        public void InputDataSourceRequest_DecimalSum_CheckResultObjectString(DataSourceRequest dataSourceRequest)
         {
             var result = _dbContext.Employee.AsQueryable().ToDataSourceResult(dataSourceRequest);
 
@@ -75,21 +75,21 @@ namespace Kendo.DynamicLinqCore.Tests
         }
 
         [TestCaseSource(nameof(DataSourceRequestWithAggregateSalarySum))]
-        public void InputDataSourceRequest_SalarySum_CheckResultSalarySum(DataSourceRequest dataSourceRequest)
+        public void InputDataSourceRequest_DecimalSum_CheckResultSum(DataSourceRequest dataSourceRequest)
         {
             var result = _dbContext.Employee.AsQueryable().ToDataSourceResult(dataSourceRequest);
             var salaryAggregates = result.Aggregates.GetType().GetProperty("Salary")?.GetValue(result.Aggregates, null);
             var salarySum = salaryAggregates?.GetType().GetProperty("sum")?.GetValue(salaryAggregates, null);
 
-            decimal expectedSalarySum = 14850;
-            Assert.AreEqual(expectedSalarySum, salarySum);  
+            const decimal expectedSalarySum = 14850;
+            Assert.AreEqual(expectedSalarySum, salarySum);
 
-            decimal incorrectSalarySum = 9999;
-            Assert.AreNotEqual(incorrectSalarySum, salarySum);  
+            const decimal incorrectSalarySum = 9999;
+            Assert.AreNotEqual(incorrectSalarySum, salarySum);
         }
 
         [Test]
-        public void InputParameter_ManyAggregates_CheckResultAggregates()
+        public void InputParameter_ManyAggregators_CheckResultObjectString()
         {
             var result = _dbContext.Employee.AsQueryable().ToDataSourceResult(10, 0, null, null, new[]
             {
@@ -107,7 +107,7 @@ namespace Kendo.DynamicLinqCore.Tests
                 {
                     Aggregate = "max",
                     Field = "Number"
-                },                
+                },
             }, null);
 
             object expectedObject = "{ Salary = { sum = 14850, average = 2970 }, Number = { max = 5 } }";
@@ -115,7 +115,7 @@ namespace Kendo.DynamicLinqCore.Tests
         }
 
         [TestCaseSource(nameof(DataSourceRequestWithManyAggregates))]
-        public void InputDataSourceRequest_ManyAggregates_CheckResultAggregates(DataSourceRequest dataSourceRequest)
+        public void InputDataSourceRequest_ManyAggregators_CheckResultObjectString(DataSourceRequest dataSourceRequest)
         {
             var result = _dbContext.Employee.AsQueryable().ToDataSourceResult(dataSourceRequest);
 

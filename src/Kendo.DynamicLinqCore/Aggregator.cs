@@ -39,7 +39,7 @@ namespace Kendo.DynamicLinqCore
                     return GetMethod(ConvertTitleCase(Aggregate), MinMaxFunc().GetMethodInfo(), 2).MakeGenericMethod(type, proptype);
                 case "average":
                 case "sum":
-                    return GetMethod(ConvertTitleCase(Aggregate), 
+                    return GetMethod(ConvertTitleCase(Aggregate),
                            ((Func<Type, Type[]>)GetType().GetMethod("SumAvgFunc", BindingFlags.Static | BindingFlags.NonPublic).MakeGenericMethod(proptype).Invoke(null, null))
                            .GetMethodInfo(), 1).MakeGenericMethod(type);
                 case "count":
@@ -49,7 +49,7 @@ namespace Kendo.DynamicLinqCore
 
             return null;
         }
-        
+
         private static string ConvertTitleCase(string str)
         {
             var tokens = str.Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries);
@@ -65,7 +65,7 @@ namespace Kendo.DynamicLinqCore
         private static MethodInfo GetMethod(string methodName, MethodInfo methodTypes, int genericArgumentsCount)
         {
             var methods = from method in typeof(Queryable).GetMethods(BindingFlags.Public | BindingFlags.Static)
-                          let parameters = method.GetParameters()                
+                          let parameters = method.GetParameters()
                           let genericArguments = method.GetGenericArguments()
                           where method.Name == methodName &&
                           genericArguments.Length == genericArgumentsCount &&
@@ -128,6 +128,6 @@ namespace Kendo.DynamicLinqCore
                 typeof (Expression<>).MakeGenericType(typeof (Func<,>).MakeGenericType(t, typeof(TU)))
             };
         }
-        
+
     }
 }
