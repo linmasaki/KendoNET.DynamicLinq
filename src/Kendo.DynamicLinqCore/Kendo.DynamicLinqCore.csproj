@@ -9,7 +9,7 @@
     <AssemblyName>Kendo.DynamicLinqCore</AssemblyName>
     <Title>Kendo.DynamicLinqCore</Title>
     <Authors>CoCo Lin</Authors>
-    <Description>Kendo.DynamicLinqCore implements server paging, filtering, sorting, grouping and aggregating to Kendo UI via Dynamic Linq for .Net Core App(1.x ~ 2.x).
+    <Description>Kendo.DynamicLinqCore implements server paging, filtering, sorting, grouping and aggregating to Kendo UI via Dynamic Linq for .Net Core App(1.x ~ 3.x).
 
 Supported platforms:
 
@@ -23,13 +23,16 @@ Supported platforms:
     </Description>
     <PackageReleaseNotes>
     
-1. Remove "Append" and "Prepend" method of IEnumeration extension. (.NET Standard built-in).
-2. Remove the duplicate "Aggregates" method.
+1. Fixed issue that the LINQ query with sub-property can't be translated and will be evaluated locally.
+2. Amend the issue that the method "ToDataSourceResult%3CT%3E(this IQueryable%3CT%3E queryable, DataSourceRequest request)" would ignore the aggregator parameter.
+
+Full changelog: https://github.com/linmasaki/Kendo.DynamicLinqCore/blob/master/CHANGELOG.md
 
     </PackageReleaseNotes>
     <PackageProjectUrl>https://github.com/linmasaki/Kendo.DynamicLinqCore</PackageProjectUrl>
     <RepositoryUrl>https://github.com/linmasaki/Kendo.DynamicLinqCore</RepositoryUrl>
     <PackageIconUrl>https://raw.githubusercontent.com/linmasaki/CoCoPackageIcon/master/cocodotnet64.png</PackageIconUrl>
+    <PackageIcon>Icon.png</PackageIcon>
     <PackageTags>netcore netstandard kendo kendo-ui linq dynamic</PackageTags>
     <PackageVersion>3.1.0</PackageVersion>
     <Version>3.1.0</Version>
@@ -49,6 +52,7 @@ Supported platforms:
 
   <ItemGroup>
     <None Include="../../LICENSE" Pack="true" PackagePath="" />
+    <None Include="../../Icon.png" Pack="true" PackagePath="" />
   </ItemGroup>
 
 </Project>
