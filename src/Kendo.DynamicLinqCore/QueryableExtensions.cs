@@ -23,19 +23,19 @@ namespace Kendo.DynamicLinqCore
         {
             return queryable.ToDataSourceResult(take, skip, sort, filter, null, null);
         }
-        
+
         /// <summary>
         ///  Applies data processing (paging, sorting and filtering) over IQueryable using Dynamic Linq.
         /// </summary>
         /// <typeparam name="T">The type of the IQueryable.</typeparam>
         /// <param name="queryable">The IQueryable which should be processed.</param>
-        /// <param name="request">The DataSourceRequest object containing take, skip, order, and filter data.</param>
+        /// <param name="request">The DataSourceRequest object containing take, skip, sort, filter, aggregates, and groups data.</param>
         /// <returns>A DataSourceResult object populated from the processed IQueryable.</returns>
         public static DataSourceResult ToDataSourceResult<T>(this IQueryable<T> queryable, DataSourceRequest request)
         {
-            return queryable.ToDataSourceResult(request.Take, request.Skip, request.Sort, request.Filter, null, request.Group);
+            return queryable.ToDataSourceResult(request.Take, request.Skip, request.Sort, request.Filter, request.Aggregate, request.Group);
         }
-        
+
         /// <summary>
         /// Applies data processing (paging, sorting, filtering and aggregates) over IQueryable using Dynamic Linq.
         /// </summary>
@@ -49,11 +49,11 @@ namespace Kendo.DynamicLinqCore
         /// <param name="group">Specifies the current groups.</param>
         /// <returns>A DataSourceResult object populated from the processed IQueryable.</returns>
         public static DataSourceResult ToDataSourceResult<T>(this IQueryable<T> queryable, int take, int skip, IEnumerable<Sort> sort, Filter filter, IEnumerable<Aggregator> aggregates, IEnumerable<Group> group)
-        {            
+        {
             var errors = new List<object>();
 
             // Filter the data first
-            queryable = Filter(queryable, filter, errors);
+            queryable = Filters(queryable, filter, errors);
 
             // Calculate the total number of records (needed for paging)            
             var total = queryable.Count();
@@ -61,11 +61,11 @@ namespace Kendo.DynamicLinqCore
             // Calculate the aggregates
             var aggregate = Aggregates(queryable, aggregates);
 
-            if (group != null && group.Any())
+            if (group?.Any() == true)
             {
                 //if(sort == null) sort = GetDefaultSort(queryable.ElementType, sort);
                 if(sort == null) sort = new List<Sort>();
-                
+
                 foreach (var source in group.Reverse())
                 {
                     sort = sort.Append(new Sort
@@ -92,7 +92,7 @@ namespace Kendo.DynamicLinqCore
             };
 
             // Group By
-            if ((group != null) && group.Any())
+            if (group?.Any() == true)
             {
                 //result.Groups = queryable.ToList().GroupByMany(group);                
                 result.Groups = queryable.GroupByMany(group);
@@ -103,32 +103,30 @@ namespace Kendo.DynamicLinqCore
             }
 
             // Set errors if any
-            if(errors.Any())
+            if(errors.Count > 0)
             {
                 result.Errors = errors;
             }
-            
+
             return result;
         }
-        
-        private static IQueryable<T> Filter<T>(IQueryable<T> queryable, Filter filter, List<object> errors)
+
+        private static IQueryable<T> Filters<T>(IQueryable<T> queryable, Filter filter, List<object> errors)
         {
-            if ((filter != null) && (filter.Logic != null))
+            if (filter?.Logic != null)
             {
                 // Pretreatment some work
-                filter = PreliminaryWork(filter);
-                
+                filter = PreliminaryWork(typeof(T),filter);
+
                 // Collect a flat list of all filters
                 var filters = filter.All();
 
-                // Get all filter values as array (needed by the Where method of Dynamic Linq)
-                var values = filters.Select(f => f.Value).ToArray();
-
+                /* Method.1 Use the combined expression string */
+                // Step.1 Create a predicate expression e.g. Field1 = @0 And Field2 > @1
                 string predicate;
-                try 
+                try
                 {
-                    // Create a predicate expression e.g. Field1 = @0 And Field2 > @1
-                    predicate = filter.ToExpression(typeof(T),filters);                     
+                    predicate = filter.ToExpression(typeof(T), filters);
                 }
                 catch(Exception ex)
                 {
@@ -136,8 +134,31 @@ namespace Kendo.DynamicLinqCore
                     return queryable;
                 }
 
-                // Use the Where method of Dynamic Linq to filter the data
+                // Step.2 Get all filter values as array (needed by the Where method of Dynamic Linq)
+                var values = filters.Select(f => f.Value).ToArray();
+
+                // Step.3 Use the Where method of Dynamic Linq to filter the data
                 queryable = queryable.Where(predicate, values);
+
+                /* Method.2 Use the combined lambda expression */
+                // Step.1 Create a parameter "p"
+                //var parameter = Expression.Parameter(typeof(T), "p");
+
+                // Step.2 Make up expression e.g. (p.Number >= 3) AndAlso (p.Company.Name.Contains("M"))
+                //Expression expression;
+                //try 
+                //{
+                //    expression = filter.ToLambdaExpression<T>(parameter, filters);         
+                //}
+                //catch(Exception ex)
+                //{
+                //    errors.Add(ex.Message);
+                //    return queryable;
+                //} 
+
+                // Step.3 The result is e.g. p => (p.Number >= 3) AndAlso (p.Company.Name.Contains("M"))
+                //var predicateExpression = Expression.Lambda<Func<T, bool>>(expression, parameter);
+                //queryable = queryable.Where(predicateExpression);
             }
 
             return queryable;
@@ -145,7 +166,7 @@ namespace Kendo.DynamicLinqCore
 
         internal static object Aggregates<T>(IQueryable<T> queryable, IEnumerable<Aggregator> aggregates)
         {
-            if (aggregates != null && aggregates.Any())
+            if (aggregates?.Any() == true)
             {
                 var objProps = new Dictionary<DynamicProperty, object>();
                 var groups = aggregates.GroupBy(g => g.Field);
@@ -170,7 +191,7 @@ namespace Kendo.DynamicLinqCore
 
                         fieldProps.Add(new DynamicProperty(aggregate.Aggregate, typeof(object)), val);
                     }
-                    
+
                     type = DynamicClassFactory.CreateType(fieldProps.Keys.ToList());
                     var fieldObj = Activator.CreateInstance(type);
                     foreach (var p in fieldProps.Keys)
@@ -190,13 +211,13 @@ namespace Kendo.DynamicLinqCore
 
                 return obj;
             }
-            
+
             return null;
         }
 
         private static IQueryable<T> Sort<T>(IQueryable<T> queryable, IEnumerable<Sort> sort)
         {
-            if (sort != null && sort.Any())
+            if (sort?.Any() == true)
             {
                 // Create ordering expression e.g. Field1 asc, Field2 desc
                 var ordering = string.Join(",", sort.Select(s => s.ToExpression()));
@@ -209,80 +230,90 @@ namespace Kendo.DynamicLinqCore
         }
 
         private static IQueryable<T> Page<T>(IQueryable<T> queryable, int take, int skip)
-        {            
-            return queryable.Skip(skip).Take(take); 
+        {
+            return queryable.Skip(skip).Take(take);
         }
 
         /// <summary>
-        /// Pretreatment of specific datetime condition and disallowed value type 
+        /// Pretreatment of specific DateTime type and convert some illegal value type
         /// </summary>
         /// <param name="filter"></param>
-        /// <returns></returns>
-        private static Filter PreliminaryWork(Filter filter)
+        private static Filter PreliminaryWork(Type type, Filter filter)
         {
             if (filter.Filters != null && filter.Logic != null)
             {
                 var newFilters = new List<Filter>();
                 foreach (var f in filter.Filters)
                 {
-                    newFilters.Add(PreliminaryWork(f));
+                    newFilters.Add(PreliminaryWork(type, f));
                 }
 
                 filter.Filters = newFilters;
             }
-            
-            // Used when the datetime's operator value is eq and local time is 00:00:00 
-            if (filter.Value is DateTime utcTime && filter.Operator == "eq")
+
+            if(filter.Value == null) return filter;
+
+            // When we have a decimal value, it gets converted to an integer/double that will result in the query break
+            var currentPropertyType = Filter.GetLastPropertyType(type, filter.Field);
+            if((currentPropertyType == typeof(decimal)) && decimal.TryParse(filter.Value.ToString(), out decimal number))
             {
+                filter.Value = number;
+                return filter;
+            }
+
+            // if(currentPropertyType.GetTypeInfo().IsEnum && int.TryParse(filter.Value.ToString(), out int enumValue))
+            // {           
+            //     filter.Value = Enum.ToObject(currentPropertyType, enumValue);
+            //     return filter;
+            // }
+
+            // Convert datetime-string to DateTime
+            if(currentPropertyType == typeof(DateTime) && DateTime.TryParse(filter.Value.ToString(), out DateTime dateTime))
+            {
+                filter.Value = dateTime;
+
                 // Copy the time from the filter
-                var localTime = utcTime.ToLocalTime();
-                if (localTime.Hour != 0 || localTime.Minute != 0 || localTime.Second != 0) 
-                    return filter;
-                
-                var newFilter = new Filter { Logic = "and"};
-                var filtersList = new List<Filter>
+                var localTime = dateTime.ToLocalTime();
+
+                // Used when the datetime's operator value is eq and local time is 00:00:00 
+                if (filter.Operator == "eq")
                 {
-                    // Instead of comparing for exact equality, we compare as greater than the start of the day...
-                    new Filter
-                    {
-                        Field = filter.Field,
-                        Filters = filter.Filters,
-                        Value = new DateTime(localTime.Year, localTime.Month, localTime.Day, 0, 0, 0),  
-                        Operator = "gte"
-                    },
-                    // ...and less than the end of that same day (we're making an additional filter here)
-                    new Filter
-                    {
-                        Field = filter.Field,
-                        Filters = filter.Filters,
-                        Value = new DateTime(localTime.Year, localTime.Month, localTime.Day, 23, 59, 59),  
-                        Operator = "lte"
-                    }
-                };
+                    if (localTime.Hour != 0 || localTime.Minute != 0 || localTime.Second != 0)
+                        return filter;
 
-                newFilter.Filters = filtersList;
-                    
-                return newFilter;
-            }
-            
-            // Convert datetime to local 
-            if(filter.Value is DateTime utcTime2)
-            {
-                var localTime = utcTime2.ToLocalTime();
+                    var newFilter = new Filter { Logic = "and"};
+                    newFilter.Filters = new List<Filter>
+                    {
+                        // Instead of comparing for exact equality, we compare as greater than the start of the day...
+                        new Filter
+                        {
+                            Field = filter.Field,
+                            Filters = filter.Filters,
+                            Value = new DateTime(localTime.Year, localTime.Month, localTime.Day, 0, 0, 0),
+                            Operator = "gte"
+                        },
+                        // ...and less than the end of that same day (we're making an additional filter here)
+                        new Filter
+                        {
+                            Field = filter.Field,
+                            Filters = filter.Filters,
+                            Value = new DateTime(localTime.Year, localTime.Month, localTime.Day, 23, 59, 59),
+                            Operator = "lte"
+                        }
+                    };
+
+                    return newFilter;
+                }
+
+                // Convert datetime to local 
                 filter.Value = new DateTime(localTime.Year, localTime.Month, localTime.Day, localTime.Hour, localTime.Minute, localTime.Second, localTime.Millisecond);
-            }
-
-            // When we have a decimal value it gets converted to double and the query will break
-            if(filter.Value is Double)
-            {               
-                filter.Value = Convert.ToDecimal(filter.Value);
             }
 
             return filter;
         }
-        
+
         /// <summary>
-        /// The way this extension works it pages the records using skip and take in order to do that we need at least one sorted property.
+        /// The way this extension works it pages the records using skip and takes to do that we need at least one sort property.
         /// </summary>
         private static IEnumerable<Sort> GetDefaultSort(Type type, IEnumerable<Sort> sort)
         {
@@ -290,29 +321,30 @@ namespace Kendo.DynamicLinqCore
             {
                 var elementType = type;
                 var properties = elementType.GetProperties().ToList();
-                
+
                 //by default make dir desc
                 var sortByObject = new Sort
                 {
                     Dir = "desc"
                 };
 
-                PropertyInfo propertyInfo;                
+                PropertyInfo propertyInfo;
                 //look for property that is called id
-                if (properties.Any(p => p.Name.ToLower() == "id"))
+                if (properties.Any(p => string.Equals(p.Name, "id", StringComparison.OrdinalIgnoreCase)))
                 {
-                    propertyInfo = properties.FirstOrDefault(p => p.Name.ToLower() == "id");
+                    propertyInfo = properties.FirstOrDefault(p => string.Equals(p.Name, "id", StringComparison.OrdinalIgnoreCase));
                 }
                 //or contains id
-                else if (properties.Any(p => p.Name.ToLower().Contains("id")))
+                else if (properties.Any(p => p.Name.IndexOf("id", StringComparison.OrdinalIgnoreCase) >= 0))
                 {
-                    propertyInfo = properties.FirstOrDefault(p => p.Name.ToLower().Contains("id"));
+                    propertyInfo = properties.FirstOrDefault(p => p.Name.IndexOf("id", StringComparison.OrdinalIgnoreCase) >= 0);
                 }
                 //or just get the first property
                 else
                 {
                     propertyInfo = properties.FirstOrDefault();
                 }
+
                 if (propertyInfo != null)
                 {
                     sortByObject.Field = propertyInfo.Name;
@@ -322,6 +354,6 @@ namespace Kendo.DynamicLinqCore
 
             return sort;
         }
-    }
 
+    }
 }

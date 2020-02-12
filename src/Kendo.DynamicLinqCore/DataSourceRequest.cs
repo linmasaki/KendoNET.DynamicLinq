@@ -18,7 +18,7 @@ namespace Kendo.DynamicLinqCore
         /// Specifies the requested sort order.
         /// </summary>
         public IEnumerable<Sort> Sort { get; set; }
-        
+
         /// <summary>
         /// Specifies the requested filter.
         /// </summary>

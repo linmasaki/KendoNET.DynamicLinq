@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Kendo.DynamicLinqCore.Tests.Models
 {
@@ -12,10 +13,18 @@ namespace Kendo.DynamicLinqCore.Tests.Models
 
         public Guid? Identification { get; set; }
 
+        public Gender Gender { get; set; }
+
         public string Introduce { get; set; }
 
         public DateTime Birthday {get; set;}
 
-        public Decimal Salary {get; set;}
+        public decimal Salary {get; set;}
+
+        public double Weight {get; set;}
+
+        public Guid? CompanyId { get; set; }
+        [ForeignKey("CompanyId")]
+        public virtual Company Company { get; set; }
     }
 }

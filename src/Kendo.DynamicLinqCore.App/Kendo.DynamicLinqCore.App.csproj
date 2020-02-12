@@ -2,12 +2,14 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>netcoreapp1.0;netcoreapp2.1</TargetFrameworks>
+    <TargetFrameworks>netcoreapp1.0;netcoreapp2.1;netcoreapp3.1</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp1.0'"></ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp2.1'"></ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp3.1'"></ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="../Kendo.DynamicLinqCore/Kendo.DynamicLinqCore.csproj" />

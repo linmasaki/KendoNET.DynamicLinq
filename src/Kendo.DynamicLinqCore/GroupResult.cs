@@ -2,16 +2,16 @@
 
 namespace Kendo.DynamicLinqCore
 {
-    //The response format of the group schema : https://docs.telerik.com/kendo-ui/api/javascript/data/datasource/configuration/schema#schemagroups
+    // The response format of the group schema : https://docs.telerik.com/kendo-ui/api/javascript/data/datasource/configuration/schema#schemagroups
     [DataContract(Name = "groupresult")]
     public class GroupResult
     {
-        //Small letter properties are kendo js properties so please excuse the warnings
+        // Small letter properties are kendo js properties so please excuse the warnings
         [DataMember(Name = "value")]
         public object Value { get; set; }
 
         public string SelectorField { get; set; }
-        
+
         [DataMember(Name = "field")]
         public string Field
         {

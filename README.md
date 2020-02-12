@@ -7,6 +7,12 @@
 ## Description
 Kendo.DynamicLinqCore implements server paging, filtering, sorting, grouping and aggregating to Kendo UI via Dynamic Linq for .Net Core App(1.x ~ 2.x).
 
+## Prerequisites
+### .Net Core 1 ~ 2
+ - None
+### .Net Core 3
+ - You must add custom `ObjectToInferredTypesConverter` to your `JsonSerializerOptions` since `System.Text.Json` didn't deserialize inferred type to object properties now, see the [sample code](https://github.com/linmasaki/Kendo.DynamicLinqCore/blob/master/src/Kendo.DynamicLinqCore.Tests/CustomJsonSerializerOptions.cs) and [reference](https://docs.microsoft.com/en-gb/dotnet/standard/serialization/system-text-json-converters-how-to#deserialize-inferred-types-to-object-properties).
+
 ## Usage
 1. Add the Kendo.DynamicLinqCore NuGet package to your project.
 2. Configure your Kendo DataSource to send its options as JSON.
