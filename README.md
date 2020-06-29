@@ -5,7 +5,7 @@
 [![.NET Standard](https://img.shields.io/badge/.NET%20Standard-%3E%3D%201.6-red.svg)](#)
 
 ## Description
-Kendo.DynamicLinqCore implements server paging, filtering, sorting, grouping and aggregating to Kendo UI via Dynamic Linq for .Net Core App(1.x ~ 2.x).
+Kendo.DynamicLinqCore implements server paging, filtering, sorting, grouping, and aggregating to Kendo UI via Dynamic Linq for .Net Core App(1.x ~ 3.x).
 
 ## Prerequisites
 ### .Net Core 1 ~ 2

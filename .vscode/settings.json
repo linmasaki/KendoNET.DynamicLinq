@@ -2,6 +2,7 @@
     "dotnet-test-explorer.testProjectPath": "src/Kendo.DynamicLinqCore.Tests",
     "workbench.colorCustomizations": {
         "activityBar.background": "#27b2b5",
+        "activityBar.activeBackground": "#27b2b5",
         "activityBar.activeBorder": "#b828b5",
         "activityBar.foreground": "#15202b",
         "activityBar.inactiveForeground": "#15202b99",
@@ -13,7 +14,9 @@
         "titleBar.inactiveForeground": "#e7e7e799",
         "statusBar.background": "#1e898b",
         "statusBarItem.hoverBackground": "#27b2b5",
-        "statusBar.foreground": "#e7e7e7"
+        "statusBar.foreground": "#e7e7e7",
+        "statusBar.border": "#1e898b",
+        "titleBar.border": "#1e898b"
     },
     "peacock.color": "#1e898b"
 }
