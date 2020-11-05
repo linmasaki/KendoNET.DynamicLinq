@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
@@ -109,6 +110,23 @@ namespace Kendo.DynamicLinqCore
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Asynchronously applies data processing (paging, sorting, filtering and aggregates) over IQueryable using Dynamic Linq.
+        /// </summary>
+        /// <typeparam name="T">The type of the IQueryable.</typeparam>
+        /// <param name="queryable">The IQueryable which should be processed.</param>
+        /// <param name="take">Specifies how many items to take. Configurable via the pageSize setting of the Kendo DataSource.</param>
+        /// <param name="skip">Specifies how many items to skip.</param>
+        /// <param name="sort">Specifies the current sort order.</param>
+        /// <param name="filter">Specifies the current filter.</param>
+        /// <param name="aggregates">Specifies the current aggregates.</param>
+        /// <param name="group">Specifies the current groups.</param>
+        /// <returns>A DataSourceResult object populated from the processed IQueryable.</returns>
+        public static Task<DataSourceResult> ToDataSourceResultAsync<T>(this IQueryable<T> queryable, int take, int skip, IEnumerable<Sort> sort, Filter filter, IEnumerable<Aggregator> aggregates = null, IEnumerable<Group> group = null)
+        {
+            return Task.Run(() => queryable.ToDataSourceResult(take, skip, sort, filter, aggregates, group));
         }
 
         private static IQueryable<T> Filters<T>(IQueryable<T> queryable, Filter filter, List<object> errors)
@@ -255,7 +273,7 @@ namespace Kendo.DynamicLinqCore
 
             // When we have a decimal value, it gets converted to an integer/double that will result in the query break
             var currentPropertyType = Filter.GetLastPropertyType(type, filter.Field);
-            if((currentPropertyType == typeof(decimal)) && decimal.TryParse(filter.Value.ToString(), out decimal number))
+            if((currentPropertyType == typeof(decimal) || currentPropertyType == typeof(decimal?)) && decimal.TryParse(filter.Value.ToString(), out decimal number))
             {
                 filter.Value = number;
                 return filter;

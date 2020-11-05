@@ -19,7 +19,7 @@ namespace Kendo.DynamicLinqCore.Tests.Models
 
         public DateTime Birthday {get; set;}
 
-        public decimal Salary {get; set;}
+        public decimal? Salary {get; set;}
 
         public double Weight {get; set;}
 

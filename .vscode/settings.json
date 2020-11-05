@@ -2,6 +2,7 @@
     "dotnet-test-explorer.testProjectPath": "src/Kendo.DynamicLinqCore.Tests",
     "workbench.colorCustomizations": {
         "activityBar.background": "#27b2b5",
+        "activityBar.activeBackground": "#27b2b5",
         "activityBar.activeBorder": "#b828b5",
         "activityBar.foreground": "#15202b",
         "activityBar.inactiveForeground": "#15202b99",

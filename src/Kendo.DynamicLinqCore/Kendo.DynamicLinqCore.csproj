@@ -23,8 +23,8 @@ Supported platforms:
     </Description>
     <PackageReleaseNotes>
     
-1. Fixed issue that the LINQ query with sub-property can't be translated and will be evaluated locally.
-2. Amend the issue that the method "ToDataSourceResult%3CT%3E(this IQueryable%3CT%3E queryable, DataSourceRequest request)" would ignore the aggregator parameter.
+1. Fix the issue that filter will throw exception if decimal property is optional.
+2. Add asynchronous method of retrieving data(This feature is still in the experimental stage, not recommend using it on your product).
 
 Full changelog: https://github.com/linmasaki/Kendo.DynamicLinqCore/blob/master/CHANGELOG.md
 
@@ -34,8 +34,8 @@ Full changelog: https://github.com/linmasaki/Kendo.DynamicLinqCore/blob/master/C
     <PackageIconUrl>https://raw.githubusercontent.com/linmasaki/CoCoPackageIcon/master/cocodotnet64.png</PackageIconUrl>
     <PackageIcon>Icon.png</PackageIcon>
     <PackageTags>netcore netstandard kendo kendo-ui linq dynamic</PackageTags>
-    <PackageVersion>3.1.0</PackageVersion>
-    <Version>3.1.0</Version>
+    <PackageVersion>3.1.1</PackageVersion>
+    <Version>3.1.1</Version>
     <Copyright>Copyright © 2017-2020 CoCo Lin</Copyright>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>
@@ -47,7 +47,7 @@ Full changelog: https://github.com/linmasaki/Kendo.DynamicLinqCore/blob/master/C
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />    
-    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.0.20" />    
+    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.2" />
   </ItemGroup>
 
   <ItemGroup>

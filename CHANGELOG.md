@@ -1,8 +1,12 @@
 # Change Log
 
-### V3.1.1 (2020/02/11)
+### V3.1.1 (2020/11/05)
+- [#13](https://github.com/linmasaki/Kendo.DynamicLinqCore/issues/13) Fix the issue that filter will throw exception if decimal property is optional.
+- [#6](https://github.com/linmasaki/Kendo.DynamicLinqCore/issues/6) Add asynchronous method of retrieving data(This feature is still in the experimental stage, not recommend using it on your product).
 
-- [#10](https://github.com/linmasaki/Kendo.DynamicLinqCore/issues/10) Fixed issue that the LINQ query with sub-property can't be translated and will be evaluated locally.
+### V3.1.0 (2020/02/11)
+
+- [#10](https://github.com/linmasaki/Kendo.DynamicLinqCore/issues/10) Fix the issue that the LINQ query with sub-property can't be translated and will be evaluated locally.
 - [#12](https://github.com/linmasaki/Kendo.DynamicLinqCore/issues/12) Amend the issue that the method `ToDataSourceResult<T>(this IQueryable<T> queryable, DataSourceRequest request)` would ignore the aggregator parameter.
 
 ### V2.2.2 (2019/09/17)
