@@ -12,7 +12,7 @@
   <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp3.1'"></ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../Kendo.DynamicLinqCore/Kendo.DynamicLinqCore.csproj" />
+    <ProjectReference Include="../../src/Kendo.DynamicLinqCore.csproj" />
   </ItemGroup>
 
 </Project>

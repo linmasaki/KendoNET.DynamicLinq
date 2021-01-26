@@ -16,11 +16,10 @@ namespace Kendo.DynamicLinqCore.Tests.Data
         public static MockContext GetDefaultInMemoryDbContext()
         {
             if(_defaultDbContext != null) return _defaultDbContext;
-            var serviceProvider = new ServiceCollection().AddEntityFrameworkInMemoryDatabase().AddEntityFrameworkProxies().BuildServiceProvider();
-            var builder = new DbContextOptionsBuilder<MockContext>();
-            var options = builder.UseLazyLoadingProxies().UseInMemoryDatabase("Kendo").UseInternalServiceProvider(serviceProvider).Options;
 
-            _defaultDbContext = new MockContext(options);
+            var serviceProvider = new ServiceCollection().AddDbContext<MockContext>(options => options.UseLazyLoadingProxies().UseInMemoryDatabase("Kendo")).BuildServiceProvider();
+
+            _defaultDbContext = serviceProvider.GetRequiredService<MockContext>();
             _defaultDbContext.Database.EnsureDeleted();
             _defaultDbContext.Database.EnsureCreated();
             return _defaultDbContext;
