@@ -111,11 +111,11 @@ namespace Kendo.DynamicLinqCore
         /// Converts the filter expression to a predicate suitable for Dynamic Linq e.g. "Field1 = @1 and Field2.Contains(@2)"
         /// </summary>
         /// <param name="filters">A list of flattened filters.</param>
-        public string ToExpression(Type type, IList<Filter> filters)
+        public string ToExpression(Type type, IList<Filter> filters, bool isCaseSensitive)
         {
             if (Filters?.Any() == true)
             {
-                return "(" + String.Join(" " + Logic + " ", Filters.Select(filter => filter.ToExpression(type,filters)).ToArray()) + ")";
+                return "(" + String.Join(" " + Logic + " ", Filters.Select(filter => filter.ToExpression(type,filters,isCaseSensitive)).ToArray()) + ")";
             }
 
             var currentPropertyType = GetLastPropertyType(type, Field);
@@ -144,7 +144,7 @@ namespace Kendo.DynamicLinqCore
 
             if (Operator == "doesnotcontain")
             {
-                return String.Format("{0} != null && !{0}.{1}(@{2})", Field, comparison, index);
+                return String.Format(isCaseSensitive ? "{0} != null && !{0}.{1}(@{2})" : "{0} != null && !{0}.ToLower().{1}(@{2}.ToLower())", Field, comparison, index);
             }
 
             if (Operator == "isnull" || Operator == "isnotnull")
@@ -164,7 +164,7 @@ namespace Kendo.DynamicLinqCore
 
             if (comparison == "StartsWith" || comparison == "EndsWith" || comparison == "Contains")
             {
-                return String.Format("{0} != null && {0}.{1}(@{2})", Field, comparison, index);
+                return String.Format(isCaseSensitive ? "{0} != null && {0}.{1}(@{2})" : "{0} != null && {0}.ToLower().{1}(@{2}.ToLower())", Field, comparison, index);
             }
 
             return String.Format("{0} {1} @{2}", Field, comparison, index);

@@ -35,7 +35,7 @@ namespace Kendo.DynamicLinqCore.Tests
                 Value = "Microsoft",
                 Operator = "contains",
                 Logic = "and"
-            });
+            }, true);
 
             Assert.AreEqual(2, result.Total);
 
@@ -47,6 +47,36 @@ namespace Kendo.DynamicLinqCore.Tests
                         Field ="Company.Name",
                         Operator = "contains",
                         Value = "Microsoft"
+                    }
+                },
+                Logic = "and"
+            }, true);
+
+            Assert.AreEqual(2, result2.Total);
+        }
+
+        [Test]
+        public void InputParameter_SubPropertyContains_Case_Insensitive_CheckResultCount()
+        {
+            var result = _dbContext.Employee.Include(x => x.Company).AsQueryable().ToDataSourceResult(10, 0, null, new Filter
+            {
+                Field = "Company.Name",
+                Value = "microsoft",
+                Operator = "contains",
+                Logic = "and"
+            });
+
+            Assert.AreEqual(2, result.Total);
+
+            var result2 = _dbContext.Employee.AsQueryable().ToDataSourceResult(10, 0, null, new Filter
+            {
+                Filters = new[]
+                {
+                    new Filter
+                    {
+                        Field ="Company.Name",
+                        Operator = "contains",
+                        Value = "microsoft"
                     }
                 },
                 Logic = "and"
