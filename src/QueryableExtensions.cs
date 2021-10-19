@@ -20,9 +20,9 @@ namespace Kendo.DynamicLinqCore
         /// <param name="sort">Specifies the current sort order.</param>
         /// <param name="filter">Specifies the current filter.</param>
         /// <returns>A DataSourceResult object populated from the processed IQueryable.</returns>
-        public static DataSourceResult ToDataSourceResult<T>(this IQueryable<T> queryable, int take, int skip, IEnumerable<Sort> sort, Filter filter, bool isCaseSensitive = false)
+        public static DataSourceResult ToDataSourceResult<T>(this IQueryable<T> queryable, int take, int skip, IEnumerable<Sort> sort, Filter filter)
         {
-            return queryable.ToDataSourceResult(take, skip, sort, filter, null, null, isCaseSensitive);
+            return queryable.ToDataSourceResult(take, skip, sort, filter, null, null);
         }
 
         /// <summary>
@@ -32,9 +32,9 @@ namespace Kendo.DynamicLinqCore
         /// <param name="queryable">The IQueryable which should be processed.</param>
         /// <param name="request">The DataSourceRequest object containing take, skip, sort, filter, aggregates, and groups data.</param>
         /// <returns>A DataSourceResult object populated from the processed IQueryable.</returns>
-        public static DataSourceResult ToDataSourceResult<T>(this IQueryable<T> queryable, DataSourceRequest request, bool isCaseSensitive = false)
+        public static DataSourceResult ToDataSourceResult<T>(this IQueryable<T> queryable, DataSourceRequest request)
         {
-            return queryable.ToDataSourceResult(request.Take, request.Skip, request.Sort, request.Filter, request.Aggregate, request.Group, isCaseSensitive);
+            return queryable.ToDataSourceResult(request.Take, request.Skip, request.Sort, request.Filter, request.Aggregate, request.Group);
         }
 
         /// <summary>
@@ -49,12 +49,12 @@ namespace Kendo.DynamicLinqCore
         /// <param name="aggregates">Specifies the current aggregates.</param>
         /// <param name="group">Specifies the current groups.</param>
         /// <returns>A DataSourceResult object populated from the processed IQueryable.</returns>
-        public static DataSourceResult ToDataSourceResult<T>(this IQueryable<T> queryable, int take, int skip, IEnumerable<Sort> sort, Filter filter, IEnumerable<Aggregator> aggregates, IEnumerable<Group> group, bool isCaseSensitive = false)
+        public static DataSourceResult ToDataSourceResult<T>(this IQueryable<T> queryable, int take, int skip, IEnumerable<Sort> sort, Filter filter, IEnumerable<Aggregator> aggregates, IEnumerable<Group> group)
         {
             var errors = new List<object>();
 
             // Filter the data first
-            queryable = Filters(queryable, filter, errors, isCaseSensitive);
+            queryable = Filters(queryable, filter, errors);
 
             // Calculate the total number of records (needed for paging)            
             var total = queryable.Count();
@@ -124,12 +124,12 @@ namespace Kendo.DynamicLinqCore
         /// <param name="aggregates">Specifies the current aggregates.</param>
         /// <param name="group">Specifies the current groups.</param>
         /// <returns>A DataSourceResult object populated from the processed IQueryable.</returns>
-        public static Task<DataSourceResult> ToDataSourceResultAsync<T>(this IQueryable<T> queryable, int take, int skip, IEnumerable<Sort> sort, Filter filter, IEnumerable<Aggregator> aggregates = null, IEnumerable<Group> group = null, bool isCaseSensitive = false)
+        public static Task<DataSourceResult> ToDataSourceResultAsync<T>(this IQueryable<T> queryable, int take, int skip, IEnumerable<Sort> sort, Filter filter, IEnumerable<Aggregator> aggregates = null, IEnumerable<Group> group = null)
         {
-            return Task.Run(() => queryable.ToDataSourceResult(take, skip, sort, filter, aggregates, group, isCaseSensitive));
+            return Task.Run(() => queryable.ToDataSourceResult(take, skip, sort, filter, aggregates, group));
         }
 
-        private static IQueryable<T> Filters<T>(IQueryable<T> queryable, Filter filter, List<object> errors, bool isCaseSensitive)
+        private static IQueryable<T> Filters<T>(IQueryable<T> queryable, Filter filter, List<object> errors)
         {
             if (filter?.Logic != null)
             {
@@ -144,7 +144,7 @@ namespace Kendo.DynamicLinqCore
                 string predicate;
                 try
                 {
-                    predicate = filter.ToExpression(typeof(T), filters, isCaseSensitive);
+                    predicate = filter.ToExpression(typeof(T), filters);
                 }
                 catch(Exception ex)
                 {
