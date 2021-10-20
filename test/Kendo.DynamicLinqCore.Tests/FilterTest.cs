@@ -66,7 +66,7 @@ namespace Kendo.DynamicLinqCore.Tests
                 Value = "microsoft",
                 Operator = "contains",
                 Logic = "and",
-                ignoreCase = true,
+                IgnoreCase = true,
             });
 
             Assert.AreEqual(2, result.Total);
@@ -80,7 +80,7 @@ namespace Kendo.DynamicLinqCore.Tests
                         Field ="Company.Name",
                         Operator = "contains",
                         Value = "microsoft",
-                        ignoreCase = true,
+                        IgnoreCase = true,
                     }
                 },
                 Logic = "and"
