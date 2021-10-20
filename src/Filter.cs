@@ -38,6 +38,12 @@ namespace Kendo.DynamicLinqCore
         public string Logic { get; set; }
 
         /// <summary>
+        /// Gets or sets the filtering logic. Can be set to "or" or "and". Set to null unless Filters is set.
+        /// </summary>
+        [DataMember(Name = "ignoreCase")]
+        public bool IgnoreCase { get; set; }
+
+        /// <summary>
         /// Gets or sets the child filter expressions. Set to null if there are no child expressions.
         /// </summary>
         [DataMember(Name = "filters")]
@@ -144,7 +150,7 @@ namespace Kendo.DynamicLinqCore
 
             if (Operator == "doesnotcontain")
             {
-                return String.Format("{0} != null && !{0}.{1}(@{2})", Field, comparison, index);
+                return String.Format(!IgnoreCase ? "{0} != null && !{0}.{1}(@{2})" : "{0} != null && !{0}.ToLower().{1}(@{2}.ToLower())", Field, comparison, index);
             }
 
             if (Operator == "isnull" || Operator == "isnotnull")
@@ -164,7 +170,7 @@ namespace Kendo.DynamicLinqCore
 
             if (comparison == "StartsWith" || comparison == "EndsWith" || comparison == "Contains")
             {
-                return String.Format("{0} != null && {0}.{1}(@{2})", Field, comparison, index);
+                return String.Format(!IgnoreCase ? "{0} != null && {0}.{1}(@{2})" : "{0} != null && {0}.ToLower().{1}(@{2}.ToLower())", Field, comparison, index);
             }
 
             return String.Format("{0} {1} @{2}", Field, comparison, index);
