@@ -42,7 +42,7 @@ namespace Kendo.DynamicLinqCore.Tests.Data
                     Weight = 48.5,
                     Salary = 1000,
                     Gender = Gender.F,
-                    Birthday = new DateTime(2000,5,5),
+                    Birthday = new DateTime(2000,5,5,0,0,0,DateTimeKind.Utc),
                     CompanyId = Guid.Parse("c2cbfe28-f82a-4904-8075-bf98729d434f")
                 },
                 new Employee {
@@ -53,7 +53,7 @@ namespace Kendo.DynamicLinqCore.Tests.Data
                     Salary = 2500,
                     Weight = 69.2,
                     Gender = Gender.M,
-                    Birthday = new DateTime(1986,10,10),
+                    Birthday = new DateTime(1986,10,10, 0, 0, 0, DateTimeKind.Utc),
                     CompanyId = Guid.Parse("c2cbfe28-f82a-4904-8075-bf98729d434f")
                 },
                 new Employee {
@@ -63,7 +63,7 @@ namespace Kendo.DynamicLinqCore.Tests.Data
                     Introduce = "I'm Kirin",
                     Weight = 73.8,
                     Gender = Gender.M,
-                    Birthday = new DateTime(1984,7,8),
+                    Birthday = new DateTime(1984,7,8, 0, 0, 0, DateTimeKind.Utc),
                     CompanyId = Guid.Parse("5dd641dd-2ba4-4dfd-9572-81325ecd8940")
                 },
                 new Employee {
@@ -74,7 +74,7 @@ namespace Kendo.DynamicLinqCore.Tests.Data
                     Salary = 1750,
                     Weight = 82.1,
                     Gender = Gender.M,
-                    Birthday = new DateTime(1976,11,6),
+                    Birthday = new DateTime(1976,11,6, 0, 0, 0, DateTimeKind.Utc),
                     CompanyId = Guid.Parse("80a6570c-ca98-4661-adde-e4d5a8637ee5")
                 },
                 new Employee {
@@ -85,7 +85,7 @@ namespace Kendo.DynamicLinqCore.Tests.Data
                     Salary = 6600,
                     Weight = 52.9,
                     Gender = Gender.P,
-                    Birthday = new DateTime(2005,3,16),
+                    Birthday = new DateTime(2005,3,16, 0, 0, 0, DateTimeKind.Utc),
                     CompanyId = Guid.Parse("80a6570c-ca98-4661-adde-e4d5a8637ee5")
                 },
                 new Employee {
@@ -96,7 +96,7 @@ namespace Kendo.DynamicLinqCore.Tests.Data
                     Salary = 3000,
                     Weight = 71.6,
                     Gender = Gender.M,
-                    Birthday = new DateTime(2003,1,22),
+                    Birthday = new DateTime(2003,1,22, 0, 0, 0, DateTimeKind.Utc),
                     CompanyId = Guid.Parse("80a6570c-ca98-4661-adde-e4d5a8637ee5")
                 }
             );
