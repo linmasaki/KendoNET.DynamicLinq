@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 
@@ -10,17 +11,17 @@ namespace Kendo.DynamicLinqCore
     /// Describes the result of Kendo DataSource read operation. 
     /// </summary>
     [KnownType("GetKnownTypes")]
-    public class DataSourceResult
+    public class DataSourceResult<T>
     {
         /// <summary>
         /// Represents a single page of processed data.
         /// </summary>
-        public IEnumerable Data { get; set; }
+        public IEnumerable<T> Data { get; set; }
 
         /// <summary>
         /// Represents a single page of processed grouped data.
         /// </summary>
-        public IEnumerable Groups { get; set; }
+        public IEnumerable<GroupResult> Groups { get; set; }
 
         /// <summary>
         /// Represents a requested aggregates.
