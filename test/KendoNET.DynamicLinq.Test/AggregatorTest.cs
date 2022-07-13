@@ -1,33 +1,34 @@
 using NUnit.Framework;
 using System.Collections.Generic;
-using Kendo.DynamicLinqCore.Tests.Data;
+using KendoNET.DynamicLinq.Test.Data;
 
 #if NETCOREAPP3_1
 using System.Text.Json;
+
 #else
 using Newtonsoft.Json;
 #endif
 
-namespace Kendo.DynamicLinqCore.Tests
+namespace KendoNET.DynamicLinq.Test
 {
     [TestFixture]
     public class AggregatorTest
     {
         private MockContext _dbContext;
 
-        #if NETCOREAPP3_1
+#if NETCOREAPP3_1
         private static JsonSerializerOptions jsonSerializerOptions = CustomJsonSerializerOptions.DefaultOptions;
-        #endif
+#endif
 
         public static IEnumerable<DataSourceRequest> DataSourceRequestWithAggregateSalarySum
         {
             get
             {
-                #if NETCOREAPP3_1
+#if NETCOREAPP3_1
                 yield return JsonSerializer.Deserialize<DataSourceRequest>("{\"take\":10,\"skip\":0,\"aggregate\":[{\"field\":\"Salary\",\"aggregate\":\"sum\"}]}", jsonSerializerOptions);
-                #else
+#else
                 yield return JsonConvert.DeserializeObject<DataSourceRequest>("{\"take\":10,\"skip\":0,\"aggregate\":[{\"field\":\"Salary\",\"aggregate\":\"sum\"}]}");
-                #endif
+#endif
             }
         }
 
@@ -35,11 +36,14 @@ namespace Kendo.DynamicLinqCore.Tests
         {
             get
             {
-                #if NETCOREAPP3_1
-                yield return JsonSerializer.Deserialize<DataSourceRequest>("{\"take\":10,\"skip\":0,\"aggregate\":[{\"field\":\"Salary\",\"aggregate\":\"sum\"},{\"field\":\"Salary\",\"aggregate\":\"average\"},{\"field\":\"Number\",\"aggregate\":\"max\"}]}", jsonSerializerOptions);
-                #else
-                yield return JsonConvert.DeserializeObject<DataSourceRequest>("{\"take\":10,\"skip\":0,\"aggregate\":[{\"field\":\"Salary\",\"aggregate\":\"sum\"},{\"field\":\"Salary\",\"aggregate\":\"average\"},{\"field\":\"Number\",\"aggregate\":\"max\"}]}");
-                #endif
+#if NETCOREAPP3_1
+                yield return JsonSerializer.Deserialize<DataSourceRequest>(
+                    "{\"take\":10,\"skip\":0,\"aggregate\":[{\"field\":\"Salary\",\"aggregate\":\"sum\"},{\"field\":\"Salary\",\"aggregate\":\"average\"},{\"field\":\"Number\",\"aggregate\":\"max\"}]}",
+                    jsonSerializerOptions);
+#else
+                yield return JsonConvert.DeserializeObject<DataSourceRequest>(
+                    "{\"take\":10,\"skip\":0,\"aggregate\":[{\"field\":\"Salary\",\"aggregate\":\"sum\"},{\"field\":\"Salary\",\"aggregate\":\"average\"},{\"field\":\"Number\",\"aggregate\":\"max\"}]}");
+#endif
             }
         }
 

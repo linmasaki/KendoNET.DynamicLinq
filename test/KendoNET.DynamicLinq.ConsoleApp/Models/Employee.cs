@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Kendo.DynamicLinqCore.App.Models
+namespace KendoNET.DynamicLinq.ConsoleApp.Models
 {
     [KnownType(typeof(Employee))]
     public class Employee
@@ -14,12 +14,12 @@ namespace Kendo.DynamicLinqCore.App.Models
 
         public string Introduce { get; set; }
 
-        public DateTime Birthday {get; set;}
+        public DateTime Birthday { get; set; }
 
-        public decimal Salary {get; set;}
+        public decimal Salary { get; set; }
 
-        public double Height {get; set;}
+        public double Height { get; set; }
 
-        public float Weight {get; set;}
+        public float Weight { get; set; }
     }
 }

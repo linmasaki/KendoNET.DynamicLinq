@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Kendo.DynamicLinqCore
+namespace KendoNET.DynamicLinq
 {
     public class DataSourceRequest
     {

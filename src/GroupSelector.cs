@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Kendo.DynamicLinqCore
+namespace KendoNET.DynamicLinq
 {
     public class GroupSelector<TElement>
     {

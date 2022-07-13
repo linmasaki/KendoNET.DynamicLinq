@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace Kendo.DynamicLinqCore
+namespace KendoNET.DynamicLinq
 {
     /// <summary>
     /// Represents a sort expression of Kendo DataSource.

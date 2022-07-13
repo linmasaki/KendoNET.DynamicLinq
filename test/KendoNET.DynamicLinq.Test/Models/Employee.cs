@@ -2,7 +2,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Kendo.DynamicLinqCore.Tests.Models
+namespace KendoNET.DynamicLinq.Test.Models
 {
     public class Employee
     {
@@ -17,13 +17,14 @@ namespace Kendo.DynamicLinqCore.Tests.Models
 
         public string Introduce { get; set; }
 
-        public DateTime Birthday {get; set;}
+        public DateTime Birthday { get; set; }
 
-        public decimal? Salary {get; set;}
+        public decimal? Salary { get; set; }
 
-        public double Weight {get; set;}
+        public double Weight { get; set; }
 
         public Guid? CompanyId { get; set; }
+
         [ForeignKey("CompanyId")]
         public virtual Company Company { get; set; }
     }

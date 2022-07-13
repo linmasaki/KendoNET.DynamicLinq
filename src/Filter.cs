@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.Serialization;
 
-namespace Kendo.DynamicLinqCore
+namespace KendoNET.DynamicLinq
 {
     /// <summary>
     /// Represents a filter expression of Kendo DataSource.
@@ -48,38 +48,28 @@ namespace Kendo.DynamicLinqCore
         /// </summary>
         private static readonly IDictionary<string, string> Operators = new Dictionary<string, string>
         {
-            {"eq", "="},
-            {"neq", "!="},
-            {"lt", "<"},
-            {"lte", "<="},
-            {"gt", ">"},
-            {"gte", ">="},
-            {"startswith", "StartsWith"},
-            {"endswith", "EndsWith"},
-            {"contains", "Contains"},
-            {"doesnotcontain", "Contains"},
-            {"isnull", "="},
-            {"isnotnull", "!="},
-            {"isempty", "="},
-            {"isnotempty", "!="},
-            {"isnullorempty", ""},
-            {"isnotnullorempty", "!"}
+            { "eq", "=" },
+            { "neq", "!=" },
+            { "lt", "<" },
+            { "lte", "<=" },
+            { "gt", ">" },
+            { "gte", ">=" },
+            { "startswith", "StartsWith" },
+            { "endswith", "EndsWith" },
+            { "contains", "Contains" },
+            { "doesnotcontain", "Contains" },
+            { "isnull", "=" },
+            { "isnotnull", "!=" },
+            { "isempty", "=" },
+            { "isnotempty", "!=" },
+            { "isnullorempty", "" },
+            { "isnotnullorempty", "!" }
         };
 
         /// <summary>
         /// These operators only for string type.
         /// </summary>
-        private static readonly string[] StringOperators = new []
-        {
-            "startswith",
-            "endswith",
-            "contains",
-            "doesnotcontain",
-            "isempty",
-            "isnotempty",
-            "isnullorempty",
-            "isnotnullorempty"
-        };
+        private static readonly string[] StringOperators = new[] { "startswith", "endswith", "contains", "doesnotcontain", "isempty", "isnotempty", "isnullorempty", "isnotnullorempty" };
 
         /// <summary>
         /// Get a flattened list of all child filter expressions.
@@ -115,11 +105,11 @@ namespace Kendo.DynamicLinqCore
         {
             if (Filters?.Any() == true)
             {
-                return "(" + String.Join(" " + Logic + " ", Filters.Select(filter => filter.ToExpression(type,filters)).ToArray()) + ")";
+                return "(" + String.Join(" " + Logic + " ", Filters.Select(filter => filter.ToExpression(type, filters)).ToArray()) + ")";
             }
 
             var currentPropertyType = GetLastPropertyType(type, Field);
-            if(currentPropertyType != typeof(String) && StringOperators.Contains(Operator))
+            if (currentPropertyType != typeof(String) && StringOperators.Contains(Operator))
             {
                 throw new NotSupportedException(string.Format("Operator {0} not support non-string type", Operator));
             }
@@ -131,14 +121,14 @@ namespace Kendo.DynamicLinqCore
             //{
             //    case "doesnotcontain":
             //        return String.Format("{0} != null && !{0}.{1}(@{2})", Field, comparison, index);
-            //    case "isnull":   
-            //    case "isnotnull":   
-            //        return String.Format("{0} {1} null", Field, comparison);                    
-            //    case "isempty":   
-            //    case "isnotempty":  
+            //    case "isnull":
+            //    case "isnotnull":
+            //        return String.Format("{0} {1} null", Field, comparison);
+            //    case "isempty":
+            //    case "isnotempty":
             //        return String.Format("{0} {1} String.Empty", Field, comparison);
-            //    case "isnullorempty":   
-            //    case "isnotnullorempty": 
+            //    case "isnullorempty":
+            //    case "isnotnullorempty":
             //        return String.Format("{0}String.IsNullOrEmpty({1})", comparison, Field);
             //}
 
@@ -180,21 +170,21 @@ namespace Kendo.DynamicLinqCore
             if (Filters?.Any() == true)
             {
                 Expression compositeExpression = null;
-                if(Logic == "and")
+                if (Logic == "and")
                 {
                     foreach (var exp in Filters.Select(filter => filter.ToLambdaExpression<T>(parameter, filters)).ToArray())
                     {
-                        if(compositeExpression == null) compositeExpression = exp;
+                        if (compositeExpression == null) compositeExpression = exp;
                         else compositeExpression = Expression.AndAlso(compositeExpression, exp);
                     }
                 }
 
-                if(Logic == "or")
+                if (Logic == "or")
                 {
                     foreach (var exp in Filters.Select(filter => filter.ToLambdaExpression<T>(parameter, filters)).ToArray())
                     {
-                        if(compositeExpression == null) compositeExpression = exp;
-                        else compositeExpression = Expression.OrElse(compositeExpression,exp);
+                        if (compositeExpression == null) compositeExpression = exp;
+                        else compositeExpression = Expression.OrElse(compositeExpression, exp);
                     }
                 }
 
@@ -202,7 +192,7 @@ namespace Kendo.DynamicLinqCore
             }
 
             var currentPropertyType = GetLastPropertyType(typeof(T), Field);
-            if(currentPropertyType != typeof(String) && StringOperators.Contains(Operator))
+            if (currentPropertyType != typeof(String) && StringOperators.Contains(Operator))
             {
                 throw new NotSupportedException(string.Format("Operator {0} not support non-string type", Operator));
             }
@@ -211,13 +201,13 @@ namespace Kendo.DynamicLinqCore
             Expression left = null;
             foreach (var f in propertyChains)
             {
-                if(left == null) Expression.PropertyOrField(parameter, f);
-                else Expression.PropertyOrField(left, f);
+                left = Expression.PropertyOrField(parameter, f);
             }
+
             Expression right = Expression.Constant(Value, currentPropertyType);
 
             Expression resultExpression;
-            switch(Operator)
+            switch (Operator)
             {
                 case "contains":
                 case "doesnotcontain":
@@ -262,7 +252,7 @@ namespace Kendo.DynamicLinqCore
                 case "isempty":
                 case "isnotempty":
                     var emptyCheckExpression = Expression.Equal(left, Expression.Constant(String.Empty, currentPropertyType));
-                    if(Operator == "isempty")
+                    if (Operator == "isempty")
                         resultExpression = emptyCheckExpression;
                     else
                         resultExpression = Expression.Not(emptyCheckExpression);
@@ -272,7 +262,7 @@ namespace Kendo.DynamicLinqCore
                 case "isnotnullorempty":
                     var nullOrEmptyMethod = typeof(String).GetMethod("IsNullOrEmpty", new[] { typeof(String) });
                     var nullOrEmptyExpression = Expression.Call(left, nullOrEmptyMethod, right);
-                    if(Operator == "isnullorempty")
+                    if (Operator == "isnullorempty")
                         resultExpression = nullOrEmptyExpression;
                     else
                         resultExpression = Expression.Not(nullOrEmptyExpression);
@@ -281,7 +271,7 @@ namespace Kendo.DynamicLinqCore
                 case "eq":
                 case "neq":
                     var equalCheckExpression = Expression.Equal(left, right);
-                    if(Operator == "eq")
+                    if (Operator == "eq")
                         resultExpression = equalCheckExpression;
                     else
                         resultExpression = Expression.Not(equalCheckExpression);
@@ -326,7 +316,7 @@ namespace Kendo.DynamicLinqCore
             /* Used in versions under 2.2.2 */
             //foreach (string propertyName in path.Split('.'))
             //{
-            //    var typeProperties = currentType.GetRuntimeProperties();  
+            //    var typeProperties = currentType.GetRuntimeProperties();
             //    currentType = typeProperties.FirstOrDefault(f => f.Name.Equals(propertyName, StringComparison.OrdinalIgnoreCase))?.PropertyType;
             //}
 
