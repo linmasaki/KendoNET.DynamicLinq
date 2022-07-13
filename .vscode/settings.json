@@ -1,20 +1,23 @@
 {
-    "dotnet-test-explorer.testProjectPath": "test/Kendo.DynamicLinqCore.Tests",
-    "workbench.colorCustomizations": {
-        "activityBar.background": "#27b2b5",
-        "activityBar.activeBackground": "#27b2b5",
-        "activityBar.activeBorder": "#b828b5",
-        "activityBar.foreground": "#15202b",
-        "activityBar.inactiveForeground": "#15202b99",
-        "activityBarBadge.background": "#b828b5",
-        "activityBarBadge.foreground": "#e7e7e7",
-        "titleBar.activeBackground": "#1e898b",
-        "titleBar.inactiveBackground": "#1e898b99",
-        "titleBar.activeForeground": "#e7e7e7",
-        "titleBar.inactiveForeground": "#e7e7e799",
-        "statusBar.background": "#1e898b",
-        "statusBarItem.hoverBackground": "#27b2b5",
-        "statusBar.foreground": "#e7e7e7"
-    },
-    "peacock.color": "#1e898b"
+  "dotnet-test-explorer.testProjectPath": "test/KendoNET.DynamicLinq.Test",
+  "workbench.colorCustomizations": {
+    "activityBar.background": "#27b2b5",
+    "activityBar.activeBackground": "#27b2b5",
+    "activityBar.activeBorder": "#b828b5",
+    "activityBar.foreground": "#15202b",
+    "activityBar.inactiveForeground": "#15202b99",
+    "activityBarBadge.background": "#b828b5",
+    "activityBarBadge.foreground": "#e7e7e7",
+    "titleBar.activeBackground": "#1e898b",
+    "titleBar.inactiveBackground": "#1e898b99",
+    "titleBar.activeForeground": "#e7e7e7",
+    "titleBar.inactiveForeground": "#e7e7e799",
+    "statusBar.background": "#1e898b",
+    "statusBarItem.hoverBackground": "#27b2b5",
+    "statusBar.foreground": "#e7e7e7",
+    "sash.hoverBorder": "#27b2b5",
+    "statusBarItem.remoteBackground": "#1e898b",
+    "statusBarItem.remoteForeground": "#e7e7e7"
+  },
+  "peacock.color": "#1e898b"
 }

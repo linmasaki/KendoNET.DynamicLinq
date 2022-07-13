@@ -4,11 +4,11 @@ using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Kendo.DynamicLinqCore.Tests
+namespace KendoNET.DynamicLinq.Test
 {
     public class CustomJsonSerializerOptions
     {
-        public static readonly JsonSerializerOptions DefaultOptions = new JsonSerializerOptions{ PropertyNameCaseInsensitive = true };
+        public static readonly JsonSerializerOptions DefaultOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 
         static CustomJsonSerializerOptions()
         {
@@ -58,7 +58,7 @@ namespace Kendo.DynamicLinqCore.Tests
         }
 
         public override void Write(Utf8JsonWriter writer, object objectToWrite, JsonSerializerOptions options) =>
-                throw new InvalidOperationException("Should not get here.");
+            throw new InvalidOperationException("Should not get here.");
     }
 }
 

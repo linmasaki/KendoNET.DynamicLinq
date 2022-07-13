@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.Serialization;
 
-namespace Kendo.DynamicLinqCore
+namespace KendoNET.DynamicLinq
 {
     /// <summary>
     /// Represents a aggregate expression of Kendo DataSource.
@@ -40,11 +40,11 @@ namespace Kendo.DynamicLinqCore
                 case "average":
                 case "sum":
                     return GetMethod(ConvertTitleCase(Aggregate),
-                           ((Func<Type, Type[]>)GetType().GetMethod("SumAvgFunc", BindingFlags.Static | BindingFlags.NonPublic).MakeGenericMethod(proptype).Invoke(null, null))
-                           .GetMethodInfo(), 1).MakeGenericMethod(type);
+                        ((Func<Type, Type[]>)GetType().GetMethod("SumAvgFunc", BindingFlags.Static | BindingFlags.NonPublic).MakeGenericMethod(proptype).Invoke(null, null))
+                        .GetMethodInfo(), 1).MakeGenericMethod(type);
                 case "count":
                     return GetMethod(ConvertTitleCase(Aggregate),
-                           Nullable.GetUnderlyingType(proptype) != null ? CountNullableFunc().GetMethodInfo() : CountFunc().GetMethodInfo(), 1).MakeGenericMethod(type);
+                        Nullable.GetUnderlyingType(proptype) != null ? CountNullableFunc().GetMethodInfo() : CountFunc().GetMethodInfo(), 1).MakeGenericMethod(type);
             }
 
             return null;
@@ -65,12 +65,12 @@ namespace Kendo.DynamicLinqCore
         private static MethodInfo GetMethod(string methodName, MethodInfo methodTypes, int genericArgumentsCount)
         {
             var methods = from method in typeof(Queryable).GetMethods(BindingFlags.Public | BindingFlags.Static)
-                          let parameters = method.GetParameters()
-                          let genericArguments = method.GetGenericArguments()
-                          where method.Name == methodName &&
-                          genericArguments.Length == genericArgumentsCount &&
-                          parameters.Select(p => p.ParameterType).SequenceEqual((Type[])methodTypes.Invoke(null, genericArguments))
-                          select method;
+                let parameters = method.GetParameters()
+                let genericArguments = method.GetGenericArguments()
+                where method.Name == methodName &&
+                      genericArguments.Length == genericArgumentsCount &&
+                      parameters.Select(p => p.ParameterType).SequenceEqual((Type[])methodTypes.Invoke(null, genericArguments))
+                select method;
             return methods.FirstOrDefault();
         }
 
@@ -81,11 +81,7 @@ namespace Kendo.DynamicLinqCore
 
         private static Type[] CountNullableDelegate(Type t)
         {
-            return new[]
-            {
-                typeof(IQueryable<>).MakeGenericType(t),
-                typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(t, typeof(bool)))
-            };
+            return new[] { typeof(IQueryable<>).MakeGenericType(t), typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(t, typeof(bool))) };
         }
 
         private static Func<Type, Type[]> CountFunc()
@@ -95,10 +91,7 @@ namespace Kendo.DynamicLinqCore
 
         private static Type[] CountDelegate(Type t)
         {
-            return new []
-            {
-                typeof(IQueryable<>).MakeGenericType(t)
-            };
+            return new[] { typeof(IQueryable<>).MakeGenericType(t) };
         }
 
         private static Func<Type, Type, Type[]> MinMaxFunc()
@@ -108,11 +101,7 @@ namespace Kendo.DynamicLinqCore
 
         private static Type[] MinMaxDelegate(Type a, Type b)
         {
-            return new[]
-            {
-                typeof(IQueryable<>).MakeGenericType(a),
-                typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(a, b))
-            };
+            return new[] { typeof(IQueryable<>).MakeGenericType(a), typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(a, b)) };
         }
 
         private static Func<Type, Type[]> SumAvgFunc<TU>()
@@ -122,12 +111,7 @@ namespace Kendo.DynamicLinqCore
 
         private static Type[] SumAvgDelegate<TU>(Type t)
         {
-            return new[]
-            {
-                typeof (IQueryable<>).MakeGenericType(t),
-                typeof (Expression<>).MakeGenericType(typeof (Func<,>).MakeGenericType(t, typeof(TU)))
-            };
+            return new[] { typeof(IQueryable<>).MakeGenericType(t), typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(t, typeof(TU))) };
         }
-
     }
 }

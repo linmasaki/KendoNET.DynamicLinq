@@ -1,4 +1,4 @@
-namespace Kendo.DynamicLinqCore.Tests.Models
+namespace KendoNET.DynamicLinq.Test.Models
 {
     public enum Gender
     {

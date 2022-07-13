@@ -3,6 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>netcoreapp1.0;netcoreapp2.1;netcoreapp3.1</TargetFrameworks>
+    <RootNamespace>KendoNET.DynamicLinq.ConsoleApp</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp1.0'"></ItemGroup>
@@ -12,7 +13,7 @@
   <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp3.1'"></ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../src/Kendo.DynamicLinqCore.csproj" />
+    <ProjectReference Include="..\..\src\KendoNET.DynamicLinq.csproj"/>
   </ItemGroup>
 
 </Project>

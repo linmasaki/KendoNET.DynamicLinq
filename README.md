@@ -1,27 +1,36 @@
-# Kendo.DynamicLinqCore
+# KendoNET.DynamicLinq
 
-[![Version](https://img.shields.io/nuget/vpre/Kendo.DynamicLinqCore.svg)](https://www.nuget.org/packages/Kendo.DynamicLinqCore)
-[![Downloads](https://img.shields.io/nuget/dt/Kendo.DynamicLinqCore.svg)](https://www.nuget.org/packages/Kendo.DynamicLinqCore)
+[![Version](https://img.shields.io/nuget/vpre/KendoNET.DynamicLinq.svg)](https://www.nuget.org/packages/KendoNET.DynamicLinq)
+[![Downloads](https://img.shields.io/nuget/dt/KendoNET.DynamicLinq.svg)](https://www.nuget.org/packages/KendoNET.DynamicLinq)
 [![.NET Standard](https://img.shields.io/badge/.NET%20Standard-%3E%3D%201.6-red.svg)](#)
 
 ## Description
-Kendo.DynamicLinqCore implements server paging, filtering, sorting, grouping, and aggregating to Kendo UI via Dynamic Linq for .Net Core App(1.x ~ 3.x).
+
+KendoNET.DynamicLinq implements server paging, filtering, sorting, grouping, and aggregating to Kendo UI via Dynamic Linq for .Net Core App(1.x ~ 3.x).
 
 ## Prerequisites
+
 ### .Net Core 1 ~ 2
- - None
+
+- None
+
 ### .Net Core 3
- - You must add custom `ObjectToInferredTypesConverter` to your `JsonSerializerOptions` since `System.Text.Json` didn't deserialize inferred type to object properties now, see the [sample code](https://github.com/linmasaki/Kendo.DynamicLinqCore/blob/master/test/Kendo.DynamicLinqCore.Tests/CustomJsonSerializerOptions.cs) and [reference](https://docs.microsoft.com/en-gb/dotnet/standard/serialization/system-text-json-converters-how-to#deserialize-inferred-types-to-object-properties).
+
+- You must add custom `ObjectToInferredTypesConverter` to your `JsonSerializerOptions` since `System.Text.Json` didn't deserialize inferred type to object properties now, see
+  the [sample code](https://github.com/linmasaki/KendoNET.DynamicLinq/blob/master/test/KendoNET.DynamicLinq.Tests/CustomJsonSerializerOptions.cs)
+  and [reference](https://docs.microsoft.com/en-gb/dotnet/standard/serialization/system-text-json-converters-how-to#deserialize-inferred-types-to-object-properties).
 
 ## Usage
-1. Add the Kendo.DynamicLinqCore NuGet package to your project.
+
+1. Add the KendoNET.DynamicLinq NuGet package to your project.
 2. Configure your Kendo DataSource to send its options as JSON.
 
 ```javascript
 parameterMap: function(options, type) {
     return JSON.stringify(options);
 }
-```       
+```
+
 3. Configure the `schema` of the dataSource.
 
 ```javascript
@@ -32,7 +41,8 @@ schema: {
     groups: "Groups",
     errors: "Errors"
 }
-```  
+```
+
 4. The completed code like below.
 
 ```javascript
@@ -78,10 +88,12 @@ dataSource: {
 
 ..... Other kendo grid code .....
 ```
-5. Import the Kendo.DynamicLinqCore namespace.
+
+5. Import the KendoNET.DynamicLinq namespace.
 6. Use the `ToDataSourceResult` extension method to apply paging, sorting, filtering, grouping and aggregating.
+
 ```c#
-using Kendo.DynamicLinqCore
+using KendoNET.DynamicLinq
 
 [WebMethod]
 public static DataSourceResult Products(int take, int skip, IEnumerable<Sort> sort, Filter filter, IEnumerable<Aggregator> aggregates, IEnumerable<Group> groups)
@@ -89,7 +101,7 @@ public static DataSourceResult Products(int take, int skip, IEnumerable<Sort> so
     using (var northwind = new Northwind())
     {
         return northwind.Products
-               .OrderBy(p => p.ProductID) // EF requires ordering for paging                    
+               .OrderBy(p => p.ProductID) // EF requires ordering for paging
                .Select(p => new ProductViewModel // Use a view model to avoid serializing internal Entity Framework properties as JSON
                {
                    ProductID = p.ProductID,
@@ -104,15 +116,16 @@ public static DataSourceResult Products(int take, int skip, IEnumerable<Sort> so
 ```
 
 or from Kendo UI request
+
 ```c#
-using Kendo.DynamicLinqCore
+using KendoNET.DynamicLinq
 
 [HttpPost]
 public IActionResult Products([FromBody] DataSourceRequest requestModel)
 {
     using (var northwind = new Northwind())
     {
-        return northwind.Products                  
+        return northwind.Products
                .Select(p => new ProductViewModel // Use a view model to avoid serializing internal Entity Framework properties as JSON
                {
                    ProductID = p.ProductID,
@@ -127,7 +140,10 @@ public IActionResult Products([FromBody] DataSourceRequest requestModel)
 ```
 
 ## Known Issues
-When server-side filterable options are enabled and apply a query with filter condition that contains `DateTime` type column, then EntityFramework Core would throw an exception  `System.Data.SqlClient.SqlException (0x80131904): Conversion failed when converting date and/or time from character string`. The error is caused by a known issue in some old EntityFramework Core versions. The workaround is adding `datetime` value to the related column in DbContext. e.g.
+
+When server-side filterable options are enabled and apply a query with filter condition that contains `DateTime` type column, then EntityFramework Core would throw an
+exception  `System.Data.SqlClient.SqlException (0x80131904): Conversion failed when converting date and/or time from character string`. The error is caused by a known issue in some old EntityFramework
+Core versions. The workaround is adding `datetime` value to the related column in DbContext. e.g.
 
 ```c#
 public class MyContext : DbContext
@@ -144,16 +160,19 @@ public class MyContext : DbContext
 ```
 
 ## How To Build NuGet Package
+
 1. Open command line console
-2. Switch to project root directory(src\Kendo.DynamicLinqCore).
+2. Switch to project root directory(src\KendoNET.DynamicLinq).
 3. Run "dotnet restore"
 4. Run "dotnet pack --configuration Release"
-5. Add `<repository type="git" url="https://github.com/linmasaki/Kendo.DynamicLinqCore.git" />` to package metadata of nupkg to show repository URL at Nuget
+5. Add `<repository type="git" url="https://github.com/linmasaki/KendoNET.DynamicLinq.git" />` to package metadata of nupkg to show repository URL at Nuget
 
 ## Note
-Kendo.DynamicLinqCore is a reference to [Ali Sarkis's](https://github.com/mshtawythug/dlinq-helpers) Kendo.DynamicLinq.
+
+KendoNET.DynamicLinq is a reference to [Ali Sarkis's](https://github.com/mshtawythug/dlinq-helpers) Kendo.DynamicLinq.
 
 ## Kendo UI Documentation
+
 The following links are Kendo UI online docs(related to this package) and you can refer to.
 
 - [Kendo UI Grid](https://docs.telerik.com/kendo-ui/api/javascript/ui/grid)

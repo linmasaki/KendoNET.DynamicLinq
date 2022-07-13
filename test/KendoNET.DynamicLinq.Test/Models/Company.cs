@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace Kendo.DynamicLinqCore.Tests.Models
+namespace KendoNET.DynamicLinq.Test.Models
 {
     public class Company
     {

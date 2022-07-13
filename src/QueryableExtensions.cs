@@ -6,7 +6,7 @@ using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 
-namespace Kendo.DynamicLinqCore
+namespace KendoNET.DynamicLinq
 {
     public static class QueryableExtensions
     {
@@ -49,14 +49,20 @@ namespace Kendo.DynamicLinqCore
         /// <param name="aggregates">Specifies the current aggregates.</param>
         /// <param name="group">Specifies the current groups.</param>
         /// <returns>A DataSourceResult object populated from the processed IQueryable.</returns>
-        public static DataSourceResult ToDataSourceResult<T>(this IQueryable<T> queryable, int take, int skip, IEnumerable<Sort> sort, Filter filter, IEnumerable<Aggregator> aggregates, IEnumerable<Group> group)
+        public static DataSourceResult ToDataSourceResult<T>(this IQueryable<T> queryable,
+            int take,
+            int skip,
+            IEnumerable<Sort> sort,
+            Filter filter,
+            IEnumerable<Aggregator> aggregates,
+            IEnumerable<Group> group)
         {
             var errors = new List<object>();
 
             // Filter the data first
             queryable = Filters(queryable, filter, errors);
 
-            // Calculate the total number of records (needed for paging)            
+            // Calculate the total number of records (needed for paging)
             var total = queryable.Count();
 
             // Calculate the aggregates
@@ -65,7 +71,7 @@ namespace Kendo.DynamicLinqCore
             if (group?.Any() == true)
             {
                 //if(sort == null) sort = GetDefaultSort(queryable.ElementType, sort);
-                if(sort == null) sort = new List<Sort>();
+                if (sort == null) sort = new List<Sort>();
 
                 foreach (var source in group.Reverse())
                 {
@@ -95,7 +101,6 @@ namespace Kendo.DynamicLinqCore
             // Group By
             if (group?.Any() == true)
             {
-                //result.Groups = queryable.ToList().GroupByMany(group);                
                 result.Groups = queryable.GroupByMany(group);
             }
             else
@@ -104,7 +109,7 @@ namespace Kendo.DynamicLinqCore
             }
 
             // Set errors if any
-            if(errors.Count > 0)
+            if (errors.Count > 0)
             {
                 result.Errors = errors;
             }
@@ -124,7 +129,13 @@ namespace Kendo.DynamicLinqCore
         /// <param name="aggregates">Specifies the current aggregates.</param>
         /// <param name="group">Specifies the current groups.</param>
         /// <returns>A DataSourceResult object populated from the processed IQueryable.</returns>
-        public static Task<DataSourceResult> ToDataSourceResultAsync<T>(this IQueryable<T> queryable, int take, int skip, IEnumerable<Sort> sort, Filter filter, IEnumerable<Aggregator> aggregates = null, IEnumerable<Group> group = null)
+        public static Task<DataSourceResult> ToDataSourceResultAsync<T>(this IQueryable<T> queryable,
+            int take,
+            int skip,
+            IEnumerable<Sort> sort,
+            Filter filter,
+            IEnumerable<Aggregator> aggregates = null,
+            IEnumerable<Group> group = null)
         {
             return Task.Run(() => queryable.ToDataSourceResult(take, skip, sort, filter, aggregates, group));
         }
@@ -134,7 +145,7 @@ namespace Kendo.DynamicLinqCore
             if (filter?.Logic != null)
             {
                 // Pretreatment some work
-                filter = PreliminaryWork(typeof(T),filter);
+                filter = PreliminaryWork(typeof(T), filter);
 
                 // Collect a flat list of all filters
                 var filters = filter.All();
@@ -146,7 +157,7 @@ namespace Kendo.DynamicLinqCore
                 {
                     predicate = filter.ToExpression(typeof(T), filters);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     errors.Add(ex.Message);
                     return queryable;
@@ -164,15 +175,15 @@ namespace Kendo.DynamicLinqCore
 
                 // Step.2 Make up expression e.g. (p.Number >= 3) AndAlso (p.Company.Name.Contains("M"))
                 //Expression expression;
-                //try 
+                //try
                 //{
-                //    expression = filter.ToLambdaExpression<T>(parameter, filters);         
+                //    expression = filter.ToLambdaExpression<T>(parameter, filters);
                 //}
                 //catch(Exception ex)
                 //{
                 //    errors.Add(ex.Message);
                 //    return queryable;
-                //} 
+                //}
 
                 // Step.3 The result is e.g. p => (p.Number >= 3) AndAlso (p.Company.Name.Contains("M"))
                 //var predicateExpression = Expression.Lambda<Func<T, bool>>(expression, parameter);
@@ -204,8 +215,8 @@ namespace Kendo.DynamicLinqCore
                         if (mi == null) continue;
 
                         var val = queryable.Provider.Execute(Expression.Call(null, mi, aggregate.Aggregate == "count" && (Nullable.GetUnderlyingType(prop.PropertyType) == null)
-                                  ? new[] { queryable.Expression }
-                                  : new[] { queryable.Expression, Expression.Quote(selector) }));
+                            ? new[] { queryable.Expression }
+                            : new[] { queryable.Expression, Expression.Quote(selector) }));
 
                         fieldProps.Add(new DynamicProperty(aggregate.Aggregate, typeof(object)), val);
                     }
@@ -216,6 +227,7 @@ namespace Kendo.DynamicLinqCore
                     {
                         type.GetProperty(p.Name).SetValue(fieldObj, fieldProps[p], null);
                     }
+
                     objProps.Add(new DynamicProperty(group.Key, fieldObj.GetType()), fieldObj);
                 }
 
@@ -269,37 +281,37 @@ namespace Kendo.DynamicLinqCore
                 filter.Filters = newFilters;
             }
 
-            if(filter.Value == null) return filter;
+            if (filter.Value == null) return filter;
 
             // When we have a decimal value, it gets converted to an integer/double that will result in the query break
             var currentPropertyType = Filter.GetLastPropertyType(type, filter.Field);
-            if((currentPropertyType == typeof(decimal) || currentPropertyType == typeof(decimal?)) && decimal.TryParse(filter.Value.ToString(), out decimal number))
+            if ((currentPropertyType == typeof(decimal) || currentPropertyType == typeof(decimal?)) && decimal.TryParse(filter.Value.ToString(), out decimal number))
             {
                 filter.Value = number;
                 return filter;
             }
 
             // if(currentPropertyType.GetTypeInfo().IsEnum && int.TryParse(filter.Value.ToString(), out int enumValue))
-            // {           
+            // {
             //     filter.Value = Enum.ToObject(currentPropertyType, enumValue);
             //     return filter;
             // }
 
             // Convert datetime-string to DateTime
-            if(currentPropertyType == typeof(DateTime) && DateTime.TryParse(filter.Value.ToString(), out DateTime dateTime))
+            if (currentPropertyType == typeof(DateTime) && DateTime.TryParse(filter.Value.ToString(), out DateTime dateTime))
             {
                 filter.Value = dateTime;
 
                 // Copy the time from the filter
                 var localTime = dateTime.ToLocalTime();
 
-                // Used when the datetime's operator value is eq and local time is 00:00:00 
+                // Used when the datetime's operator value is eq and local time is 00:00:00
                 if (filter.Operator == "eq")
                 {
                     if (localTime.Hour != 0 || localTime.Minute != 0 || localTime.Second != 0)
                         return filter;
 
-                    var newFilter = new Filter { Logic = "and"};
+                    var newFilter = new Filter { Logic = "and" };
                     newFilter.Filters = new List<Filter>
                     {
                         // Instead of comparing for exact equality, we compare as greater than the start of the day...
@@ -323,7 +335,7 @@ namespace Kendo.DynamicLinqCore
                     return newFilter;
                 }
 
-                // Convert datetime to local 
+                // Convert datetime to local
                 filter.Value = new DateTime(localTime.Year, localTime.Month, localTime.Day, localTime.Hour, localTime.Minute, localTime.Second, localTime.Millisecond);
             }
 
@@ -341,10 +353,7 @@ namespace Kendo.DynamicLinqCore
                 var properties = elementType.GetProperties().ToList();
 
                 //by default make dir desc
-                var sortByObject = new Sort
-                {
-                    Dir = "desc"
-                };
+                var sortByObject = new Sort { Dir = "desc" };
 
                 PropertyInfo propertyInfo;
                 //look for property that is called id
@@ -367,11 +376,11 @@ namespace Kendo.DynamicLinqCore
                 {
                     sortByObject.Field = propertyInfo.Name;
                 }
+
                 sort = new List<Sort> { sortByObject };
             }
 
             return sort;
         }
-
     }
 }

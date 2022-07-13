@@ -1,74 +1,74 @@
 {
-   // Use IntelliSense to find out which attributes exist for C# debugging
-   // Use hover for the description of the existing attributes
-   // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
-   "version": "0.2.0",
-   "configurations": [
-        {
-            "name": ".NET Core Launch 1.0(console)",
-            "type": "coreclr",
-            "request": "launch",
-            "preLaunchTask": "build",
-            // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/test/Kendo.DynamicLinqCore.App/bin/Debug/netcoreapp1.0/Kendo.DynamicLinqCore.App.dll",
-            "args": [],
-            "cwd": "${workspaceFolder}/test/Kendo.DynamicLinqCore.App",
-            // For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
-            "console": "internalConsole",
-            "stopAtEntry": false,
-            "internalConsoleOptions": "openOnSessionStart",
-            "logging": {
-                "engineLogging": false,
-                "moduleLoad": false,
-                "exceptions": true,
-                "browserStdOut": false
-            }
-        },
-        {
-            "name": ".NET Core Launch 2.1(console)",
-            "type": "coreclr",
-            "request": "launch",
-            "preLaunchTask": "build",
-            // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/test/Kendo.DynamicLinqCore.App/bin/Debug/netcoreapp2.1/Kendo.DynamicLinqCore.App.dll",
-            "args": [],
-            "cwd": "${workspaceFolder}/test/Kendo.DynamicLinqCore.App",
-            // For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
-            "console": "internalConsole",
-            "stopAtEntry": false,
-            "internalConsoleOptions": "openOnSessionStart",
-            "logging": {
-                "engineLogging": false,
-                "moduleLoad": false,
-                "exceptions": true,
-                "browserStdOut": false
-            }
-        },
-        {
-            "name": ".NET Core Launch 3.1(console)",
-            "type": "coreclr",
-            "request": "launch",
-            "preLaunchTask": "build",
-            // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/test/Kendo.DynamicLinqCore.App/bin/Debug/netcoreapp3.1/Kendo.DynamicLinqCore.App.dll",
-            "args": [],
-            "cwd": "${workspaceFolder}/test/Kendo.DynamicLinqCore.App",
-            // For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
-            "console": "internalConsole",
-            "stopAtEntry": false,
-            "internalConsoleOptions": "openOnSessionStart",
-            "logging": {
-                "engineLogging": false,
-                "moduleLoad": false,
-                "exceptions": true,
-                "browserStdOut": false
-            }
-        },
-        {
-            "name": ".NET Core Attach",
-            "type": "coreclr",
-            "request": "attach",
-            "processId": "${command:pickProcess}"
-        }
-    ,]
+  // Use IntelliSense to find out which attributes exist for C# debugging
+  // Use hover for the description of the existing attributes
+  // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": ".NET Core Launch 1.0(console)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      // If you have changed target frameworks, make sure to update the program path.
+      "program": "${workspaceFolder}/test/KendoNET.DynamicLinq.ConsoleApp/bin/Debug/netcoreapp1.0/KendoNET.DynamicLinq.ConsoleApp.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/test/KendoNET.DynamicLinq.ConsoleApp",
+      // For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
+      "console": "internalConsole",
+      "stopAtEntry": false,
+      "internalConsoleOptions": "openOnSessionStart",
+      "logging": {
+        "engineLogging": false,
+        "moduleLoad": false,
+        "exceptions": true,
+        "browserStdOut": false
+      }
+    },
+    {
+      "name": ".NET Core Launch 2.1(console)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      // If you have changed target frameworks, make sure to update the program path.
+      "program": "${workspaceFolder}/test/KendoNET.DynamicLinq.ConsoleApp/bin/Debug/netcoreapp2.1/KendoNET.DynamicLinq.ConsoleApp.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/test/KendoNET.DynamicLinq.ConsoleApp",
+      // For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
+      "console": "internalConsole",
+      "stopAtEntry": false,
+      "internalConsoleOptions": "openOnSessionStart",
+      "logging": {
+        "engineLogging": false,
+        "moduleLoad": false,
+        "exceptions": true,
+        "browserStdOut": false
+      }
+    },
+    {
+      "name": ".NET Core Launch 3.1(console)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      // If you have changed target frameworks, make sure to update the program path.
+      "program": "${workspaceFolder}/test/KendoNET.DynamicLinq.ConsoleApp/bin/Debug/netcoreapp3.1/KendoNET.DynamicLinq.ConsoleApp.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/test/KendoNET.DynamicLinq.ConsoleApp",
+      // For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
+      "console": "internalConsole",
+      "stopAtEntry": false,
+      "internalConsoleOptions": "openOnSessionStart",
+      "logging": {
+        "engineLogging": false,
+        "moduleLoad": false,
+        "exceptions": true,
+        "browserStdOut": false
+      }
+    },
+    {
+      "name": ".NET Core Attach",
+      "type": "coreclr",
+      "request": "attach",
+      "processId": "${command:pickProcess}"
+    }
+  ]
 }

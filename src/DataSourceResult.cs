@@ -3,11 +3,10 @@ using System.Collections;
 using System.Linq;
 using System.Runtime.Serialization;
 
-
-namespace Kendo.DynamicLinqCore
+namespace KendoNET.DynamicLinq
 {
     /// <summary>
-    /// Describes the result of Kendo DataSource read operation. 
+    /// Describes the result of Kendo DataSource read operation.
     /// </summary>
     [KnownType("GetKnownTypes")]
     public class DataSourceResult
@@ -46,6 +45,5 @@ namespace Kendo.DynamicLinqCore
             var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.FullName.StartsWith("DynamicClasses"));
             return assembly == null ? new Type[0] : assembly.GetTypes().Where(t => t.Name.StartsWith("DynamicClass")).ToArray();
         }
-
     }
 }

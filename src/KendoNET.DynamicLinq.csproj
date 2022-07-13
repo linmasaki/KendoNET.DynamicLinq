@@ -2,31 +2,31 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard1.6;netstandard2.0;netstandard2.1</TargetFrameworks>
+    <RootNamespace>KendoNET.DynamicLinq</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup>
-    <PackageId>Kendo.DynamicLinqCore</PackageId>    
-    <AssemblyName>Kendo.DynamicLinqCore</AssemblyName>
+    <PackageId>KendoNET.DynamicLinq</PackageId>
     <Title>Kendo.DynamicLinqCore</Title>
     <Authors>CoCo Lin</Authors>
     <Description>Kendo.DynamicLinqCore implements server paging, filtering, sorting, grouping and aggregating to Kendo UI via Dynamic Linq for .Net Core App(1.x ~ 3.x).
 
-Supported platforms:
+      Supported platforms:
 
-- .NET Standard 1.6
-- .NET Standard 2.0
-- .NET Standard 2.1
-- .NET Core 1.0 ~ .NET Core 1.1
-- .NET Core 2.0 ~ .NET Core 2.2
-- .NET Core 3.0 ~ .NET Core 3.1
+      - .NET Standard 1.6
+      - .NET Standard 2.0
+      - .NET Standard 2.1
+      - .NET Core 1.0 ~ .NET Core 1.1
+      - .NET Core 2.0 ~ .NET Core 2.2
+      - .NET Core 3.0 ~ .NET Core 3.1
 
     </Description>
     <PackageReleaseNotes>
-    
-1. Fix the issue that filter will throw exception if decimal property is optional.
-2. Add asynchronous method of retrieving data(This feature is still in the experimental stage, not recommend using it on your product).
 
-Full changelog: https://github.com/linmasaki/Kendo.DynamicLinqCore/blob/master/CHANGELOG.md
+      1. Fix the issue that filter will throw exception if decimal property is optional.
+      2. Add asynchronous method of retrieving data(This feature is still in the experimental stage, not recommend using it on your product).
+
+      Full changelog: https://github.com/linmasaki/Kendo.DynamicLinqCore/blob/master/CHANGELOG.md
 
     </PackageReleaseNotes>
     <PackageProjectUrl>https://github.com/linmasaki/Kendo.DynamicLinqCore</PackageProjectUrl>
@@ -41,13 +41,13 @@ Full changelog: https://github.com/linmasaki/Kendo.DynamicLinqCore/blob/master/C
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='netstandard1.6'">
-    <PackageReference Include="System.AppDomain" Version="2.0.11" />
-    <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.3.0" />
+    <PackageReference Include="System.AppDomain" Version="2.0.11"/>
+    <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.3.0"/>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />    
-    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.2" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0"/>
+    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.13"/>
   </ItemGroup>
 
 </Project>

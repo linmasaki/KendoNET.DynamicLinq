@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace Kendo.DynamicLinqCore
+namespace KendoNET.DynamicLinq
 {
     // The response format of the group schema : https://docs.telerik.com/kendo-ui/api/javascript/data/datasource/configuration/schema#schemagroups
     [DataContract(Name = "groupresult")]
@@ -15,9 +15,9 @@ namespace Kendo.DynamicLinqCore
         [DataMember(Name = "field")]
         public string Field
         {
-            get { return string.Format("{0} ({1})", this.SelectorField, this.Count); }
-            //get { return SelectorField; }
+            get { return $"{this.SelectorField} ({this.Count})"; }
         }
+
         public int Count { get; set; }
 
         [DataMember(Name = "aggregates")]
