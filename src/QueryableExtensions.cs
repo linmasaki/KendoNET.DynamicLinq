@@ -140,6 +140,18 @@ namespace KendoNET.DynamicLinq
             return Task.Run(() => queryable.ToDataSourceResult(take, skip, sort, filter, aggregates, group));
         }
 
+        /// <summary>
+        /// Asynchronously applies data processing (paging, sorting, filtering and aggregates) over IQueryable using Dynamic Linq.
+        /// </summary>
+        /// <typeparam name="T">The type of the IQueryable.</typeparam>
+        /// <param name="queryable">The IQueryable which should be processed.</param>
+        /// <param name="dataSourceRequest">Specifies Kendo DataSourceRequest.</param>
+        /// <returns>A DataSourceResult object populated from the processed IQueryable.</returns>
+        public static Task<DataSourceResult> ToDataSourceResultAsync<T>(this IQueryable<T> queryable, DataSourceRequest dataSourceRequest)
+        {
+            return Task.Run(() => queryable.ToDataSourceResult(dataSourceRequest));
+        }
+
         private static IQueryable<T> Filters<T>(IQueryable<T> queryable, Filter filter, List<object> errors)
         {
             if (filter?.Logic != null)
