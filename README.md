@@ -4,6 +4,8 @@
 [![Downloads](https://img.shields.io/nuget/dt/KendoNET.DynamicLinq.svg)](https://www.nuget.org/packages/KendoNET.DynamicLinq)
 [![.NET Standard](https://img.shields.io/badge/.NET%20Standard-%3E%3D%201.6-red.svg)](#)
 
+*Note: This has now moved to a different NuGet URL, so please use the new URL for updating the package.*
+
 ## Description
 
 KendoNET.DynamicLinq implements server paging, filtering, sorting, grouping, and aggregating to Kendo UI via Dynamic Linq for .Net Core App(1.x ~ 3.x).
