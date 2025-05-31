@@ -1,17 +1,19 @@
 ﻿using System.Linq;
+using System.Text.Json;
 using KendoNET.DynamicLinq.Test.Data;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 using NUnit.Framework;
 using NUnit.Framework.Legacy;
+
 
 namespace KendoNET.DynamicLinq.Test
 {
     [TestFixture]
-    public class FilterTest
+    public class FilterTestSystem
     {
         private MockContext _dbContext;
 
+        private readonly JsonSerializerOptions jsonSerializerOptions = CustomJsonSerializerOptions.DefaultOptions;
 
 
         [SetUp]
@@ -56,8 +58,9 @@ namespace KendoNET.DynamicLinq.Test
             // source string = {"take":20,"skip":0,"filter":{"logic":"and","filters":[{"field":"Salary","operator":"gt","value":999.00},{"field":"Salary","operator":"lt","value":6000.00}]}}
 
 
-            var request = JsonConvert.DeserializeObject<DataSourceRequest>(
-                "{\"take\":20,\"skip\":0,\"filter\":{\"logic\":\"and\",\"filters\":[{\"field\":\"Salary\",\"operator\":\"gt\",\"value\":999.00},{\"field\":\"Salary\",\"operator\":\"lt\",\"value\":6000.00}]}}");
+            var request = JsonSerializer.Deserialize<DataSourceRequest>(
+                "{\"take\":20,\"skip\":0,\"filter\":{\"logic\":\"and\",\"filters\":[{\"field\":\"Salary\",\"operator\":\"gt\",\"value\":999.00},{\"field\":\"Salary\",\"operator\":\"lt\",\"value\":6000.00}]}}",
+                jsonSerializerOptions);
 
             var result = _dbContext.Employee.AsQueryable().ToDataSourceResult(request);
             ClassicAssert.AreEqual(4, result.Total);
@@ -68,9 +71,9 @@ namespace KendoNET.DynamicLinq.Test
         {
             // source string = {"take":20,"skip":0,"filter":{"logic":"and","filters":[{"field":"Weight","operator":"gt","value":48},{"field":"Weight","operator":"lt","value":69.2}]}}
 
-
-            var request = JsonConvert.DeserializeObject<DataSourceRequest>(
-                "{\"take\":20,\"skip\":0,\"filter\":{\"logic\":\"and\",\"filters\":[{\"field\":\"Weight\",\"operator\":\"gt\",\"value\":48},{\"field\":\"Weight\",\"operator\":\"lte\",\"value\":69.2}]}}");
+            var request = JsonSerializer.Deserialize<DataSourceRequest>(
+                "{\"take\":20,\"skip\":0,\"filter\":{\"logic\":\"and\",\"filters\":[{\"field\":\"Weight\",\"operator\":\"gt\",\"value\":48},{\"field\":\"Weight\",\"operator\":\"lte\",\"value\":69.2}]}}",
+                jsonSerializerOptions);
 
             var result = _dbContext.Employee.AsQueryable().ToDataSourceResult(request);
             ClassicAssert.AreEqual(3, result.Total);
@@ -81,9 +84,9 @@ namespace KendoNET.DynamicLinq.Test
         {
             // source string = {\"take\":10,\"skip\":0,\"filter\":{\"logic\":\"and\",\"filters\":[{\"logic\":\"or\",\"filters\":[{\"field\":\"Birthday\",\"operator\":\"eq\",\"value\":\"1986-10-09T16:00:00.000Z\"},{\"field\":\"Birthday\",\"operator\":\"eq\",\"value\":\"1976-11-05T16:00:00.000Z\"}]},{\"logic\":\"and\",\"filters\":[{\"field\":\"Salary\",\"operator\":\"gte\",\"value\":1000},{\"field\":\"Salary\",\"operator\":\"lte\",\"value\":6000}]}]}}
 
-
-            var request = JsonConvert.DeserializeObject<DataSourceRequest>(
-                "{\"take\":10,\"skip\":0,\"filter\":{\"logic\":\"and\",\"filters\":[{\"logic\":\"or\",\"filters\":[{\"field\":\"Birthday\",\"operator\":\"eq\",\"value\":\"1986-10-09T00:00:00.000Z\"},{\"field\":\"Birthday\",\"operator\":\"eq\",\"value\":\"1976-11-05T00:00:00.000Z\"}]},{\"logic\":\"and\",\"filters\":[{\"field\":\"Salary\",\"operator\":\"gte\",\"value\":1000},{\"field\":\"Salary\",\"operator\":\"lte\",\"value\":6000}]}]}}");
+            var request = JsonSerializer.Deserialize<DataSourceRequest>(
+                "{\"take\":10,\"skip\":0,\"filter\":{\"logic\":\"and\",\"filters\":[{\"logic\":\"or\",\"filters\":[{\"field\":\"Birthday\",\"operator\":\"eq\",\"value\":\"1986-10-09T00:00:00.000Z\"},{\"field\":\"Birthday\",\"operator\":\"eq\",\"value\":\"1976-11-05T00:00:00.000Z\"}]},{\"logic\":\"and\",\"filters\":[{\"field\":\"Salary\",\"operator\":\"gte\",\"value\":1000},{\"field\":\"Salary\",\"operator\":\"lte\",\"value\":6000}]}]}}",
+                jsonSerializerOptions);
 
             var result = _dbContext.Employee.AsQueryable().ToDataSourceResult(request);
             ClassicAssert.AreEqual(2, result.Total);

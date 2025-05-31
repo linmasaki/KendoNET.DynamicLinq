@@ -1,4 +1,4 @@
-#if NETCOREAPP3_1
+﻿
 
 using System;
 using System.Text.Json;
@@ -8,7 +8,7 @@ namespace KendoNET.DynamicLinq.Test
 {
     public class CustomJsonSerializerOptions
     {
-        public static readonly JsonSerializerOptions DefaultOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        public static readonly JsonSerializerOptions DefaultOptions = new() { PropertyNameCaseInsensitive = true };
 
         static CustomJsonSerializerOptions()
         {
@@ -35,7 +35,7 @@ namespace KendoNET.DynamicLinq.Test
 
             if (reader.TokenType == JsonTokenType.Number)
             {
-                if (reader.TryGetInt64(out long l))
+                if (reader.TryGetInt64(out var l))
                 {
                     return l;
                 }
@@ -45,7 +45,7 @@ namespace KendoNET.DynamicLinq.Test
 
             if (reader.TokenType == JsonTokenType.String)
             {
-                if (reader.TryGetDateTime(out DateTime datetime))
+                if (reader.TryGetDateTime(out var datetime))
                 {
                     return datetime;
                 }
@@ -53,7 +53,7 @@ namespace KendoNET.DynamicLinq.Test
                 return reader.GetString();
             }
 
-            using JsonDocument document = JsonDocument.ParseValue(ref reader);
+            using var document = JsonDocument.ParseValue(ref reader);
             return document.RootElement.Clone();
         }
 
@@ -61,5 +61,3 @@ namespace KendoNET.DynamicLinq.Test
             throw new InvalidOperationException("Should not get here.");
     }
 }
-
-#endif

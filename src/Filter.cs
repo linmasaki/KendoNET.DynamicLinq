@@ -17,36 +17,36 @@ namespace KendoNET.DynamicLinq
         /// Gets or sets the name of the sorted field (property). Set to null if the Filters property is set.
         /// </summary>
         [DataMember(Name = "field")]
-        public string Field { get; set; }
+        public string Field { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the filtering operator. Set to null if the Filters property is set.
         /// </summary>
         [DataMember(Name = "operator")]
-        public string Operator { get; set; }
+        public string Operator { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the filtering value. Set to null if the Filters property is set.
         /// </summary>
         [DataMember(Name = "value")]
-        public object Value { get; set; }
+        public object? Value { get; set; }
 
         /// <summary>
         /// Gets or sets the filtering logic. Can be set to "or" or "and". Set to null unless Filters is set.
         /// </summary>
         [DataMember(Name = "logic")]
-        public string Logic { get; set; }
+        public string Logic { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the child filter expressions. Set to null if there are no child expressions.
         /// </summary>
         [DataMember(Name = "filters")]
-        public IEnumerable<Filter> Filters { get; set; }
+        public IEnumerable<Filter>? Filters { get; set; }
 
         /// <summary>
         /// Mapping of Kendo DataSource filtering operators to Dynamic Linq
         /// </summary>
-        private static readonly IDictionary<string, string> Operators = new Dictionary<string, string>
+        private static readonly Dictionary<string, string> Operators = new Dictionary<string, string>
         {
             { "eq", "=" },
             { "neq", "!=" },
@@ -69,11 +69,12 @@ namespace KendoNET.DynamicLinq
         /// <summary>
         /// These operators only for string type.
         /// </summary>
-        private static readonly string[] StringOperators = new[] { "startswith", "endswith", "contains", "doesnotcontain", "isempty", "isnotempty", "isnullorempty", "isnotnullorempty" };
+        private static readonly string[] StringOperators = ["startswith", "endswith", "contains", "doesnotcontain", "isempty", "isnotempty", "isnullorempty", "isnotnullorempty"];
 
         /// <summary>
         /// Get a flattened list of all child filter expressions.
         /// </summary>
+        /// <exception cref="NotSupportedException"></exception>
         public IList<Filter> All()
         {
             var filters = new List<Filter>();
@@ -81,7 +82,10 @@ namespace KendoNET.DynamicLinq
 
             return filters;
         }
-
+        /// <summary>
+        /// Collects the filter expressions into a flat list.
+        /// </summary>
+        /// <exception cref="NotSupportedException"></exception>
         private void Collect(IList<Filter> filters)
         {
             if (Filters?.Any() == true)
@@ -100,64 +104,53 @@ namespace KendoNET.DynamicLinq
         /// <summary>
         /// Converts the filter expression to a predicate suitable for Dynamic Linq e.g. "Field1 = @1 and Field2.Contains(@2)"
         /// </summary>
+        /// <param name="type"></param>
         /// <param name="filters">A list of flattened filters.</param>
+        /// <exception cref="OutOfMemoryException"></exception>
+        /// <exception cref="NotSupportedException"></exception>
+        /// <exception cref="AmbiguousMatchException"></exception>
         public string ToExpression(Type type, IList<Filter> filters)
         {
             if (Filters?.Any() == true)
             {
-                return "(" + String.Join(" " + Logic + " ", Filters.Select(filter => filter.ToExpression(type, filters)).ToArray()) + ")";
+                return "(" + string.Join(" " + Logic + " ", Filters.Select(filter => filter.ToExpression(type, filters)).ToArray()) + ")";
             }
 
             var currentPropertyType = GetLastPropertyType(type, Field);
-            if (currentPropertyType != typeof(String) && StringOperators.Contains(Operator))
+            if (currentPropertyType != typeof(string) && StringOperators.Contains(Operator))
             {
-                throw new NotSupportedException(string.Format("Operator {0} not support non-string type", Operator));
+                throw new NotSupportedException($"Operator {Operator} not support non-string type");
             }
 
-            int index = filters.IndexOf(this);
+            var index = filters.IndexOf(this);
             var comparison = Operators[Operator];
-
-            //switch(Operator)
-            //{
-            //    case "doesnotcontain":
-            //        return String.Format("{0} != null && !{0}.{1}(@{2})", Field, comparison, index);
-            //    case "isnull":
-            //    case "isnotnull":
-            //        return String.Format("{0} {1} null", Field, comparison);
-            //    case "isempty":
-            //    case "isnotempty":
-            //        return String.Format("{0} {1} String.Empty", Field, comparison);
-            //    case "isnullorempty":
-            //    case "isnotnullorempty":
-            //        return String.Format("{0}String.IsNullOrEmpty({1})", comparison, Field);
-            //}
 
             if (Operator == "doesnotcontain")
             {
-                return String.Format("{0} != null && !{0}.{1}(@{2})", Field, comparison, index);
+                return $"{Field} != null && !{Field}.{comparison}(@{index})";
             }
 
             if (Operator == "isnull" || Operator == "isnotnull")
             {
-                return String.Format("{0} {1} null", Field, comparison);
+                return $"{Field} {comparison} null";
             }
 
             if (Operator == "isempty" || Operator == "isnotempty")
             {
-                return String.Format("{0} {1} String.Empty", Field, comparison);
+                return $"{Field} {comparison} String.Empty";
             }
 
             if (Operator == "isnullorempty" || Operator == "isnotnullorempty")
             {
-                return String.Format("{0}String.IsNullOrEmpty({1})", comparison, Field);
+                return $"{comparison}String.IsNullOrEmpty({Field})";
             }
 
             if (comparison == "StartsWith" || comparison == "EndsWith" || comparison == "Contains")
             {
-                return String.Format("{0} != null && {0}.{1}(@{2})", Field, comparison, index);
+                return $"{Field} != null && {Field}.{comparison}(@{index})";
             }
 
-            return String.Format("{0} {1} @{2}", Field, comparison, index);
+            return $"{Field} {comparison} @{index}";
         }
 
         /// <summary>
@@ -165,11 +158,15 @@ namespace KendoNET.DynamicLinq
         /// </summary>
         /// <param name="parameter">Parameter expression</param>
         /// <param name="filters">A list of flattened filters.</param>
+        /// <exception cref="NotSupportedException"></exception>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="InvalidOperationException"></exception>
+        /// <exception cref="AmbiguousMatchException"></exception>
         public Expression ToLambdaExpression<T>(ParameterExpression parameter, IList<Filter> filters)
         {
             if (Filters?.Any() == true)
             {
-                Expression compositeExpression = null;
+                Expression? compositeExpression = null;
                 if (Logic == "and")
                 {
                     foreach (var exp in Filters.Select(filter => filter.ToLambdaExpression<T>(parameter, filters)).ToArray())
@@ -188,20 +185,24 @@ namespace KendoNET.DynamicLinq
                     }
                 }
 
-                return compositeExpression;
+                return compositeExpression ?? Expression.Empty();
             }
 
             var currentPropertyType = GetLastPropertyType(typeof(T), Field);
-            if (currentPropertyType != typeof(String) && StringOperators.Contains(Operator))
+            if (currentPropertyType != typeof(string) && StringOperators.Contains(Operator))
             {
-                throw new NotSupportedException(string.Format("Operator {0} not support non-string type", Operator));
+                throw new NotSupportedException($"Operator {Operator} not support non-string type");
             }
 
             var propertyChains = Field.Split('.');
-            Expression left = null;
+            Expression? left = null;
             foreach (var f in propertyChains)
             {
                 left = Expression.PropertyOrField(parameter, f);
+            }
+            if (left == null)
+            {
+                throw new ArgumentException($"Field '{Field}' not found in type '{typeof(T).Name}'");
             }
 
             Expression right = Expression.Constant(Value, currentPropertyType);
@@ -219,7 +220,7 @@ namespace KendoNET.DynamicLinq
 
                     if (Operator == "contains" || Operator == "doesnotcontain")
                     {
-                        var containsMethod = typeof(String).GetMethod("Contains", new[] { typeof(String) });
+                        var containsMethod = typeof(string).GetMethod("Contains", [typeof(string)]) ?? throw new InvalidOperationException("String.Contains method not found. Ensure the type is string or compatible.");
                         var containsExpression = Expression.Call(left, containsMethod, right);
                         if (Operator == "contains")
                             resultExpression = Expression.AndAlso(Expression.Not(nullCheckExpression), containsExpression);
@@ -228,13 +229,13 @@ namespace KendoNET.DynamicLinq
                     }
                     else if (Operator == "startswith")
                     {
-                        var startswithMethod = typeof(String).GetMethod("StartsWith", new[] { typeof(String) });
+                        var startswithMethod = typeof(string).GetMethod("StartsWith", [typeof(string)]) ?? throw new InvalidOperationException("String.StartsWith method not found. Ensure the type is string or compatible.");
                         var startswithExpression = Expression.Call(left, startswithMethod, right);
                         resultExpression = Expression.AndAlso(Expression.Not(nullCheckExpression), startswithExpression);
                     }
                     else if (Operator == "endswith")
                     {
-                        var endswithMethod = typeof(String).GetMethod("EndsWith", new[] { typeof(String) });
+                        var endswithMethod = typeof(string).GetMethod("EndsWith", [typeof(string)]) ?? throw new InvalidOperationException("String.EndsWith method not found. Ensure the type is string or compatible.");
                         var endswithExpression = Expression.Call(left, endswithMethod, right);
                         resultExpression = Expression.AndAlso(Expression.Not(nullCheckExpression), endswithExpression);
                     }
@@ -251,7 +252,7 @@ namespace KendoNET.DynamicLinq
 
                 case "isempty":
                 case "isnotempty":
-                    var emptyCheckExpression = Expression.Equal(left, Expression.Constant(String.Empty, currentPropertyType));
+                    var emptyCheckExpression = Expression.Equal(left, Expression.Constant(string.Empty, currentPropertyType));
                     if (Operator == "isempty")
                         resultExpression = emptyCheckExpression;
                     else
@@ -260,7 +261,7 @@ namespace KendoNET.DynamicLinq
 
                 case "isnullorempty":
                 case "isnotnullorempty":
-                    var nullOrEmptyMethod = typeof(String).GetMethod("IsNullOrEmpty", new[] { typeof(String) });
+                    var nullOrEmptyMethod = typeof(string).GetMethod("IsNullOrEmpty", [typeof(string)]) ?? throw new InvalidOperationException("String.IsNullOrEmpty method not found. Ensure the type is string or compatible.");
                     var nullOrEmptyExpression = Expression.Call(left, nullOrEmptyMethod, right);
                     if (Operator == "isnullorempty")
                         resultExpression = nullOrEmptyExpression;
@@ -294,31 +295,27 @@ namespace KendoNET.DynamicLinq
                     break;
 
                 default:
-                    throw new NotSupportedException(string.Format("Not support Operator {0}!", Operator));
+                    throw new NotSupportedException($"Not support Operator {Operator}!");
             }
 
             return resultExpression;
         }
-
+        /// <summary>
+        /// GEt last property type from the path.
+        /// </summary>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="AmbiguousMatchException"></exception>
         internal static Type GetLastPropertyType(Type type, string path)
         {
-            Type currentType = type;
+            var currentType = type;
 
             /* Searches for the public property with the specified name */
             /* Used in versions above 3.1.0 */
-            foreach (string propertyName in path.Split('.'))
+            foreach (var propertyName in path.Split('.'))
             {
-                PropertyInfo property = currentType.GetProperty(propertyName);
+                var property = currentType.GetProperty(propertyName) ?? throw new ArgumentException($"Property '{propertyName}' not found in type '{currentType.Name}'");
                 currentType = property.PropertyType;
             }
-
-            /* Retrieves all properties defined on the specified type, including inherited, non-public, instance, and static properties */
-            /* Used in versions under 2.2.2 */
-            //foreach (string propertyName in path.Split('.'))
-            //{
-            //    var typeProperties = currentType.GetRuntimeProperties();
-            //    currentType = typeProperties.FirstOrDefault(f => f.Name.Equals(propertyName, StringComparison.OrdinalIgnoreCase))?.PropertyType;
-            //}
 
             return currentType;
         }

@@ -1,11 +1,11 @@
-using System;
+﻿using System;
 
 namespace KendoNET.DynamicLinq.ConsoleApp.Models
 {
     public static class MockData
     {
-        public static readonly Employee[] Employees = new Employee[]
-        {
+        public static readonly Employee[] Employees =
+        [
             new Employee
             {
                 Number = 10,
@@ -71,6 +71,6 @@ namespace KendoNET.DynamicLinq.ConsoleApp.Models
                 Weight = 99.8F,
                 Birthday = new DateTime(2005, 3, 16, 8, 0, 0)
             }
-        };
+        ];
     }
 }

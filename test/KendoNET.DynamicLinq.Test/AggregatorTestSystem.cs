@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Text.Json;
 using KendoNET.DynamicLinq.Test.Data;
-using Newtonsoft.Json;
 using NUnit.Framework;
 using NUnit.Framework.Legacy;
 
@@ -8,10 +8,12 @@ using NUnit.Framework.Legacy;
 namespace KendoNET.DynamicLinq.Test
 {
     [TestFixture]
-    public class AggregatorTest
+    public class AggregatorTestSystem
     {
         private MockContext _dbContext;
 
+
+        private static readonly JsonSerializerOptions jsonSerializerOptions = CustomJsonSerializerOptions.DefaultOptions;
 
 
         public static IEnumerable<DataSourceRequest> DataSourceRequestWithAggregateSalarySum
@@ -19,7 +21,7 @@ namespace KendoNET.DynamicLinq.Test
             get
             {
 
-                yield return JsonConvert.DeserializeObject<DataSourceRequest>("{\"take\":10,\"skip\":0,\"aggregate\":[{\"field\":\"Salary\",\"aggregate\":\"sum\"}]}");
+                yield return JsonSerializer.Deserialize<DataSourceRequest>("{\"take\":10,\"skip\":0,\"aggregate\":[{\"field\":\"Salary\",\"aggregate\":\"sum\"}]}", jsonSerializerOptions);
 
             }
         }
@@ -28,9 +30,9 @@ namespace KendoNET.DynamicLinq.Test
         {
             get
             {
-
-                yield return JsonConvert.DeserializeObject<DataSourceRequest>(
-                    "{\"take\":10,\"skip\":0,\"aggregate\":[{\"field\":\"Salary\",\"aggregate\":\"sum\"},{\"field\":\"Salary\",\"aggregate\":\"average\"},{\"field\":\"Number\",\"aggregate\":\"max\"}]}");
+                yield return JsonSerializer.Deserialize<DataSourceRequest>(
+                    "{\"take\":10,\"skip\":0,\"aggregate\":[{\"field\":\"Salary\",\"aggregate\":\"sum\"},{\"field\":\"Salary\",\"aggregate\":\"average\"},{\"field\":\"Number\",\"aggregate\":\"max\"}]}",
+                    jsonSerializerOptions);
 
             }
         }
@@ -44,14 +46,14 @@ namespace KendoNET.DynamicLinq.Test
         [Test]
         public void InputParameter_DecimalSum_CheckResultObjectString()
         {
-            var result = _dbContext.Employee.AsQueryable().ToDataSourceResult(10, 0, null, null, new[]
-            {
+            var result = _dbContext.Employee.AsQueryable().ToDataSourceResult(10, 0, null, null,
+            [
                 new Aggregator
                 {
                     Aggregate = "sum",
                     Field = "Salary"
                 }
-            }, null);
+            ], null);
 
             object expectedObject = "{ Salary = { sum = 14850 } }";
             ClassicAssert.AreEqual(expectedObject, result.Aggregates.ToString());
@@ -83,8 +85,8 @@ namespace KendoNET.DynamicLinq.Test
         [Test]
         public void InputParameter_ManyAggregators_CheckResultObjectString()
         {
-            var result = _dbContext.Employee.AsQueryable().ToDataSourceResult(10, 0, null, null, new[]
-            {
+            var result = _dbContext.Employee.AsQueryable().ToDataSourceResult(10, 0, null, null,
+            [
                 new Aggregator
                 {
                     Aggregate = "sum",
@@ -100,7 +102,7 @@ namespace KendoNET.DynamicLinq.Test
                     Aggregate = "max",
                     Field = "Number"
                 },
-            }, null);
+            ], null);
 
             object expectedObject = "{ Salary = { sum = 14850, average = 2970 }, Number = { max = 6 } }";
             ClassicAssert.AreEqual(expectedObject, result.Aggregates.ToString());

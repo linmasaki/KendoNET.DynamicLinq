@@ -21,8 +21,8 @@ namespace KendoNET.DynamicLinq.ConsoleApp
             Console.WriteLine("----------------------------------------");
 
             /* Test 1 (Aggregate)*/
-            var result = MockData.Employees.AsQueryable().ToDataSourceResult(1, 2, null, null, new[]
-            {
+            var result = MockData.Employees.AsQueryable().ToDataSourceResult(1, 2, null, null,
+            [
                 new Aggregator
                 {
                     Aggregate = "sum",
@@ -33,7 +33,7 @@ namespace KendoNET.DynamicLinq.ConsoleApp
                     Aggregate = "average",
                     Field = "Salary"
                 }
-            }, null);
+            ], null);
 
             Console.WriteLine("\r\n/********** Test 1 (Aggregate) **********/");
             Console.WriteLine("Expectation: { Salary = { sum = 24750, average = 4125 } }");
@@ -41,14 +41,14 @@ namespace KendoNET.DynamicLinq.ConsoleApp
 
 
             /* Test 2 (DateTime)*/
-            result = MockData.Employees.AsQueryable().ToDataSourceResult(10, 0, new[]
-                {
+            result = MockData.Employees.AsQueryable().ToDataSourceResult(10, 0,
+                [
                     new Sort
                     {
                         Field = "Name",
                         Dir = "asc"
                     }
-                },
+                ],
                 new Filter
                 {
                     Field = "Birthday",
@@ -63,18 +63,18 @@ namespace KendoNET.DynamicLinq.ConsoleApp
 
 
             /* Test 3 (String Method)*/
-            result = MockData.Employees.AsQueryable().ToDataSourceResult(10, 0, new[]
-                {
+            result = MockData.Employees.AsQueryable().ToDataSourceResult(10, 0,
+                [
                     new Sort
                     {
                         Field = "Name",
                         Dir = "asc"
                     }
-                },
+                ],
                 new Filter
                 {
-                    Filters = new[]
-                    {
+                    Filters =
+                    [
                         new Filter
                         {
                             Field = "Introduce",
@@ -87,7 +87,7 @@ namespace KendoNET.DynamicLinq.ConsoleApp
                             Operator = "doesnotcontain",
                             Value = "Monie"
                         }
-                    },
+                    ],
                     Logic = "and"
                 }, null, null);
 
@@ -97,19 +97,19 @@ namespace KendoNET.DynamicLinq.ConsoleApp
 
 
             /* Test 4 (Double)*/
-            result = MockData.Employees.AsQueryable().ToDataSourceResult(10, 0, new[]
-                {
+            result = MockData.Employees.AsQueryable().ToDataSourceResult(10, 0,
+                [
                     new Sort
                     {
                         Field = "Name",
                         Dir = "asc"
                     }
-                },
+                ],
                 new Filter
                 {
                     Logic = "or",
-                    Filters = new[]
-                    {
+                    Filters =
+                    [
                         new Filter
                         {
                             Field = "Height",
@@ -122,7 +122,7 @@ namespace KendoNET.DynamicLinq.ConsoleApp
                             Operator = "lte",
                             Value = 166
                         }
-                    }
+                    ]
                 }, null, null);
 
             Console.WriteLine("\r\n/********** Test 4 (Double) **********/");
@@ -131,19 +131,19 @@ namespace KendoNET.DynamicLinq.ConsoleApp
 
 
             /* Test 5 (Float)*/
-            result = MockData.Employees.AsQueryable().ToDataSourceResult(10, 0, new[]
-                {
+            result = MockData.Employees.AsQueryable().ToDataSourceResult(10, 0,
+                [
                     new Sort
                     {
                         Field = "Name",
                         Dir = "asc"
                     }
-                },
+                ],
                 new Filter
                 {
                     Logic = "and",
-                    Filters = new[]
-                    {
+                    Filters =
+                    [
                         new Filter
                         {
                             Field = "Weight",
@@ -156,7 +156,7 @@ namespace KendoNET.DynamicLinq.ConsoleApp
                             Operator = "lte",
                             Value = 82.8F
                         }
-                    }
+                    ]
                 }, null, null);
 
             Console.WriteLine("\r\n/********** Test 5 (Float) **********/");

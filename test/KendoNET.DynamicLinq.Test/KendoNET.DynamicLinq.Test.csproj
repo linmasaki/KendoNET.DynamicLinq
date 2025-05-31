@@ -1,21 +1,21 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.1;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net8.0</TargetFrameworks>
     <IsPackable>false</IsPackable>
     <RootNamespace>KendoNET.DynamicLinq.Test</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="nunit" Version="3.12.0"/>
-    <PackageReference Include="NUnit3TestAdapter" Version="3.15.1"/>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0"/>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="3.1.1"/>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="3.1.1"/>
+    <PackageReference Include="nunit" Version="4.3.2" />
+    <PackageReference Include="NUnit3TestAdapter" Version="5.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="9.0.5" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\KendoNET.DynamicLinq.csproj"/>
+    <ProjectReference Include="..\..\src\KendoNET.DynamicLinq.csproj" />
   </ItemGroup>
 
 </Project>

@@ -2,36 +2,40 @@
 
 namespace KendoNET.DynamicLinq
 {
+    /// <summary>
+    /// Represents a request for data operations such as paging, sorting, filtering, grouping, and aggregation.
+    /// Used by Kendo UI DataSource to describe the desired data manipulation.
+    /// </summary>
     public class DataSourceRequest
     {
         /// <summary>
-        /// Specifies how many items to take.
+        /// Gets or sets the number of items to take (page size).
         /// </summary>
         public int Take { get; set; }
 
         /// <summary>
-        /// Specifies how many items to skip.
+        /// Gets or sets the number of items to skip (used for paging).
         /// </summary>
         public int Skip { get; set; }
 
         /// <summary>
-        /// Specifies the requested sort order.
+        /// Gets or sets the collection of sort expressions that define the requested sort order.
         /// </summary>
-        public IEnumerable<Sort> Sort { get; set; }
+        public IEnumerable<Sort> Sort { get; set; } = [];
 
         /// <summary>
-        /// Specifies the requested filter.
+        /// Gets or sets the filter expression that defines the requested filtering.
         /// </summary>
-        public Filter Filter { get; set; }
+        public Filter? Filter { get; set; }
 
         /// <summary>
-        /// Specifies the requested grouping .
+        /// Gets or sets the collection of group expressions that define the requested grouping.
         /// </summary>
-        public IEnumerable<Group> Group { get; set; }
+        public IEnumerable<Group>? Group { get; set; }
 
         /// <summary>
-        /// Specifies the requested aggregators.
+        /// Gets or sets the collection of aggregate expressions that define the requested aggregations.
         /// </summary>
-        public IEnumerable<Aggregator> Aggregate { get; set; }
+        public IEnumerable<Aggregator>? Aggregate { get; set; }
     }
 }

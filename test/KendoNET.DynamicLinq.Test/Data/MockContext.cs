@@ -1,11 +1,11 @@
-using System;
+﻿using System;
+using KendoNET.DynamicLinq.Test.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using KendoNET.DynamicLinq.Test.Models;
 
 namespace KendoNET.DynamicLinq.Test.Data
 {
-    public class MockContext : DbContext
+    public class MockContext(DbContextOptions<MockContext> options) : DbContext(options)
     {
         private static MockContext _defaultDbContext;
 
@@ -22,10 +22,6 @@ namespace KendoNET.DynamicLinq.Test.Data
             _defaultDbContext.Database.EnsureDeleted();
             _defaultDbContext.Database.EnsureCreated();
             return _defaultDbContext;
-        }
-
-        public MockContext(DbContextOptions<MockContext> options) : base(options)
-        {
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

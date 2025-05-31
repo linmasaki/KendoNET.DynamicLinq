@@ -1,17 +1,18 @@
 ﻿using System.Linq.Dynamic.Core;
+using System.Text.Json;
 using KendoNET.DynamicLinq.Test.Data;
-using Newtonsoft.Json;
 using NUnit.Framework;
 using NUnit.Framework.Legacy;
-
 
 namespace KendoNET.DynamicLinq.Test
 {
     [TestFixture]
-    public class GroupTest
+    public class GroupTestSystem
     {
         private MockContext _dbContext;
 
+
+        private readonly JsonSerializerOptions _jsonSerializerOptions = CustomJsonSerializerOptions.DefaultOptions;
 
 
         [SetUp]
@@ -25,9 +26,8 @@ namespace KendoNET.DynamicLinq.Test
         {
             // source string = {"take":20,"skip":0,"sort":[{"field":"Number","dir":"desc"}],"group":[{"field":"Gender"}]}
 
-
-            var request = JsonConvert.DeserializeObject<DataSourceRequest>("{\"take\":20,\"skip\":0,\"sort\":[{\"field\":\"Number\",\"dir\":\"desc\"}],\"group\":[{\"field\":\"Gender\"}]}");
-
+            var request = JsonSerializer.Deserialize<DataSourceRequest>("{\"take\":20,\"skip\":0,\"sort\":[{\"field\":\"Number\",\"dir\":\"desc\"}],\"group\":[{\"field\":\"Gender\"}]}",
+                _jsonSerializerOptions);
 
             var result = _dbContext.Employee.AsQueryable().ToDataSourceResult(request);
             var groupItems = result.Groups.ToDynamicList().Count;
