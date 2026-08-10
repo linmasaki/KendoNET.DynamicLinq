@@ -18,7 +18,9 @@
       "stopAtEntry": false,
       "internalConsoleOptions": "openOnSessionStart",
       "logging": {
-        "engineLogging": false,
+        "diagnosticsLog": {
+          "protocolMessages": false
+        },
         "moduleLoad": false,
         "exceptions": true,
         "browserStdOut": false
@@ -38,7 +40,9 @@
       "stopAtEntry": false,
       "internalConsoleOptions": "openOnSessionStart",
       "logging": {
-        "engineLogging": false,
+        "diagnosticsLog": {
+          "protocolMessages": false
+        },
         "moduleLoad": false,
         "exceptions": true,
         "browserStdOut": false
@@ -58,7 +62,9 @@
       "stopAtEntry": false,
       "internalConsoleOptions": "openOnSessionStart",
       "logging": {
-        "engineLogging": false,
+        "diagnosticsLog": {
+          "protocolMessages": false
+        },
         "moduleLoad": false,
         "exceptions": true,
         "browserStdOut": false

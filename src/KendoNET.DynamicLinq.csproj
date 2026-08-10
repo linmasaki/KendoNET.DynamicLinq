@@ -47,7 +47,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0"/>
-    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.13"/>
+    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.6.0"/>
   </ItemGroup>
 
 </Project>

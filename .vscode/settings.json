@@ -1,5 +1,4 @@
 {
-  "dotnet-test-explorer.testProjectPath": "test/KendoNET.DynamicLinq.Test",
   "workbench.colorCustomizations": {
     "activityBar.background": "#27b2b5",
     "activityBar.activeBackground": "#27b2b5",
@@ -16,8 +15,16 @@
     "statusBarItem.hoverBackground": "#27b2b5",
     "statusBar.foreground": "#e7e7e7",
     "sash.hoverBorder": "#27b2b5",
-    "statusBarItem.remoteBackground": "#1e898b",
-    "statusBarItem.remoteForeground": "#e7e7e7"
+    "statusBarItem.remoteBackground": "#831c81",
+    "statusBarItem.remoteForeground": "#e7e7e7",
+    "activityBarTop.activeBackground": "#27b2b5",
+    "activityBarTop.background": "#27b2b5",
+    "activityBarTop.foreground": "#15202b",
+    "activityBarTop.inactiveForeground": "#15202b99",
+    "commandCenter.border": "#e7e7e799",
+    "commandCenter.foreground": "#e7e7e7",
+    "statusBar.debuggingBackground": "#1e898b",
+    "statusBar.debuggingForeground": "#e7e7e7"
   },
   "peacock.color": "#1e898b"
 }
