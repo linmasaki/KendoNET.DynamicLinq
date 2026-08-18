@@ -1,5 +1,10 @@
 # Change Log
 
+### V3.2.0 (2026/08/17)
+
+- [#15](https://github.com/linmasaki/KendoNET.DynamicLinq/issues/15) Add `IgnoreCase` option to `Filter` for case-insensitive string filtering (`eq`, `neq`, `contains`, `doesnotcontain`, `startswith`, `endswith`), defaults to `false` for backward compatibility.
+- [#24](https://github.com/linmasaki/KendoNET.DynamicLinq/pull/24) Document in the README that this package was previously published as `Kendo.DynamicLinqCore` and was renamed due to a trademark concern.
+
 ### V3.1.2 (2022/07/14)
 
 -[#22](https://github.com/linmasaki/KendoNET.DynamicLinq/discussions/22) Rename this repository.

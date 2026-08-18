@@ -38,6 +38,12 @@ namespace KendoNET.DynamicLinq
         public string Logic { get; set; }
 
         /// <summary>
+        /// Gets or sets whether string comparisons should ignore case. Only applies to string fields.
+        /// </summary>
+        [DataMember(Name = "ignoreCase")]
+        public bool IgnoreCase { get; set; }
+
+        /// <summary>
         /// Gets or sets the child filter expressions. Set to null if there are no child expressions.
         /// </summary>
         [DataMember(Name = "filters")]
@@ -116,6 +122,7 @@ namespace KendoNET.DynamicLinq
 
             int index = filters.IndexOf(this);
             var comparison = Operators[Operator];
+            var caseInsensitive = IgnoreCase && currentPropertyType == typeof(String) && Value != null;
 
             //switch(Operator)
             //{
@@ -134,7 +141,9 @@ namespace KendoNET.DynamicLinq
 
             if (Operator == "doesnotcontain")
             {
-                return String.Format("{0} != null && !{0}.{1}(@{2})", Field, comparison, index);
+                return caseInsensitive
+                    ? String.Format("{0} != null && !{0}.ToLower().{1}(@{2}.ToLower())", Field, comparison, index)
+                    : String.Format("{0} != null && !{0}.{1}(@{2})", Field, comparison, index);
             }
 
             if (Operator == "isnull" || Operator == "isnotnull")
@@ -154,7 +163,14 @@ namespace KendoNET.DynamicLinq
 
             if (comparison == "StartsWith" || comparison == "EndsWith" || comparison == "Contains")
             {
-                return String.Format("{0} != null && {0}.{1}(@{2})", Field, comparison, index);
+                return caseInsensitive
+                    ? String.Format("{0} != null && {0}.ToLower().{1}(@{2}.ToLower())", Field, comparison, index)
+                    : String.Format("{0} != null && {0}.{1}(@{2})", Field, comparison, index);
+            }
+
+            if (caseInsensitive && (Operator == "eq" || Operator == "neq"))
+            {
+                return String.Format("({0} == null ? {0} : {0}.ToLower()) {1} @{2}.ToLower()", Field, comparison, index);
             }
 
             return String.Format("{0} {1} @{2}", Field, comparison, index);
@@ -242,7 +258,7 @@ namespace KendoNET.DynamicLinq
                     {
                         resultExpression = nullCheckExpression;
                     }
-                    else // Operator == "isnotnull"
+                    else
                     {
                         resultExpression = Expression.Not(nullCheckExpression);
                     }

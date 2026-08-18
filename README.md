@@ -6,15 +6,15 @@
 
 ## Description
 
-KendoNET.DynamicLinq implements server paging, filtering, sorting, grouping, and aggregating to Kendo UI via Dynamic Linq for .Net Core App(1.x ~ 3.x).
+KendoNET.DynamicLinq implements server paging, filtering, sorting, grouping, and aggregating to Kendo UI via Dynamic Linq for .NET Core App(1.x ~ 3.x).
 
 ## Prerequisites
 
-### .Net Core 1 ~ 2
+### .NET Core 1 ~ 2
 
 - None
 
-### .Net Core 3
+### .NET Core 3
 
 - You must add custom `ObjectToInferredTypesConverter` to your `JsonSerializerOptions` since `System.Text.Json` didn't deserialize inferred type to object properties now, see
   the [sample code](https://github.com/linmasaki/KendoNET.DynamicLinq/blob/master/test/KendoNET.DynamicLinq.Tests/CustomJsonSerializerOptions.cs)
@@ -27,7 +27,7 @@ KendoNET.DynamicLinq implements server paging, filtering, sorting, grouping, and
 
 ```javascript
 parameterMap: function(options, type) {
-    return JSON.stringify(options);
+    return kendo.stringify(options);
 }
 ```
 
@@ -60,19 +60,19 @@ dataSource: {
     },
     transport: {
         read: {
-            url: 'your read url',
+            url: 'read url',
             dataType: 'json',
             contentType: 'application/json; charset=utf-8',
             type: 'POST'
         },
         create: {
-            url: 'your create url',
+            url: 'create url',
             dataType: "json",
             contentType: 'application/json; charset=utf-8',
             type: 'POST'
         },
         parameterMap: function (data, operation) {
-            return JSON.stringify(data);
+            return kendo.stringify(data);
         }
     },
     error: function(e) {
@@ -139,6 +139,69 @@ public IActionResult Products([FromBody] DataSourceRequest requestModel)
 }
 ```
 
+## Additional Configuration
+
+The following configurations are optional. They can be omitted when the default Grid and server behavior is sufficient.
+
+### ▸ Forward Column-Level `ignoreCase` to the Server
+
+Use `Filter.IgnoreCase` to enable case-insensitive matching for `eq`, `neq`, `contains`, `doesnotcontain`, `startswith`, and `endswith` on string fields; leave it unset to keep the existing case-sensitive behavior. If you build `DataSourceRequest`/`Filter` manually instead of going through the Grid, just set this property directly.
+
+When `serverFiltering` is enabled, the Grid column setting [`filterable.ignoreCase`](https://www.telerik.com/kendo-jquery-ui/documentation/api/javascript/ui/grid/configuration/columns.filterable.ignorecase) is not automatically included in the request sent to the server. Use `parameterMap` to copy the ignoreCase value from the column whose field matches the filter descriptor's field.
+
+For example:
+
+```javascript
+..... Other kendo grid code .....
+
+dataSource: {
+    schema: {...},
+    transport: {
+        read: {
+            url: 'read url',
+            dataType: 'json',
+            contentType: 'application/json; charset=utf-8',
+            type: 'POST'
+        },
+        parameterMap: function (data, operation) {
+
+            /* Add the following code to forward column-level ignoreCase to the server */
+            var grid = $("#grid-id").data("kendoGrid");     // replace "grid-id" with your grid's id
+            var columns = grid ? grid.columns : [];
+            var pendingFilters = [];
+
+            if (data.filter) { pendingFilters.push(data.filter); }
+            while (pendingFilters.length > 0) {
+                var filter = pendingFilters.pop();
+                if (!filter) { continue; }
+                if (filter.filters) {
+                    for (var i = 0; i < filter.filters.length; i++) { pendingFilters.push(filter.filters[i]); }
+                    continue;
+                }
+
+                var column = columns.find(function (col) { return col.field === filter.field; });
+                if (column && column.filterable && typeof column.filterable === "object" && column.filterable.ignoreCase !== undefined)
+                {
+                    filter.ignoreCase = column.filterable.ignoreCase;
+                }
+            }
+
+            // ... other parameterMap code ...
+
+            return kendo.stringify(data);
+        }
+    },
+    error: function(e) {...},
+    pageSize: 20,
+    serverPaging: true,
+    serverFiltering: true,
+    serverSorting: true,
+    ...
+}
+
+..... Other kendo grid code .....
+```
+
 ## Known Issues
 
 When server-side filterable options are enabled and apply a query with filter condition that contains `DateTime` type column, then EntityFramework Core would throw an
@@ -169,7 +232,8 @@ public class MyContext : DbContext
 
 ## Note
 
-KendoNET.DynamicLinq is a reference to [Ali Sarkis's](https://github.com/mshtawythug/dlinq-helpers) Kendo.DynamicLinq.
+1. KendoNET.DynamicLinq is a reference to [Ali Sarkis's](https://github.com/mshtawythug/dlinq-helpers) Kendo.DynamicLinq.
+2. This package was previously published as `Kendo.DynamicLinqCore`. Due to a trademark concern, and following coordination with the trademark holder, the project was renamed to `KendoNET.DynamicLinq`. The old package has since been delisted from NuGet; please switch to the new package ID above.
 
 ## Kendo UI Documentation
 
@@ -179,5 +243,3 @@ The following links are Kendo UI online docs(related to this package) and you ca
 - [Kendo DataSource](https://docs.telerik.com/kendo-ui/api/javascript/data/datasource)
 
 More Kendo UI configuration can refer to [here](https://demos.telerik.com/kendo-ui/)
-
-

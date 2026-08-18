@@ -102,6 +102,16 @@ namespace KendoNET.DynamicLinq.Test.Data
                     Gender = Gender.M,
                     Birthday = new DateTime(2003, 1, 22),
                     CompanyId = Guid.Parse("80a6570c-ca98-4661-adde-e4d5a8637ee5")
+                },
+                new Employee
+                {
+                    Number = 7,
+                    Identification = Guid.Parse("f1e2d3c4-b5a6-4978-8899-001122334455"),
+                    Name = null,
+                    Introduce = "Anonymous",
+                    Gender = Gender.M,
+                    Birthday = new DateTime(1999, 1, 1),
+                    CompanyId = Guid.Parse("5dd641dd-2ba4-4dfd-9572-81325ecd8940")
                 }
             );
 

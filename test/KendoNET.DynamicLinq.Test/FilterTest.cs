@@ -108,5 +108,63 @@ namespace KendoNET.DynamicLinq.Test
             var result = _dbContext.Employee.AsQueryable().ToDataSourceResult(request);
             Assert.AreEqual(2, result.Total);
         }
+
+        [TestCase("contains", "co", 1)]
+        [TestCase("startswith", "PIKA", 1)]
+        [TestCase("doesnotcontain", "coco", 5)]
+        [TestCase("eq", "zed", 1)]
+        [TestCase("neq", null, 6)]
+        public void InputParameter_IgnoreCase_CheckResultCount(string op, string value, int expected)
+        {
+            var result = _dbContext.Employee.AsQueryable().ToDataSourceResult(10, 0, null, new Filter
+            {
+                Field = "Name",
+                Operator = op,
+                Value = value,
+                IgnoreCase = true,
+                Logic = "and"
+            });
+
+            Assert.AreEqual(expected, result.Total);
+        }
+
+        [Test]
+        public void InputParameter_IgnoreCase_NullFieldAndNullValue_CheckResultCount()
+        {
+            var result = _dbContext.Employee.AsQueryable().ToDataSourceResult(10, 0, null, new Filter
+            {
+                Field = "Name",
+                Operator = "eq",
+                Value = null,
+                IgnoreCase = true,
+                Logic = "and"
+            });
+
+            Assert.AreEqual(1, result.Total);
+        }
+
+
+        [TestCase("contains", "co", 0)]
+        [TestCase("contains", "Co", 1)]
+        [TestCase("startswith", "PIKA", 0)]
+        [TestCase("startswith", "Pika", 1)]
+        [TestCase("doesnotcontain", "co", 6)]
+        [TestCase("doesnotcontain", "Co", 5)]
+        [TestCase("eq", "zed", 0)]
+        [TestCase("eq", "Zed", 1)]
+        [TestCase("neq", null, 6)]
+        public void InputParameter_WithoutIgnoreCase_CheckResultCount(string op, string value, int expected)
+        {
+            var result = _dbContext.Employee.AsQueryable().ToDataSourceResult(10, 0, null, new Filter
+            {
+                Field = "Name",
+                Operator = op,
+                Value = value,
+                Logic = "and",
+                IgnoreCase = false
+            });
+
+            Assert.AreEqual(expected, result.Total);
+        }
     }
 }

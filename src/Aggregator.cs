@@ -65,12 +65,12 @@ namespace KendoNET.DynamicLinq
         private static MethodInfo GetMethod(string methodName, MethodInfo methodTypes, int genericArgumentsCount)
         {
             var methods = from method in typeof(Queryable).GetMethods(BindingFlags.Public | BindingFlags.Static)
-                let parameters = method.GetParameters()
-                let genericArguments = method.GetGenericArguments()
-                where method.Name == methodName &&
-                      genericArguments.Length == genericArgumentsCount &&
-                      parameters.Select(p => p.ParameterType).SequenceEqual((Type[])methodTypes.Invoke(null, genericArguments))
-                select method;
+                          let parameters = method.GetParameters()
+                          let genericArguments = method.GetGenericArguments()
+                          where method.Name == methodName &&
+                                genericArguments.Length == genericArgumentsCount &&
+                                parameters.Select(p => p.ParameterType).SequenceEqual((Type[])methodTypes.Invoke(null, genericArguments))
+                          select method;
             return methods.FirstOrDefault();
         }
 

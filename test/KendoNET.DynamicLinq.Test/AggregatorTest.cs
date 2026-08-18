@@ -114,7 +114,7 @@ namespace KendoNET.DynamicLinq.Test
                 },
             }, null);
 
-            object expectedObject = "{ Salary = { sum = 14850, average = 2970 }, Number = { max = 6 } }";
+            object expectedObject = "{ Salary = { sum = 14850, average = 2970 }, Number = { max = 7 } }";
             Assert.AreEqual(expectedObject, result.Aggregates.ToString());
         }
 
@@ -123,7 +123,7 @@ namespace KendoNET.DynamicLinq.Test
         {
             var result = _dbContext.Employee.AsQueryable().ToDataSourceResult(dataSourceRequest);
 
-            object expectedObject = "{ Salary = { sum = 14850, average = 2970 }, Number = { max = 6 } }";
+            object expectedObject = "{ Salary = { sum = 14850, average = 2970 }, Number = { max = 7 } }";
             Assert.AreEqual(expectedObject, result.Aggregates.ToString());
         }
     }
