@@ -114,6 +114,12 @@ namespace KendoNET.DynamicLinq
                 return "(" + String.Join(" " + Logic + " ", Filters.Select(filter => filter.ToExpression(type, filters)).ToArray()) + ")";
             }
 
+            // These operators pass the filter value into a string method, so a null value breaks the query when it runs
+            if (Value == null && (Operator == "startswith" || Operator == "endswith" || Operator == "contains" || Operator == "doesnotcontain"))
+            {
+                throw new NotSupportedException(string.Format("Operator {0} not support null value", Operator));
+            }
+
             var currentPropertyType = GetLastPropertyType(type, Field);
             if (currentPropertyType != typeof(String) && StringOperators.Contains(Operator))
             {
@@ -318,6 +324,11 @@ namespace KendoNET.DynamicLinq
 
         internal static Type GetLastPropertyType(Type type, string path)
         {
+            if (string.IsNullOrEmpty(path))
+            {
+                throw new NullReferenceException("Filter field is required");
+            }
+
             Type currentType = type;
 
             /* Searches for the public property with the specified name */
@@ -325,6 +336,11 @@ namespace KendoNET.DynamicLinq
             foreach (string propertyName in path.Split('.'))
             {
                 PropertyInfo property = currentType.GetProperty(propertyName);
+                if (property == null)
+                {
+                    throw new NullReferenceException(string.Format("Field {0} not found", path));
+                }
+
                 currentType = property.PropertyType;
             }
 

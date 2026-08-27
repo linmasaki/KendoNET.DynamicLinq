@@ -166,5 +166,41 @@ namespace KendoNET.DynamicLinq.Test
 
             Assert.AreEqual(expected, result.Total);
         }
+
+        [TestCase("contains")]
+        [TestCase("doesnotcontain")]
+        [TestCase("startswith")]
+        [TestCase("endswith")]
+        public void InputParameter_StringOperatorWithNullValue_CheckErrors(string op)
+        {
+            var result = _dbContext.Employee.AsQueryable().ToDataSourceResult(10, 0, null, new Filter
+            {
+                Field = "Name",
+                Operator = op,
+                Value = null,
+                Logic = "and"
+            });
+
+            Assert.IsNotNull(result.Errors);
+        }
+
+        [TestCase("School", true)]
+        [TestCase("Company.NickName", true)]
+        [TestCase(null, true)]
+        [TestCase("", true)]
+        [TestCase("Name", false)]
+        [TestCase("Company.Name", false)]
+        public void InputParameter_WithUnknownField_CheckErrors(string field, bool hasErrors)
+        {
+            var result = _dbContext.Employee.AsQueryable().ToDataSourceResult(10, 0, null, new Filter
+            {
+                Field = field,
+                Operator = "eq",
+                Value = "Zed",
+                Logic = "and"
+            });
+
+            Assert.AreEqual(hasErrors, result.Errors != null);
+        }
     }
 }

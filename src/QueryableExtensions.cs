@@ -144,17 +144,18 @@ namespace KendoNET.DynamicLinq
         {
             if (filter?.Logic != null)
             {
-                // Pretreatment some work
-                filter = PreliminaryWork(typeof(T), filter);
-
-                // Collect a flat list of all filters
-                var filters = filter.All();
-
                 /* Method.1 Use the combined expression string */
                 // Step.1 Create a predicate expression e.g. Field1 = @0 And Field2 > @1
+                IList<Filter> filters;
                 string predicate;
                 try
                 {
+                    // Pretreatment some work
+                    filter = PreliminaryWork(typeof(T), filter);
+
+                    // Collect a flat list of all filters
+                    filters = filter.All();
+
                     predicate = filter.ToExpression(typeof(T), filters);
                 }
                 catch (Exception ex)
