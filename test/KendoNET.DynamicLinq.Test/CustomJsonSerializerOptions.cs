@@ -1,5 +1,3 @@
-#if NETCOREAPP3_1
-
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -13,8 +11,8 @@ namespace KendoNET.DynamicLinq.Test
         static CustomJsonSerializerOptions()
         {
             // System.Text.Json didn't deserialize inferred type to object properties now.
-            // https://docs.microsoft.com/en-gb/dotnet/standard/serialization/system-text-json-migrate-from-newtonsoft-how-to#deserialization-of-object-properties
-            // https://docs.microsoft.com/en-gb/dotnet/standard/serialization/system-text-json-converters-how-to#deserialize-inferred-types-to-object-properties
+            // https://learn.microsoft.com/en-gb/dotnet/standard/serialization/system-text-json-migrate-from-newtonsoft-how-to#deserialization-of-object-properties
+            // https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json/converters-how-to#deserialize-inferred-types-to-object-properties
             DefaultOptions.Converters.Add(new ObjectToInferredTypesConverter());
         }
     }
@@ -61,5 +59,3 @@ namespace KendoNET.DynamicLinq.Test
             throw new InvalidOperationException("Should not get here.");
     }
 }
-
-#endif

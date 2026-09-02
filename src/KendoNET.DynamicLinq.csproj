@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.6;netstandard2.0;netstandard2.1</TargetFrameworks>
+    <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>KendoNET.DynamicLinq</RootNamespace>
   </PropertyGroup>
 
@@ -9,10 +9,11 @@
     <PackageId>KendoNET.DynamicLinq</PackageId>
     <Title>KendoNET.DynamicLinq</Title>
     <Authors>CoCo Lin</Authors>
-    <Description>Implements server paging, filtering, sorting, grouping and aggregating for Kendo UI via Dynamic Linq, targeting both .NET Core and modern .NET apps.</Description>
+    <Description>Implements server paging, filtering, sorting, grouping and aggregating for Kendo UI via Dynamic Linq, targeting .NET 10.</Description>
     <PackageReleaseNotes>
-1. Add `IgnoreCase` option to `Filter` for case-insensitive string filtering.
-2. Document that this package was previously published as Kendo.DynamicLinqCore and was renamed due to a trademark concern.
+1. Target .NET 10 exclusively. Consumers on .NET Standard, .NET Framework, .NET Core 1.x-3.x, or .NET 5-9 should stay on the 3.x line.
+2. Align the package version with the .NET version it targets.
+3. Report invalid filters through DataSourceResult.Errors instead of throwing.
 
 Full changelog: https://github.com/linmasaki/KendoNET.DynamicLinq/blob/master/CHANGELOG.md
     </PackageReleaseNotes>
@@ -20,21 +21,15 @@ Full changelog: https://github.com/linmasaki/KendoNET.DynamicLinq/blob/master/CH
     <RepositoryUrl>https://github.com/linmasaki/KendoNET.DynamicLinq</RepositoryUrl>
     <PackageIconUrl>https://raw.githubusercontent.com/linmasaki/CoCoPackageIcon/master/cocodotnet64.png</PackageIconUrl>
     <PackageIcon>Icon.png</PackageIcon>
-    <PackageTags>net netcore netstandard kendo kendo-ui linq</PackageTags>
-    <PackageVersion>3.2.0</PackageVersion>
-    <Version>3.2.0</Version>
+    <PackageTags>net dotnet kendo kendo-ui linq dynamic-linq</PackageTags>
+    <PackageVersion>10.0.0</PackageVersion>
+    <Version>10.0.0</Version>
     <Copyright>Copyright © 2017-2026 CoCo Lin</Copyright>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)'=='netstandard1.6'">
-    <PackageReference Include="System.AppDomain" Version="2.0.11"/>
-    <PackageReference Include="System.Runtime.Serialization.Primitives" Version="4.3.0"/>
-  </ItemGroup>
-
   <ItemGroup>
-    <PackageReference Include="Microsoft.CSharp" Version="4.7.0"/>
-    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.6.0"/>
+    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.7.3"/>
   </ItemGroup>
 
   <ItemGroup>

@@ -8,15 +8,7 @@ namespace KendoNET.DynamicLinq.ConsoleApp
     {
         static void Main(string[] args)
         {
-#if NETCOREAPP1_0 || NETCOREAPP1_1
-            Console.WriteLine("/---------- .Net Core App 1.x ----------/");
-#elif NETCOREAPP2_1
-            Console.WriteLine("/---------- .Net Core App 2.x ----------/");
-#elif NETCOREAPP3_1
-            Console.WriteLine("/---------- .Net Core App 3.x ----------/");
-#else
-            Console.WriteLine("/---------- .Net App ----------/");
-#endif
+            Console.WriteLine("/---------- .NET 10 ----------/");
 
             Console.WriteLine("----------------------------------------");
 

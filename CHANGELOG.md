@@ -1,5 +1,10 @@
 # Change Log
 
+### V10.0.0 (2026/09/01)
+
+- **Breaking**: Target .NET 10 exclusively. Support for .NET Standard 1.6/2.0/2.1, .NET Framework, .NET Core 1.x ~ 3.x, and .NET 5 ~ 9 ends here; those consumers should stay on the 3.x releases, maintained on the `release/3.x` branch.
+- [#29](https://github.com/linmasaki/KendoNET.DynamicLinq/issues/29) Report invalid filters through `DataSourceResult.Errors` instead of throwing.
+
 ### V3.2.0 (2026/08/17)
 
 - [#15](https://github.com/linmasaki/KendoNET.DynamicLinq/issues/15) Add `IgnoreCase` option to `Filter` for case-insensitive string filtering (`eq`, `neq`, `contains`, `doesnotcontain`, `startswith`, `endswith`), defaults to `false` for backward compatibility.

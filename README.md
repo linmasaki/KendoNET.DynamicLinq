@@ -2,23 +2,18 @@
 
 [![Version](https://img.shields.io/nuget/vpre/KendoNET.DynamicLinq.svg)](https://www.nuget.org/packages/KendoNET.DynamicLinq)
 [![Downloads](https://img.shields.io/nuget/dt/KendoNET.DynamicLinq.svg)](https://www.nuget.org/packages/KendoNET.DynamicLinq)
-[![.NET Standard](https://img.shields.io/badge/.NET%20Standard-%3E%3D%201.6-red.svg)](#)
+[![.NET](https://img.shields.io/badge/.NET-10.0-512BD4.svg)](#)
 
 ## Description
 
-KendoNET.DynamicLinq implements server paging, filtering, sorting, grouping, and aggregating to Kendo UI via Dynamic Linq for .NET Core App(1.x ~ 3.x).
+KendoNET.DynamicLinq implements server paging, filtering, sorting, grouping, and aggregating to Kendo UI via Dynamic Linq for .NET 10.
 
 ## Prerequisites
 
-### .NET Core 1 ~ 2
-
-- None
-
-### .NET Core 3
-
-- You must add custom `ObjectToInferredTypesConverter` to your `JsonSerializerOptions` since `System.Text.Json` didn't deserialize inferred type to object properties now, see
-  the [sample code](https://github.com/linmasaki/KendoNET.DynamicLinq/blob/master/test/KendoNET.DynamicLinq.Tests/CustomJsonSerializerOptions.cs)
-  and [reference](https://docs.microsoft.com/en-gb/dotnet/standard/serialization/system-text-json-converters-how-to#deserialize-inferred-types-to-object-properties).
+- .NET 10. Consumers on .NET Standard, .NET Framework, .NET Core 1.x ~ 3.x, or .NET 5 ~ 9 should use the 3.x releases instead.
+- You must add custom `ObjectToInferredTypesConverter` to your `JsonSerializerOptions` since `System.Text.Json` doesn't deserialize inferred types to object properties, see
+  the [sample code](https://github.com/linmasaki/KendoNET.DynamicLinq/blob/master/test/KendoNET.DynamicLinq.Test/CustomJsonSerializerOptions.cs)
+  and [reference](https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json/converters-how-to#deserialize-inferred-types-to-object-properties).
 
 ## Usage
 
