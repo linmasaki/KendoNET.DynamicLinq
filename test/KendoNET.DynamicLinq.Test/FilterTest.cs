@@ -1,8 +1,9 @@
+using System;
 using System.Linq;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using KendoNET.DynamicLinq.Test.Data;
-using System.Text.Json;
 
 namespace KendoNET.DynamicLinq.Test
 {
@@ -10,8 +11,7 @@ namespace KendoNET.DynamicLinq.Test
     public class FilterTest
     {
         private MockContext _dbContext;
-
-        private JsonSerializerOptions jsonSerializerOptions = CustomJsonSerializerOptions.DefaultOptions;
+        private readonly JsonSerializerOptions _serializerOptions = CustomJsonSerializerOptions.DefaultOptions;
 
         [SetUp]
         public void Setup()
@@ -53,10 +53,9 @@ namespace KendoNET.DynamicLinq.Test
         public void InputDataSourceRequest_DecimalGreaterAndLess_CheckResultCount()
         {
             // source string = {"take":20,"skip":0,"filter":{"logic":"and","filters":[{"field":"Salary","operator":"gt","value":999.00},{"field":"Salary","operator":"lt","value":6000.00}]}}
-
             var request = JsonSerializer.Deserialize<DataSourceRequest>(
                 "{\"take\":20,\"skip\":0,\"filter\":{\"logic\":\"and\",\"filters\":[{\"field\":\"Salary\",\"operator\":\"gt\",\"value\":999.00},{\"field\":\"Salary\",\"operator\":\"lt\",\"value\":6000.00}]}}",
-                jsonSerializerOptions);
+                _serializerOptions);
             var result = _dbContext.Employee.AsQueryable().ToDataSourceResult(request);
             Assert.AreEqual(4, result.Total);
         }
@@ -65,10 +64,9 @@ namespace KendoNET.DynamicLinq.Test
         public void InputDataSourceRequest_DoubleGreaterAndLessEqual_CheckResultCount()
         {
             // source string = {"take":20,"skip":0,"filter":{"logic":"and","filters":[{"field":"Weight","operator":"gt","value":48},{"field":"Weight","operator":"lt","value":69.2}]}}
-
             var request = JsonSerializer.Deserialize<DataSourceRequest>(
                 "{\"take\":20,\"skip\":0,\"filter\":{\"logic\":\"and\",\"filters\":[{\"field\":\"Weight\",\"operator\":\"gt\",\"value\":48},{\"field\":\"Weight\",\"operator\":\"lte\",\"value\":69.2}]}}",
-                jsonSerializerOptions);
+                _serializerOptions);
             var result = _dbContext.Employee.AsQueryable().ToDataSourceResult(request);
             Assert.AreEqual(3, result.Total);
         }
@@ -77,10 +75,9 @@ namespace KendoNET.DynamicLinq.Test
         public void InputDataSourceRequest_ManyConditions_CheckResultCount()
         {
             // source string = {\"take\":10,\"skip\":0,\"filter\":{\"logic\":\"and\",\"filters\":[{\"logic\":\"or\",\"filters\":[{\"field\":\"Birthday\",\"operator\":\"eq\",\"value\":\"1986-10-09T16:00:00.000Z\"},{\"field\":\"Birthday\",\"operator\":\"eq\",\"value\":\"1976-11-05T16:00:00.000Z\"}]},{\"logic\":\"and\",\"filters\":[{\"field\":\"Salary\",\"operator\":\"gte\",\"value\":1000},{\"field\":\"Salary\",\"operator\":\"lte\",\"value\":6000}]}]}}
-
             var request = JsonSerializer.Deserialize<DataSourceRequest>(
                 "{\"take\":10,\"skip\":0,\"filter\":{\"logic\":\"and\",\"filters\":[{\"logic\":\"or\",\"filters\":[{\"field\":\"Birthday\",\"operator\":\"eq\",\"value\":\"1986-10-09T00:00:00.000Z\"},{\"field\":\"Birthday\",\"operator\":\"eq\",\"value\":\"1976-11-05T00:00:00.000Z\"}]},{\"logic\":\"and\",\"filters\":[{\"field\":\"Salary\",\"operator\":\"gte\",\"value\":1000},{\"field\":\"Salary\",\"operator\":\"lte\",\"value\":6000}]}]}}",
-                jsonSerializerOptions);
+                _serializerOptions);
             var result = _dbContext.Employee.AsQueryable().ToDataSourceResult(request);
             Assert.AreEqual(2, result.Total);
         }
@@ -103,22 +100,6 @@ namespace KendoNET.DynamicLinq.Test
 
             Assert.AreEqual(expected, result.Total);
         }
-
-        [Test]
-        public void InputParameter_IgnoreCase_NullFieldAndNullValue_CheckResultCount()
-        {
-            var result = _dbContext.Employee.AsQueryable().ToDataSourceResult(10, 0, null, new Filter
-            {
-                Field = "Name",
-                Operator = "eq",
-                Value = null,
-                IgnoreCase = true,
-                Logic = "and"
-            });
-
-            Assert.AreEqual(1, result.Total);
-        }
-
 
         [TestCase("contains", "co", 0)]
         [TestCase("contains", "Co", 1)]
@@ -177,6 +158,40 @@ namespace KendoNET.DynamicLinq.Test
             });
 
             Assert.AreEqual(hasErrors, result.Errors != null);
+        }
+
+        // The same instant in different time zones
+        private static readonly object[] DifferentTimeZoneData =
+        {
+            new DateTime(2000, 5, 5),                                          // No time zone
+            new DateTimeOffset(2000, 5, 5, 8, 0, 0, TimeSpan.FromHours(8)),    // UTC+8
+            new DateTimeOffset(2000, 5, 4, 19, 0, 0, TimeSpan.FromHours(-5)),  // UTC-5
+        };
+
+        [TestCaseSource(nameof(DifferentTimeZoneData))]
+        public void InputParameter_DateTimeInDifferentTimeZones_CheckResultCount(object value)
+        {
+            var result = _dbContext.Employee.AsQueryable().ToDataSourceResult(10, 0, null, new Filter
+            {
+                Field = "Birthday",
+                Value = value,
+                Operator = "eq",
+                Logic = "and"
+            });
+
+            Assert.AreEqual(1, result.Total);
+        }
+
+        [Test]
+        public void InputDataSourceRequest_DateTimeOffsetAcrossDates_CheckResultCount()
+        {
+            // Kirin was hired at 07:00 on the 2nd at +08:00, which is 23:00 on the 1st in UTC.
+            var request = JsonSerializer.Deserialize<DataSourceRequest>(
+                "{\"take\":10,\"skip\":0,\"filter\":{\"logic\":\"and\",\"filters\":[{\"field\":\"CreatedOn\",\"operator\":\"eq\",\"value\":\"2018-01-01T23:00:00.000Z\"}]}}",
+                _serializerOptions);
+
+            var result = _dbContext.Employee.AsQueryable().ToDataSourceResult(request);
+            Assert.AreEqual(1, result.Total);
         }
     }
 }

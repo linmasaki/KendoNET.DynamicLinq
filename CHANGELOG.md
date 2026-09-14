@@ -1,5 +1,11 @@
 # Change Log
 
+### V10.1.0 (2026/09/14)
+
+- **Breaking**: An `eq` filter on a date column matches that exact instant instead of the whole calendar day; filter with a `gte`/`lt` range instead, as the [README](README.md#date-and-time-handling) shows.
+- [#20](https://github.com/linmasaki/KendoNET.DynamicLinq/pull/20) `DateTime` filter values are read as instants in UTC instead of being converted to the server's time zone, so results no longer depend on where the application runs.
+- Date filter values are now coerced for `DateTime?`, `DateTimeOffset` and `DateTimeOffset?` columns, which previously received no date handling at all.
+
 ### V10.0.0 (2026/09/01)
 
 - **Breaking**: Target .NET 10 exclusively. Support for .NET Standard 1.6/2.0/2.1, .NET Framework, .NET Core 1.x ~ 3.x, and .NET 5 ~ 9 ends here; those consumers should stay on the 3.x releases, maintained on the `release/3.x` branch.

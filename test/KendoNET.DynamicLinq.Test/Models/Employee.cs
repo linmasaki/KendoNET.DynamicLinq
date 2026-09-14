@@ -17,7 +17,9 @@ namespace KendoNET.DynamicLinq.Test.Models
 
         public string Introduce { get; set; }
 
-        public DateTime Birthday { get; set; }
+        public DateTime? Birthday { get; set; }
+
+        public DateTimeOffset CreatedOn { get; set; } = DateTimeOffset.UtcNow;
 
         public decimal? Salary { get; set; }
 

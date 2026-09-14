@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Reflection;
@@ -298,46 +299,27 @@ namespace KendoNET.DynamicLinq
             //     return filter;
             // }
 
-            // Convert datetime-string to DateTime
-            if (currentPropertyType == typeof(DateTime) && DateTime.TryParse(filter.Value.ToString(), out DateTime dateTime))
+            if (currentPropertyType == typeof(DateTime) || currentPropertyType == typeof(DateTime?) || currentPropertyType == typeof(DateTimeOffset) || currentPropertyType == typeof(DateTimeOffset?))
             {
-                filter.Value = dateTime;
+                var isDateTimeOffsetField = currentPropertyType == typeof(DateTimeOffset) || currentPropertyType == typeof(DateTimeOffset?);
 
-                // Copy the time from the filter
-                var localTime = dateTime.ToLocalTime();
-
-                // Used when the datetime's operator value is eq and local time is 00:00:00
-                if (filter.Operator == "eq")
+                // Read the value as an instant. The server's own time zone is never consulted, so the same request gives the same answer wherever this is deployed.
+                DateTimeOffset instant;
+                if (filter.Value is DateTimeOffset offset)
                 {
-                    if (localTime.Hour != 0 || localTime.Minute != 0 || localTime.Second != 0)
-                        return filter;
-
-                    var newFilter = new Filter { Logic = "and" };
-                    newFilter.Filters = new List<Filter>
-                    {
-                        // Instead of comparing for exact equality, we compare as greater than the start of the day...
-                        new Filter
-                        {
-                            Field = filter.Field,
-                            Filters = filter.Filters,
-                            Value = new DateTime(localTime.Year, localTime.Month, localTime.Day, 0, 0, 0),
-                            Operator = "gte"
-                        },
-                        // ...and less than the end of that same day (we're making an additional filter here)
-                        new Filter
-                        {
-                            Field = filter.Field,
-                            Filters = filter.Filters,
-                            Value = new DateTime(localTime.Year, localTime.Month, localTime.Day, 23, 59, 59),
-                            Operator = "lte"
-                        }
-                    };
-
-                    return newFilter;
+                    instant = offset;
+                }
+                else if (filter.Value is DateTime value)
+                {
+                    // A value that states no zone is taken to be UTC rather than the server's.
+                    instant = new DateTimeOffset(value.Kind == DateTimeKind.Unspecified ? DateTime.SpecifyKind(value, DateTimeKind.Utc) : value.ToUniversalTime());
+                }
+                else if (!DateTimeOffset.TryParse(filter.Value.ToString(), CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal, out instant))
+                {
+                    return filter;
                 }
 
-                // Convert datetime to local
-                filter.Value = new DateTime(localTime.Year, localTime.Month, localTime.Day, localTime.Hour, localTime.Minute, localTime.Second, localTime.Millisecond);
+                filter.Value = isDateTimeOffsetField ? (object)instant : instant.UtcDateTime;
             }
 
             return filter;
@@ -357,18 +339,15 @@ namespace KendoNET.DynamicLinq
                 var sortByObject = new Sort { Dir = "desc" };
 
                 PropertyInfo propertyInfo;
-                //look for property that is called id
-                if (properties.Any(p => string.Equals(p.Name, "id", StringComparison.OrdinalIgnoreCase)))
+                if (properties.Any(p => string.Equals(p.Name, "id", StringComparison.OrdinalIgnoreCase)))   //look for property that is called id
                 {
                     propertyInfo = properties.FirstOrDefault(p => string.Equals(p.Name, "id", StringComparison.OrdinalIgnoreCase));
                 }
-                //or contains id
-                else if (properties.Any(p => p.Name.IndexOf("id", StringComparison.OrdinalIgnoreCase) >= 0))
+                else if (properties.Any(p => p.Name.IndexOf("id", StringComparison.OrdinalIgnoreCase) >= 0))    //or contains id
                 {
                     propertyInfo = properties.FirstOrDefault(p => p.Name.IndexOf("id", StringComparison.OrdinalIgnoreCase) >= 0);
                 }
-                //or just get the first property
-                else
+                else    //or just get the first property
                 {
                     propertyInfo = properties.FirstOrDefault();
                 }

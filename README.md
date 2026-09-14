@@ -12,7 +12,7 @@ KendoNET.DynamicLinq implements server paging, filtering, sorting, grouping, and
 
 - .NET 10. Consumers on .NET Standard, .NET Framework, .NET Core 1.x ~ 3.x, or .NET 5 ~ 9 should use the 3.x releases instead.
 - You must add custom `ObjectToInferredTypesConverter` to your `JsonSerializerOptions` since `System.Text.Json` doesn't deserialize inferred types to object properties, see
-  the [sample code](https://github.com/linmasaki/KendoNET.DynamicLinq/blob/master/test/KendoNET.DynamicLinq.Test/CustomJsonSerializerOptions.cs)
+  the [sample code](https://github.com/linmasaki/KendoNET.DynamicLinq/blob/main/test/KendoNET.DynamicLinq.Test/CustomJsonSerializerOptions.cs)
   and [reference](https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json/converters-how-to#deserialize-inferred-types-to-object-properties).
 
 ## Usage
@@ -134,6 +134,28 @@ public IActionResult Products([FromBody] DataSourceRequest requestModel)
 }
 ```
 
+## Date and Time Handling
+
+Filter values are read as instants in UTC. The server's own time zone is never consulted, so the same request returns the same rows wherever the application is deployed.
+
+| Value in the request        | Read as                                          |
+|-----------------------------|--------------------------------------------------|
+| `2025-11-29T16:00:00.000Z`  | `2025-11-29 16:00` UTC                           |
+| `2025-11-30T00:00:00+08:00` | `2025-11-29 16:00` UTC                           |
+| `2025-11-29`                | `2025-11-29 00:00` UTC, since no zone was stated |
+
+`DateTime`, `DateTime?`, `DateTimeOffset` and `DateTimeOffset?` columns are all supported.
+
+Store UTC in the database and let the client convert for display. The Kendo DataSource already sends UTC, since `JSON.stringify` serializes a JavaScript `Date` to a UTC ISO string.
+
+### `eq` matches an exact instant
+
+An `eq` filter matches only the instant supplied as the filter value. To match everything recorded on one day, filter with a `gte`/`lt` range instead. There are two ways to produce that range:
+
+1. **Let the user set it.** The Grid's filter menu offers a second condition by default, so a user can choose the start and end of the day themselves. No code required.
+
+2. **Expand a single date before the request is sent.** The server cannot do it for you: `2025-11-30` picked in UTC+8 arrives as `2025-11-29T16:00:00.000Z`, and nothing in the request says which zone that value came from, so the day the user meant cannot be recovered. Only the client knows the zone; see *Filter a Whole Day on a Date Column* below.
+
 ## Additional Configuration
 
 The following configurations are optional. They can be omitted when the default Grid and server behavior is sufficient.
@@ -196,6 +218,49 @@ dataSource: {
 
 ..... Other kendo grid code .....
 ```
+
+### ▸ Filter a Whole Day on a Date Column
+
+Because `eq` matches an exact instant, a date picker's selection finds only rows stored at exactly that moment. To match everything on the day the user picked, expand the `eq` into a `gte`/`lt` pair in `parameterMap`, where the browser's time zone is available. This is the approach Telerik documents in [Filter by Date Only](https://www.telerik.com/kendo-jquery-ui/documentation/knowledge-base/filter-by-date).
+
+```javascript
+parameterMap: function (data, operation) {
+
+    /* Add the following code to expand an "eq" on a date column into the user's local day */
+    var dateFields = ["CreatedOn"];     // replace with your own date fields
+
+    function expand(node) {
+        if (!node || !node.filters) { return; }
+        for (var i = 0; i < node.filters.length; i++) {
+            var child = node.filters[i];
+            if (!child) { continue; }
+            if (child.filters) { expand(child); continue; }
+            if (child.operator !== "eq" || dateFields.indexOf(child.field) < 0) { continue; }
+
+            var picked = new Date(child.value);
+            node.filters[i] = {
+                logic: "and",
+                filters: [
+                    { field: child.field, operator: "gte", value: new Date(picked.getFullYear(), picked.getMonth(), picked.getDate()) },
+                    { field: child.field, operator: "lt", value: new Date(picked.getFullYear(), picked.getMonth(), picked.getDate() + 1) }
+                ]
+            };
+        }
+    }
+
+    if (data.filter) {
+        var root = { filters: [data.filter] };
+        expand(root);
+        data.filter = root.filters[0];
+    }
+
+    // ... other parameterMap code ...
+
+    return kendo.stringify(data);
+}
+```
+
+For a user in UTC+8 picking 2025-11-30, this sends `gte 2025-11-29T16:00:00.000Z` and `lt 2025-11-30T16:00:00.000Z`, which is the whole of that day in their own time zone.
 
 ## Known Issues
 

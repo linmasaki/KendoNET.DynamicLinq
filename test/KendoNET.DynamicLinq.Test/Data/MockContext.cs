@@ -42,6 +42,7 @@ namespace KendoNET.DynamicLinq.Test.Data
                     Salary = 1000,
                     Gender = Gender.F,
                     Birthday = new DateTime(2000, 5, 5),
+                    CreatedOn = new DateTimeOffset(2015, 4, 1, 1, 0, 0, TimeSpan.Zero),
                     CompanyId = Guid.Parse("c2cbfe28-f82a-4904-8075-bf98729d434f")
                 },
                 new Employee
@@ -54,6 +55,7 @@ namespace KendoNET.DynamicLinq.Test.Data
                     Weight = 69.2,
                     Gender = Gender.M,
                     Birthday = new DateTime(1986, 10, 9, 0, 0, 0, DateTimeKind.Utc),
+                    CreatedOn = new DateTimeOffset(2016, 8, 15, 1, 30, 0, TimeSpan.Zero),
                     CompanyId = Guid.Parse("c2cbfe28-f82a-4904-8075-bf98729d434f")
                 },
                 new Employee
@@ -64,7 +66,8 @@ namespace KendoNET.DynamicLinq.Test.Data
                     Introduce = "I'm Kirin",
                     Weight = 73.8,
                     Gender = Gender.M,
-                    Birthday = new DateTime(1984, 7, 8),
+                    Birthday = null,
+                    CreatedOn = new DateTimeOffset(2018, 1, 1, 23, 0, 0, TimeSpan.Zero),
                     CompanyId = Guid.Parse("5dd641dd-2ba4-4dfd-9572-81325ecd8940")
                 },
                 new Employee
@@ -77,6 +80,7 @@ namespace KendoNET.DynamicLinq.Test.Data
                     Weight = 82.1,
                     Gender = Gender.M,
                     Birthday = new DateTime(1976, 11, 5, 0, 0, 0, DateTimeKind.Utc),
+                    CreatedOn = new DateTimeOffset(2019, 6, 20, 6, 0, 0, TimeSpan.Zero),
                     CompanyId = Guid.Parse("80a6570c-ca98-4661-adde-e4d5a8637ee5")
                 },
                 new Employee
@@ -89,6 +93,7 @@ namespace KendoNET.DynamicLinq.Test.Data
                     Weight = 52.9,
                     Gender = Gender.P,
                     Birthday = new DateTime(2005, 3, 16),
+                    CreatedOn = new DateTimeOffset(2021, 11, 1, 1, 0, 0, TimeSpan.Zero),
                     CompanyId = Guid.Parse("80a6570c-ca98-4661-adde-e4d5a8637ee5")
                 },
                 new Employee
@@ -101,6 +106,7 @@ namespace KendoNET.DynamicLinq.Test.Data
                     Weight = 71.6,
                     Gender = Gender.M,
                     Birthday = new DateTime(2003, 1, 22),
+                    CreatedOn = new DateTimeOffset(2022, 3, 14, 10, 0, 0, TimeSpan.Zero),
                     CompanyId = Guid.Parse("80a6570c-ca98-4661-adde-e4d5a8637ee5")
                 },
                 new Employee
@@ -110,7 +116,7 @@ namespace KendoNET.DynamicLinq.Test.Data
                     Name = null,
                     Introduce = "Anonymous",
                     Gender = Gender.M,
-                    Birthday = new DateTime(1999, 1, 1),
+                    Birthday = null,
                     CompanyId = Guid.Parse("5dd641dd-2ba4-4dfd-9572-81325ecd8940")
                 }
             );
