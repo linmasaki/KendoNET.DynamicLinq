@@ -433,3 +433,6 @@ $RECYCLE.BIN/
 
 #Configuration
 #appsettings.*
+
+# Git worktrees (superpowers subagent-driven-development)
+.worktrees/
