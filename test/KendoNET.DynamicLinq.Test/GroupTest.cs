@@ -1,5 +1,6 @@
 using NUnit.Framework;
-using System.Linq.Dynamic.Core;
+using System.Collections.Generic;
+using System.Linq;
 using KendoNET.DynamicLinq.Test.Data;
 using System.Text.Json;
 
@@ -27,8 +28,10 @@ namespace KendoNET.DynamicLinq.Test
                 _jsonSerializerOptions);
 
             var result = _dbContext.Employee.AsQueryable().ToDataSourceResult(request);
-            var groupItems = result.Groups.ToDynamicList().Count;
-            Assert.AreEqual(3, groupItems);
+
+            IEnumerable<GroupResult> groups = result.Groups;
+
+            Assert.AreEqual(3, groups.Count());
         }
     }
 }

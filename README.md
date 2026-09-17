@@ -87,11 +87,16 @@ dataSource: {
 5. Import the KendoNET.DynamicLinq namespace.
 6. Use the `ToDataSourceResult` extension method to apply paging, sorting, filtering, grouping and aggregating.
 
+> **Breaking change in 10.2.0:** `DataSourceResult` is now generic
+> (`DataSourceResult<T>`). Code using `var` needs no changes; code that
+> names `DataSourceResult` explicitly (as below) must add the type
+> argument. See the [changelog](CHANGELOG.md) for details.
+
 ```c#
 using KendoNET.DynamicLinq
 
 [WebMethod]
-public static DataSourceResult Products(int take, int skip, IEnumerable<Sort> sort, Filter filter, IEnumerable<Aggregator> aggregates, IEnumerable<Group> groups)
+public static DataSourceResult<ProductViewModel> Products(int take, int skip, IEnumerable<Sort> sort, Filter filter, IEnumerable<Aggregator> aggregates, IEnumerable<Group> groups)
 {
     using (var northwind = new Northwind())
     {

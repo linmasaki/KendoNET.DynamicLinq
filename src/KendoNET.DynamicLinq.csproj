@@ -11,9 +11,8 @@
     <Authors>CoCo Lin</Authors>
     <Description>Implements server paging, filtering, sorting, grouping and aggregating for Kendo UI via Dynamic Linq, targeting .NET 10.</Description>
     <PackageReleaseNotes>
-1. Breaking: An eq filter on a date column matches the exact instant instead of expanding into the whole of that calendar day. Filter with a gte/lt range instead, as the README shows.
-2. DateTime filter values are read as instants in UTC instead of being converted to the server's time zone, so results no longer depend on where the application runs.
-3. Date filter values are now coerced for DateTime?, DateTimeOffset and DateTimeOffset? columns, which previously received no date handling at all.
+1. Breaking: DataSourceResult is now generic (DataSourceResult&lt;T&gt;), with Data/Groups strongly typed. Code using var needs no changes; code naming DataSourceResult explicitly must add the type argument.
+2. Fixed GetKnownTypes()'s assembly check, which had stopped matching System.Linq.Dynamic.Core's current output, silently breaking DataContractSerializer/WCF support for Aggregates.
 
 Full changelog: https://github.com/linmasaki/KendoNET.DynamicLinq/blob/main/CHANGELOG.md
     </PackageReleaseNotes>
@@ -22,8 +21,8 @@ Full changelog: https://github.com/linmasaki/KendoNET.DynamicLinq/blob/main/CHAN
     <PackageIconUrl>https://raw.githubusercontent.com/linmasaki/CoCoPackageIcon/master/cocodotnet64.png</PackageIconUrl>
     <PackageIcon>Icon.png</PackageIcon>
     <PackageTags>net dotnet kendo kendo-ui linq dynamic-linq</PackageTags>
-    <PackageVersion>10.1.0</PackageVersion>
-    <Version>10.1.0</Version>
+    <PackageVersion>10.2.0</PackageVersion>
+    <Version>10.2.0</Version>
     <Copyright>Copyright © 2017-2026 CoCo Lin</Copyright>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>

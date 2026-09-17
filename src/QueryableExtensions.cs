@@ -20,8 +20,8 @@ namespace KendoNET.DynamicLinq
         /// <param name="skip">Specifies how many items to skip.</param>
         /// <param name="sort">Specifies the current sort order.</param>
         /// <param name="filter">Specifies the current filter.</param>
-        /// <returns>A DataSourceResult object populated from the processed IQueryable.</returns>
-        public static DataSourceResult ToDataSourceResult<T>(this IQueryable<T> queryable, int take, int skip, IEnumerable<Sort> sort, Filter filter)
+        /// <returns>A DataSourceResult&lt;T&gt; object populated from the processed IQueryable.</returns>
+        public static DataSourceResult<T> ToDataSourceResult<T>(this IQueryable<T> queryable, int take, int skip, IEnumerable<Sort> sort, Filter filter)
         {
             return queryable.ToDataSourceResult(take, skip, sort, filter, null, null);
         }
@@ -32,8 +32,8 @@ namespace KendoNET.DynamicLinq
         /// <typeparam name="T">The type of the IQueryable.</typeparam>
         /// <param name="queryable">The IQueryable which should be processed.</param>
         /// <param name="request">The DataSourceRequest object containing take, skip, sort, filter, aggregates, and groups data.</param>
-        /// <returns>A DataSourceResult object populated from the processed IQueryable.</returns>
-        public static DataSourceResult ToDataSourceResult<T>(this IQueryable<T> queryable, DataSourceRequest request)
+        /// <returns>A DataSourceResult&lt;T&gt; object populated from the processed IQueryable.</returns>
+        public static DataSourceResult<T> ToDataSourceResult<T>(this IQueryable<T> queryable, DataSourceRequest request)
         {
             return queryable.ToDataSourceResult(request.Take, request.Skip, request.Sort, request.Filter, request.Aggregate, request.Group);
         }
@@ -49,8 +49,8 @@ namespace KendoNET.DynamicLinq
         /// <param name="filter">Specifies the current filter.</param>
         /// <param name="aggregates">Specifies the current aggregates.</param>
         /// <param name="group">Specifies the current groups.</param>
-        /// <returns>A DataSourceResult object populated from the processed IQueryable.</returns>
-        public static DataSourceResult ToDataSourceResult<T>(this IQueryable<T> queryable,
+        /// <returns>A DataSourceResult&lt;T&gt; object populated from the processed IQueryable.</returns>
+        public static DataSourceResult<T> ToDataSourceResult<T>(this IQueryable<T> queryable,
             int take,
             int skip,
             IEnumerable<Sort> sort,
@@ -93,7 +93,7 @@ namespace KendoNET.DynamicLinq
                 queryable = Page(queryable, take, skip);
             }
 
-            var result = new DataSourceResult
+            var result = new DataSourceResult<T>
             {
                 Total = total,
                 Aggregates = aggregate
@@ -102,7 +102,7 @@ namespace KendoNET.DynamicLinq
             // Group By
             if (group?.Any() == true)
             {
-                result.Groups = queryable.GroupByMany(group);
+                result.Groups = (IEnumerable<GroupResult>)queryable.GroupByMany(group);
             }
             else
             {
@@ -129,8 +129,8 @@ namespace KendoNET.DynamicLinq
         /// <param name="filter">Specifies the current filter.</param>
         /// <param name="aggregates">Specifies the current aggregates.</param>
         /// <param name="group">Specifies the current groups.</param>
-        /// <returns>A DataSourceResult object populated from the processed IQueryable.</returns>
-        public static Task<DataSourceResult> ToDataSourceResultAsync<T>(this IQueryable<T> queryable,
+        /// <returns>A DataSourceResult&lt;T&gt; object populated from the processed IQueryable.</returns>
+        public static Task<DataSourceResult<T>> ToDataSourceResultAsync<T>(this IQueryable<T> queryable,
             int take,
             int skip,
             IEnumerable<Sort> sort,
