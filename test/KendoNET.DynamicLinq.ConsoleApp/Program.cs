@@ -13,8 +13,8 @@ namespace KendoNET.DynamicLinq.ConsoleApp
             Console.WriteLine("----------------------------------------");
 
             /* Test 1 (Aggregate)*/
-            var result = MockData.Employees.AsQueryable().ToDataSourceResult(1, 2, null, null, new[]
-            {
+            var result = MockData.Employees.AsQueryable().ToDataSourceResult(1, 2, null, null,
+            [
                 new Aggregator
                 {
                     Aggregate = "sum",
@@ -25,7 +25,7 @@ namespace KendoNET.DynamicLinq.ConsoleApp
                     Aggregate = "average",
                     Field = "Salary"
                 }
-            }, null);
+            ], null);
 
             Console.WriteLine("\r\n/********** Test 1 (Aggregate) **********/");
             Console.WriteLine("Expectation: { Salary = { sum = 24750, average = 4125 } }");
@@ -33,21 +33,9 @@ namespace KendoNET.DynamicLinq.ConsoleApp
 
 
             /* Test 2 (DateTime)*/
-            result = MockData.Employees.AsQueryable().ToDataSourceResult(10, 0, new[]
-                {
-                    new Sort
-                    {
-                        Field = "Name",
-                        Dir = "asc"
-                    }
-                },
-                new Filter
-                {
-                    Field = "Birthday",
-                    Value = "1985-06-28T16:00:00.000Z",
-                    Operator = "lte",
-                    Logic = "and"
-                }, null, null);
+            var filter = new Filter { Field = "Birthday", Value = "1985-06-28T16:00:00.000Z", Operator = "lte", Logic = "and" };
+            var sort = new[] { new Sort { Field = "Name", Dir = "asc" } };
+            result = MockData.Employees.AsQueryable().ToDataSourceResult(10, 0, filter, null, null, sort);
 
             Console.WriteLine("\r\n/********** Test 2 (DateTime) **********/");
             Console.WriteLine("Expectation: Kirin, Rock");
@@ -55,33 +43,12 @@ namespace KendoNET.DynamicLinq.ConsoleApp
 
 
             /* Test 3 (String Method)*/
-            result = MockData.Employees.AsQueryable().ToDataSourceResult(10, 0, new[]
-                {
-                    new Sort
-                    {
-                        Field = "Name",
-                        Dir = "asc"
-                    }
-                },
-                new Filter
-                {
-                    Filters = new[]
-                    {
-                        new Filter
-                        {
-                            Field = "Introduce",
-                            Operator = "startswith",
-                            Value = "I'm"
-                        },
-                        new Filter
-                        {
-                            Field = "Introduce",
-                            Operator = "doesnotcontain",
-                            Value = "Monie"
-                        }
-                    },
-                    Logic = "and"
-                }, null, null);
+            filter = new Filter
+            {
+                Logic = "and",
+                Filters = [new Filter { Field = "Introduce", Operator = "startswith", Value = "I'm" }, new Filter { Field = "Introduce", Operator = "doesnotcontain", Value = "Monie" }]
+            };
+            result = MockData.Employees.AsQueryable().ToDataSourceResult(10, 0, filter, null, null, sort);
 
             Console.WriteLine("\r\n/********** Test 3 (String Method) **********/");
             Console.WriteLine("Expectation: CoCo, Rock");
@@ -89,33 +56,12 @@ namespace KendoNET.DynamicLinq.ConsoleApp
 
 
             /* Test 4 (Double)*/
-            result = MockData.Employees.AsQueryable().ToDataSourceResult(10, 0, new[]
-                {
-                    new Sort
-                    {
-                        Field = "Name",
-                        Dir = "asc"
-                    }
-                },
-                new Filter
-                {
-                    Logic = "or",
-                    Filters = new[]
-                    {
-                        new Filter
-                        {
-                            Field = "Height",
-                            Operator = "eq",
-                            Value = 200.66
-                        },
-                        new Filter
-                        {
-                            Field = "Height",
-                            Operator = "lte",
-                            Value = 166
-                        }
-                    }
-                }, null, null);
+            filter = new Filter
+            {
+                Logic = "or",
+                Filters = [new Filter { Field = "Height", Operator = "eq", Value = 200.66 }, new Filter { Field = "Height", Operator = "lte", Value = 166 }]
+            };
+            result = MockData.Employees.AsQueryable().ToDataSourceResult(10, 0, filter, null, null, sort);
 
             Console.WriteLine("\r\n/********** Test 4 (Double) **********/");
             Console.WriteLine("Expectation: Memtwo, Monie, Pikachu");
@@ -123,33 +69,12 @@ namespace KendoNET.DynamicLinq.ConsoleApp
 
 
             /* Test 5 (Float)*/
-            result = MockData.Employees.AsQueryable().ToDataSourceResult(10, 0, new[]
-                {
-                    new Sort
-                    {
-                        Field = "Name",
-                        Dir = "asc"
-                    }
-                },
-                new Filter
-                {
-                    Logic = "and",
-                    Filters = new[]
-                    {
-                        new Filter
-                        {
-                            Field = "Weight",
-                            Operator = "gt",
-                            Value = 50
-                        },
-                        new Filter
-                        {
-                            Field = "Weight",
-                            Operator = "lte",
-                            Value = 82.8F
-                        }
-                    }
-                }, null, null);
+            filter = new Filter
+            {
+                Logic = "and",
+                Filters = [new Filter { Field = "Weight", Operator = "gt", Value = 50 }, new Filter { Field = "Weight", Operator = "lte", Value = 82.8F }]
+            };
+            result = MockData.Employees.AsQueryable().ToDataSourceResult(10, 0, filter, null, null, sort);
 
             Console.WriteLine("\r\n/********** Test 5 (Float) **********/");
             Console.WriteLine("Expectation: CoCo, Kirin, Pikachu, Rock");

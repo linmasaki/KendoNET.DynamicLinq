@@ -1,5 +1,11 @@
 # Change Log
 
+### V10.2.0 (2026/10/02)
+
+- **Breaking**: [#20](https://github.com/linmasaki/KendoNET.DynamicLinq/pull/20) [#28](https://github.com/linmasaki/KendoNET.DynamicLinq/pull/28) `DataSourceResult` is now generic (`DataSourceResult<T>`), with `Data`/`Groups` strongly typed. Code naming `DataSourceResult` explicitly must add the type argument and recompile.
+- **Breaking**: `ToDataSourceResult`/`ToDataSourceResultAsync` parameters are reordered to `take, skip, filter, groups, aggregates, sorts`; named arguments `sort:`/`group:` become `sorts:`/`groups:`. A call that passes `null` for `sort` and a group list as the last argument still compiles, but the groups are now treated as sorts.
+- Fixed `GetKnownTypes()`'s assembly check, which had stopped matching `System.Linq.Dynamic.Core`'s current output — this was silently breaking `DataContractSerializer`/WCF support for `Aggregates`.
+
 ### V10.1.0 (2026/09/14)
 
 - **Breaking**: An `eq` filter on a date column matches that exact instant instead of the whole calendar day; filter with a `gte`/`lt` range instead, as the [README](README.md#date-and-time-handling) shows.

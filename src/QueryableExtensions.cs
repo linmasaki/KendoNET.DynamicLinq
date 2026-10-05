@@ -12,18 +12,18 @@ namespace KendoNET.DynamicLinq
     public static class QueryableExtensions
     {
         /// <summary>
-        /// Applies data processing (paging, sorting and filtering) over IQueryable using Dynamic Linq.
+        /// Applies data processing (paging, filtering and sorting) over IQueryable using Dynamic Linq.
         /// </summary>
         /// <typeparam name="T">The type of the IQueryable.</typeparam>
         /// <param name="queryable">The IQueryable which should be processed.</param>
         /// <param name="take">Specifies how many items to take. Configurable via the pageSize setting of the Kendo DataSource.</param>
         /// <param name="skip">Specifies how many items to skip.</param>
-        /// <param name="sort">Specifies the current sort order.</param>
         /// <param name="filter">Specifies the current filter.</param>
-        /// <returns>A DataSourceResult object populated from the processed IQueryable.</returns>
-        public static DataSourceResult ToDataSourceResult<T>(this IQueryable<T> queryable, int take, int skip, IEnumerable<Sort> sort, Filter filter)
+        /// <param name="sorts">Specifies the current sort order.</param>
+        /// <returns>A DataSourceResult&lt;T&gt; object populated from the processed IQueryable.</returns>
+        public static DataSourceResult<T> ToDataSourceResult<T>(this IQueryable<T> queryable, int take, int skip, Filter filter, IEnumerable<Sort> sorts)
         {
-            return queryable.ToDataSourceResult(take, skip, sort, filter, null, null);
+            return queryable.ToDataSourceResult(take, skip, filter, null, null, sorts);
         }
 
         /// <summary>
@@ -32,31 +32,25 @@ namespace KendoNET.DynamicLinq
         /// <typeparam name="T">The type of the IQueryable.</typeparam>
         /// <param name="queryable">The IQueryable which should be processed.</param>
         /// <param name="request">The DataSourceRequest object containing take, skip, sort, filter, aggregates, and groups data.</param>
-        /// <returns>A DataSourceResult object populated from the processed IQueryable.</returns>
-        public static DataSourceResult ToDataSourceResult<T>(this IQueryable<T> queryable, DataSourceRequest request)
+        /// <returns>A DataSourceResult&lt;T&gt; object populated from the processed IQueryable.</returns>
+        public static DataSourceResult<T> ToDataSourceResult<T>(this IQueryable<T> queryable, DataSourceRequest request)
         {
-            return queryable.ToDataSourceResult(request.Take, request.Skip, request.Sort, request.Filter, request.Aggregate, request.Group);
+            return queryable.ToDataSourceResult(request.Take, request.Skip, request.Filter, request.Group, request.Aggregate, request.Sort);
         }
 
         /// <summary>
-        /// Applies data processing (paging, sorting, filtering and aggregates) over IQueryable using Dynamic Linq.
+        /// Applies data processing (paging, filtering, grouping, aggregates and sorting) over IQueryable using Dynamic Linq.
         /// </summary>
         /// <typeparam name="T">The type of the IQueryable.</typeparam>
         /// <param name="queryable">The IQueryable which should be processed.</param>
         /// <param name="take">Specifies how many items to take. Configurable via the pageSize setting of the Kendo DataSource.</param>
         /// <param name="skip">Specifies how many items to skip.</param>
-        /// <param name="sort">Specifies the current sort order.</param>
         /// <param name="filter">Specifies the current filter.</param>
+        /// <param name="groups">Specifies the current groups.</param>
         /// <param name="aggregates">Specifies the current aggregates.</param>
-        /// <param name="group">Specifies the current groups.</param>
-        /// <returns>A DataSourceResult object populated from the processed IQueryable.</returns>
-        public static DataSourceResult ToDataSourceResult<T>(this IQueryable<T> queryable,
-            int take,
-            int skip,
-            IEnumerable<Sort> sort,
-            Filter filter,
-            IEnumerable<Aggregator> aggregates,
-            IEnumerable<Group> group)
+        /// <param name="sorts">Specifies the current sort order.</param>
+        /// <returns>A DataSourceResult&lt;T&gt; object populated from the processed IQueryable.</returns>
+        public static DataSourceResult<T> ToDataSourceResult<T>(this IQueryable<T> queryable, int take, int skip, Filter filter, IEnumerable<Group> groups, IEnumerable<Aggregator> aggregates, IEnumerable<Sort> sorts)
         {
             var errors = new List<object>();
 
@@ -69,14 +63,14 @@ namespace KendoNET.DynamicLinq
             // Calculate the aggregates
             var aggregate = Aggregates(queryable, aggregates);
 
-            if (group?.Any() == true)
+            if (groups?.Any() == true)
             {
-                //if(sort == null) sort = GetDefaultSort(queryable.ElementType, sort);
-                if (sort == null) sort = new List<Sort>();
+                //if(sorts == null) sorts = GetDefaultSort(queryable.ElementType, sorts);
+                if (sorts == null) sorts = new List<Sort>();
 
-                foreach (var source in group.Reverse())
+                foreach (var source in groups.Reverse())
                 {
-                    sort = sort.Append(new Sort
+                    sorts = sorts.Append(new Sort
                     {
                         Field = source.Field,
                         Dir = source.Dir
@@ -84,25 +78,23 @@ namespace KendoNET.DynamicLinq
                 }
             }
 
-            // Sort the data
-            queryable = Sort(queryable, sort);
-
-            // Finally page the data
+            // Sort the data and apply paging if necessary
+            queryable = Sort(queryable, sorts);
             if (take > 0)
             {
                 queryable = Page(queryable, take, skip);
             }
 
-            var result = new DataSourceResult
+            var result = new DataSourceResult<T>
             {
                 Total = total,
                 Aggregates = aggregate
             };
 
-            // Group By
-            if (group?.Any() == true)
+            // Group the data if any groups are specified
+            if (groups?.Any() == true)
             {
-                result.Groups = queryable.GroupByMany(group);
+                result.Groups = (IEnumerable<GroupResult>)queryable.GroupByMany(groups);
             }
             else
             {
@@ -119,26 +111,20 @@ namespace KendoNET.DynamicLinq
         }
 
         /// <summary>
-        /// Asynchronously applies data processing (paging, sorting, filtering and aggregates) over IQueryable using Dynamic Linq.
+        /// Asynchronously applies data processing (paging, filtering, grouping, aggregates and sorting) over IQueryable using Dynamic Linq.
         /// </summary>
         /// <typeparam name="T">The type of the IQueryable.</typeparam>
         /// <param name="queryable">The IQueryable which should be processed.</param>
         /// <param name="take">Specifies how many items to take. Configurable via the pageSize setting of the Kendo DataSource.</param>
         /// <param name="skip">Specifies how many items to skip.</param>
-        /// <param name="sort">Specifies the current sort order.</param>
         /// <param name="filter">Specifies the current filter.</param>
+        /// <param name="groups">Specifies the current groups.</param>
         /// <param name="aggregates">Specifies the current aggregates.</param>
-        /// <param name="group">Specifies the current groups.</param>
-        /// <returns>A DataSourceResult object populated from the processed IQueryable.</returns>
-        public static Task<DataSourceResult> ToDataSourceResultAsync<T>(this IQueryable<T> queryable,
-            int take,
-            int skip,
-            IEnumerable<Sort> sort,
-            Filter filter,
-            IEnumerable<Aggregator> aggregates = null,
-            IEnumerable<Group> group = null)
+        /// <param name="sorts">Specifies the current sort order.</param>
+        /// <returns>A DataSourceResult&lt;T&gt; object populated from the processed IQueryable.</returns>
+        public static Task<DataSourceResult<T>> ToDataSourceResultAsync<T>(this IQueryable<T> queryable, int take, int skip, Filter filter, IEnumerable<Group> groups = null, IEnumerable<Aggregator> aggregates = null, IEnumerable<Sort> sorts = null)
         {
-            return Task.Run(() => queryable.ToDataSourceResult(take, skip, sort, filter, aggregates, group));
+            return Task.Run(() => queryable.ToDataSourceResult(take, skip, filter, groups, aggregates, sorts));
         }
 
         private static IQueryable<T> Filters<T>(IQueryable<T> queryable, Filter filter, List<object> errors)
@@ -217,8 +203,8 @@ namespace KendoNET.DynamicLinq
                         if (mi == null) continue;
 
                         var val = queryable.Provider.Execute(Expression.Call(null, mi, aggregate.Aggregate == "count" && (Nullable.GetUnderlyingType(prop.PropertyType) == null)
-                            ? new[] { queryable.Expression }
-                            : new[] { queryable.Expression, Expression.Quote(selector) }));
+                            ? [queryable.Expression]
+                            : [queryable.Expression, Expression.Quote(selector)]));
 
                         fieldProps.Add(new DynamicProperty(aggregate.Aggregate, typeof(object)), val);
                     }
@@ -247,12 +233,12 @@ namespace KendoNET.DynamicLinq
             return null;
         }
 
-        private static IQueryable<T> Sort<T>(IQueryable<T> queryable, IEnumerable<Sort> sort)
+        private static IQueryable<T> Sort<T>(IQueryable<T> queryable, IEnumerable<Sort> sorts)
         {
-            if (sort?.Any() == true)
+            if (sorts?.Any() == true)
             {
                 // Create ordering expression e.g. Field1 asc, Field2 desc
-                var ordering = string.Join(",", sort.Select(s => s.ToExpression()));
+                var ordering = string.Join(",", sorts.Select(s => s.ToExpression()));
 
                 // Use the OrderBy method of Dynamic Linq to sort the data
                 return queryable.OrderBy(ordering);
@@ -328,9 +314,9 @@ namespace KendoNET.DynamicLinq
         /// <summary>
         /// The way this extension works it pages the records using skip and takes to do that we need at least one sort property.
         /// </summary>
-        private static IEnumerable<Sort> GetDefaultSort(Type type, IEnumerable<Sort> sort)
+        private static IEnumerable<Sort> GetDefaultSort(Type type, IEnumerable<Sort> sorts)
         {
-            if (sort == null)
+            if (sorts == null)
             {
                 var elementType = type;
                 var properties = elementType.GetProperties().ToList();
@@ -357,10 +343,10 @@ namespace KendoNET.DynamicLinq
                     sortByObject.Field = propertyInfo.Name;
                 }
 
-                sort = new List<Sort> { sortByObject };
+                sorts = new List<Sort> { sortByObject };
             }
 
-            return sort;
+            return sorts;
         }
     }
 }

@@ -22,17 +22,17 @@ namespace KendoNET.DynamicLinq.Test
         [Test]
         public void InputParameter_SubPropertyContains_CheckResultCount()
         {
-            var result = _dbContext.Employee.Include(x => x.Company).AsQueryable().ToDataSourceResult(10, 0, null, new Filter
+            var result = _dbContext.Employee.Include(x => x.Company).AsQueryable().ToDataSourceResult(10, 0, new Filter
             {
                 Field = "Company.Name",
                 Value = "Microsoft",
                 Operator = "contains",
                 Logic = "and"
-            });
+            }, null);
 
             Assert.AreEqual(2, result.Total);
 
-            var result2 = _dbContext.Employee.AsQueryable().ToDataSourceResult(10, 0, null, new Filter
+            var result2 = _dbContext.Employee.AsQueryable().ToDataSourceResult(10, 0, new Filter
             {
                 Filters = new[]
                 {
@@ -44,7 +44,7 @@ namespace KendoNET.DynamicLinq.Test
                     }
                 },
                 Logic = "and"
-            });
+            }, null);
 
             Assert.AreEqual(2, result2.Total);
         }
@@ -89,14 +89,14 @@ namespace KendoNET.DynamicLinq.Test
         [TestCase("neq", null, 6)]
         public void InputParameter_IgnoreCase_CheckResultCount(string op, string value, int expected)
         {
-            var result = _dbContext.Employee.AsQueryable().ToDataSourceResult(10, 0, null, new Filter
+            var result = _dbContext.Employee.AsQueryable().ToDataSourceResult(10, 0, new Filter
             {
                 Field = "Name",
                 Operator = op,
                 Value = value,
                 IgnoreCase = true,
                 Logic = "and"
-            });
+            }, null);
 
             Assert.AreEqual(expected, result.Total);
         }
@@ -112,14 +112,14 @@ namespace KendoNET.DynamicLinq.Test
         [TestCase("neq", null, 6)]
         public void InputParameter_WithoutIgnoreCase_CheckResultCount(string op, string value, int expected)
         {
-            var result = _dbContext.Employee.AsQueryable().ToDataSourceResult(10, 0, null, new Filter
+            var result = _dbContext.Employee.AsQueryable().ToDataSourceResult(10, 0, new Filter
             {
                 Field = "Name",
                 Operator = op,
                 Value = value,
                 Logic = "and",
                 IgnoreCase = false
-            });
+            }, null);
 
             Assert.AreEqual(expected, result.Total);
         }
@@ -130,13 +130,13 @@ namespace KendoNET.DynamicLinq.Test
         [TestCase("endswith")]
         public void InputParameter_StringOperatorWithNullValue_CheckErrors(string op)
         {
-            var result = _dbContext.Employee.AsQueryable().ToDataSourceResult(10, 0, null, new Filter
+            var result = _dbContext.Employee.AsQueryable().ToDataSourceResult(10, 0, new Filter
             {
                 Field = "Name",
                 Operator = op,
                 Value = null,
                 Logic = "and"
-            });
+            }, null);
 
             Assert.IsNotNull(result.Errors);
         }
@@ -149,13 +149,13 @@ namespace KendoNET.DynamicLinq.Test
         [TestCase("Company.Name", false)]
         public void InputParameter_WithUnknownField_CheckErrors(string field, bool hasErrors)
         {
-            var result = _dbContext.Employee.AsQueryable().ToDataSourceResult(10, 0, null, new Filter
+            var result = _dbContext.Employee.AsQueryable().ToDataSourceResult(10, 0, new Filter
             {
                 Field = field,
                 Operator = "eq",
                 Value = "Zed",
                 Logic = "and"
-            });
+            }, null);
 
             Assert.AreEqual(hasErrors, result.Errors != null);
         }
@@ -171,13 +171,13 @@ namespace KendoNET.DynamicLinq.Test
         [TestCaseSource(nameof(DifferentTimeZoneData))]
         public void InputParameter_DateTimeInDifferentTimeZones_CheckResultCount(object value)
         {
-            var result = _dbContext.Employee.AsQueryable().ToDataSourceResult(10, 0, null, new Filter
+            var result = _dbContext.Employee.AsQueryable().ToDataSourceResult(10, 0, new Filter
             {
                 Field = "Birthday",
                 Value = value,
                 Operator = "eq",
                 Logic = "and"
-            });
+            }, null);
 
             Assert.AreEqual(1, result.Total);
         }

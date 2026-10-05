@@ -85,13 +85,13 @@ dataSource: {
 ```
 
 5. Import the KendoNET.DynamicLinq namespace.
-6. Use the `ToDataSourceResult` extension method to apply paging, sorting, filtering, grouping and aggregating.
+6. Use the `ToDataSourceResult` extension method to apply paging, filtering, grouping, aggregating and sorting.
 
 ```c#
 using KendoNET.DynamicLinq
 
 [WebMethod]
-public static DataSourceResult Products(int take, int skip, IEnumerable<Sort> sort, Filter filter, IEnumerable<Aggregator> aggregates, IEnumerable<Group> groups)
+public static DataSourceResult<ProductViewModel> Products(int take, int skip, Filter filter, IEnumerable<Group> groups, IEnumerable<Aggregator> aggregates, IEnumerable<Sort> sorts)
 {
     using (var northwind = new Northwind())
     {
@@ -105,7 +105,7 @@ public static DataSourceResult Products(int take, int skip, IEnumerable<Sort> so
                    UnitsInStock = p.UnitsInStock,
                    Discontinued = p.Discontinued
                })
-               .ToDataSourceResult(take, skip, sort, filter, aggregates, groups);
+               .ToDataSourceResult(take, skip, filter, groups, aggregates, sorts);
     }
 }
 ```
@@ -129,7 +129,7 @@ public IActionResult Products([FromBody] DataSourceRequest requestModel)
                    UnitsInStock = p.UnitsInStock,
                    Discontinued = p.Discontinued
                })
-               .ToDataSourceResult(requestModel.Take, requestModel.Skip, requestModel.Sort, requestModel.Filter, requestModel.Aggregate, requestModel.Group);
+               .ToDataSourceResult(requestModel.Take, requestModel.Skip, requestModel.Filter, requestModel.Group, requestModel.Aggregate, requestModel.Sort);
     }
 }
 ```
