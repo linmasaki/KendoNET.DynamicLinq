@@ -9,7 +9,7 @@ namespace KendoNET.DynamicLinq
     {
         public static dynamic GroupByMany<TElement>(this IEnumerable<TElement> elements, IEnumerable<Group> groupSelectors)
         {
-            // Create a new list of Kendo Group Selectors 
+            // Create a new list of Kendo Group Selectors
             var selectors = new List<GroupSelector<TElement>>(groupSelectors.Count());
             foreach (var selector in groupSelectors)
             {
@@ -37,12 +37,12 @@ namespace KendoNET.DynamicLinq
                 var selector = groupSelectors[0];
                 var nextSelectors = groupSelectors.Skip(1).ToArray();   // Reduce the list recursively until zero
 
-                // Group by and return                
-                return  elements.GroupBy(selector.Selector).Select(
+                // Group by and return
+                return elements.GroupBy(selector.Selector).Select(
                             g => new GroupResult
                             {
                                 Value = g.Key,
-                                Aggregates = QueryableExtensions.Aggregates(g.AsQueryable(), selector.Aggregates),
+                                Aggregates = QueryableExtensions.CalculateAggregatesAsync(g.AsQueryable(), selector.Aggregates, useAsync: false, cancellationToken: default).GetAwaiter().GetResult(),
                                 HasSubgroups = groupSelectors.Length > 1,
                                 Count = g.Count(),
                                 Items = g.GroupByMany(nextSelectors),   // Recursivly group the next selectors

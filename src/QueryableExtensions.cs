@@ -1,16 +1,23 @@
-﻿using System;
+using System;
+using System.Collections.Concurrent;
 using System.Globalization;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 
 namespace KendoNET.DynamicLinq
 {
     public static class QueryableExtensions
     {
+        private static readonly MethodInfo s_countMethod = new Func<IQueryable<object>, int>(Queryable.Count).Method.GetGenericMethodDefinition();
+        private static readonly MethodInfo s_executeMethod = typeof(IQueryProvider).GetMethods().Single(m => m.Name == nameof(IQueryProvider.Execute) && m.IsGenericMethod);
+        private static readonly ConcurrentDictionary<Assembly, ILookup<string, MethodInfo>> s_assemblyAsyncMethods = new ConcurrentDictionary<Assembly, ILookup<string, MethodInfo>>();
+
         /// <summary>
         /// Applies data processing (paging, filtering and sorting) over IQueryable using Dynamic Linq.
         /// </summary>
@@ -60,30 +67,9 @@ namespace KendoNET.DynamicLinq
             // Calculate the total number of records (needed for paging)
             var total = queryable.Count();
 
-            // Calculate the aggregates
-            var aggregate = Aggregates(queryable, aggregates);
+            var aggregate = CalculateAggregatesAsync(queryable, aggregates, useAsync: false, cancellationToken: default).GetAwaiter().GetResult();
 
-            if (groups?.Any() == true)
-            {
-                //if(sorts == null) sorts = GetDefaultSort(queryable.ElementType, sorts);
-                if (sorts == null) sorts = new List<Sort>();
-
-                foreach (var source in groups.Reverse())
-                {
-                    sorts = sorts.Append(new Sort
-                    {
-                        Field = source.Field,
-                        Dir = source.Dir
-                    });
-                }
-            }
-
-            // Sort the data and apply paging if necessary
-            queryable = Sort(queryable, sorts);
-            if (take > 0)
-            {
-                queryable = Page(queryable, take, skip);
-            }
+            queryable = ApplySortAndPaging(queryable, take, skip, groups, sorts);
 
             var result = new DataSourceResult<T>
             {
@@ -91,17 +77,17 @@ namespace KendoNET.DynamicLinq
                 Aggregates = aggregate
             };
 
-            // Group the data if any groups are specified
+            // Fetch the page now, so the result stays readable after the caller disposes its DbContext
+            var data = queryable.ToList();
             if (groups?.Any() == true)
             {
-                result.Groups = (IEnumerable<GroupResult>)queryable.GroupByMany(groups);
+                result.Groups = (IEnumerable<GroupResult>)data.GroupByMany(groups);
             }
             else
             {
-                result.Data = queryable.ToList();
+                result.Data = data;
             }
 
-            // Set errors if any
             if (errors.Count > 0)
             {
                 result.Errors = errors;
@@ -112,6 +98,7 @@ namespace KendoNET.DynamicLinq
 
         /// <summary>
         /// Asynchronously applies data processing (paging, filtering, grouping, aggregates and sorting) over IQueryable using Dynamic Linq.
+        /// Queries run through the provider's own *Async methods when it follows that naming convention, otherwise synchronously.
         /// </summary>
         /// <typeparam name="T">The type of the IQueryable.</typeparam>
         /// <param name="queryable">The IQueryable which should be processed.</param>
@@ -121,10 +108,77 @@ namespace KendoNET.DynamicLinq
         /// <param name="groups">Specifies the current groups.</param>
         /// <param name="aggregates">Specifies the current aggregates.</param>
         /// <param name="sorts">Specifies the current sort order.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>A DataSourceResult&lt;T&gt; object populated from the processed IQueryable.</returns>
-        public static Task<DataSourceResult<T>> ToDataSourceResultAsync<T>(this IQueryable<T> queryable, int take, int skip, Filter filter, IEnumerable<Group> groups = null, IEnumerable<Aggregator> aggregates = null, IEnumerable<Sort> sorts = null)
+        public static async Task<DataSourceResult<T>> ToDataSourceResultAsync<T>(this IQueryable<T> queryable, int take, int skip, Filter filter, IEnumerable<Group> groups = null, IEnumerable<Aggregator> aggregates = null, IEnumerable<Sort> sorts = null, CancellationToken cancellationToken = default)
         {
-            return Task.Run(() => queryable.ToDataSourceResult(take, skip, filter, groups, aggregates, sorts));
+            var errors = new List<object>();
+
+            queryable = Filters(queryable, filter, errors);
+
+            var total = (int)await ExecuteAsync(queryable, s_countMethod.MakeGenericMethod(typeof(T)), null, useAsync: true, cancellationToken).ConfigureAwait(false);
+
+            var aggregate = await CalculateAggregatesAsync(queryable, aggregates, useAsync: true, cancellationToken).ConfigureAwait(false);
+
+            queryable = ApplySortAndPaging(queryable, take, skip, groups, sorts);
+
+            // Fetch the page: the provider's ToListAsync if it has one, else IAsyncEnumerable, else synchronously
+            List<T> data;
+            var toListMethod = FindAsyncMethod(queryable.Provider.GetType(), new Func<IEnumerable<T>, List<T>>(Enumerable.ToList).Method);
+            if (toListMethod != null)
+            {
+                var items = (IEnumerable<T>)await InvokeAsync(toListMethod, [queryable, cancellationToken]).ConfigureAwait(false);
+                data = items as List<T> ?? items.ToList();
+            }
+            else if (queryable is IAsyncEnumerable<T> asyncEnumerable)
+            {
+                data = [];
+                await foreach (var item in asyncEnumerable.WithCancellation(cancellationToken).ConfigureAwait(false))
+                {
+                    data.Add(item);
+                }
+            }
+            else
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                data = queryable.ToList();
+            }
+
+            var result = new DataSourceResult<T>
+            {
+                Total = total,
+                Aggregates = aggregate
+            };
+
+            // Group the fetched page in memory
+            if (groups?.Any() == true)
+            {
+                result.Groups = (IEnumerable<GroupResult>)data.GroupByMany(groups);
+            }
+            else
+            {
+                result.Data = data;
+            }
+
+            if (errors.Count > 0)
+            {
+                result.Errors = errors;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Asynchronously applies data processing (paging, sorting, filtering, grouping and aggregates) over IQueryable using Dynamic Linq.
+        /// </summary>
+        /// <typeparam name="T">The type of the IQueryable.</typeparam>
+        /// <param name="queryable">The IQueryable which should be processed.</param>
+        /// <param name="request">The DataSourceRequest object containing take, skip, sort, filter, aggregates, and groups data.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
+        /// <returns>A DataSourceResult&lt;T&gt; object populated from the processed IQueryable.</returns>
+        public static Task<DataSourceResult<T>> ToDataSourceResultAsync<T>(this IQueryable<T> queryable, DataSourceRequest request, CancellationToken cancellationToken = default)
+        {
+            return queryable.ToDataSourceResultAsync(request.Take, request.Skip, request.Filter, request.Group, request.Aggregate, request.Sort, cancellationToken);
         }
 
         private static IQueryable<T> Filters<T>(IQueryable<T> queryable, Filter filter, List<object> errors)
@@ -181,7 +235,19 @@ namespace KendoNET.DynamicLinq
             return queryable;
         }
 
-        internal static object Aggregates<T>(IQueryable<T> queryable, IEnumerable<Aggregator> aggregates)
+        /// <summary>
+        /// Calculates the aggregate values for the specified queryable based on the provided aggregators.
+        /// </summary>
+        /// <typeparam name="T">The type of the elements in the queryable.</typeparam>
+        /// <param name="queryable">The queryable to calculate aggregates for.</param>
+        /// <param name="aggregates">The collection of aggregators to apply.</param>
+        /// <param name="useAsync">
+        /// true: use the provider's *Async methods when it has them.
+        /// false: run every query synchronously; the returned task is already finished, so GetAwaiter().GetResult() never blocks.
+        /// </param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the calculated aggregate values.</returns>
+        internal static async Task<object> CalculateAggregatesAsync<T>(IQueryable<T> queryable, IEnumerable<Aggregator> aggregates, bool useAsync, CancellationToken cancellationToken)
         {
             if (aggregates?.Any() == true)
             {
@@ -196,16 +262,21 @@ namespace KendoNET.DynamicLinq
                     {
                         var prop = typeof(T).GetProperty(aggregate.Field);
                         var param = Expression.Parameter(typeof(T), "s");
-                        var selector = aggregate.Aggregate == "count" && (Nullable.GetUnderlyingType(prop.PropertyType) != null)
-                            ? Expression.Lambda(Expression.NotEqual(Expression.MakeMemberAccess(param, prop), Expression.Constant(null, prop.PropertyType)), param)
-                            : Expression.Lambda(Expression.MakeMemberAccess(param, prop), param);
+
+                        // What gets passed to the query:
+                        //   count on a non-nullable field → nothing (count every row)
+                        //   count on a nullable field     → s => s.Field != null (count only rows that have a value)
+                        //   sum / average / min / max     → s => s.Field
+                        var selector = aggregate.Aggregate == "count" && Nullable.GetUnderlyingType(prop.PropertyType) == null
+                            ? null
+                            : Expression.Lambda(aggregate.Aggregate == "count"
+                                ? Expression.NotEqual(Expression.MakeMemberAccess(param, prop), Expression.Constant(null, prop.PropertyType))
+                                : Expression.MakeMemberAccess(param, prop), param);
                         var mi = aggregate.MethodInfo(typeof(T));
                         if (mi == null) continue;
 
-                        var val = queryable.Provider.Execute(Expression.Call(null, mi, aggregate.Aggregate == "count" && (Nullable.GetUnderlyingType(prop.PropertyType) == null)
-                            ? [queryable.Expression]
-                            : [queryable.Expression, Expression.Quote(selector)]));
-
+                        // One query at a time: most providers' contexts and sessions reject concurrent queries
+                        var val = await ExecuteAsync(queryable, mi, selector, useAsync, cancellationToken).ConfigureAwait(false);
                         fieldProps.Add(new DynamicProperty(aggregate.Aggregate, typeof(object)), val);
                     }
 
@@ -220,7 +291,6 @@ namespace KendoNET.DynamicLinq
                 }
 
                 type = DynamicClassFactory.CreateType(objProps.Keys.ToList());
-
                 var obj = Activator.CreateInstance(type);
                 foreach (var p in objProps.Keys)
                 {
@@ -233,23 +303,134 @@ namespace KendoNET.DynamicLinq
             return null;
         }
 
-        private static IQueryable<T> Sort<T>(IQueryable<T> queryable, IEnumerable<Sort> sorts)
+        /// <summary>
+        /// Finds the provider's async version of a synchronous method (Queryable.Count, Queryable.Sum, ..., or Enumerable.ToList).
+        /// </summary>
+        internal static MethodInfo FindAsyncMethod(Type providerType, MethodInfo syncMethod)
         {
+            // Every public "*Async" extension method in the provider's assembly, keyed by name without "Async". Built once per assembly.
+            var candidates = s_assemblyAsyncMethods.GetOrAdd(providerType.Assembly, assembly =>
+            {
+                Type[] types;
+                try
+                {
+                    types = assembly.IsDynamic ? [] : assembly.GetExportedTypes();
+                }
+                catch (Exception)
+                {
+                    types = [];     // Types that fail to load mean no async support, not an error
+                }
+
+                return types.Where(t => t.IsSealed && t.IsAbstract && t.IsDefined(typeof(ExtensionAttribute), false))
+                            .SelectMany(t => t.GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly))
+                            .Where(m => m.Name.EndsWith("Async", StringComparison.Ordinal) && m.IsDefined(typeof(ExtensionAttribute), false))
+                            .ToLookup(m => m.Name[..^"Async".Length]);
+            })[syncMethod.Name];
+
+            // What the async version must look like:
+            //   ToList                    → (IQueryable<T>, CancellationToken), returning a Task of any IEnumerable<T> (Marten returns IReadOnlyList<T>)
+            //   Count, Sum, and the rest  → the same parameters plus a CancellationToken, returning a Task of the same result
+            Type[] parameterTypes;
+            Func<Type, bool> matchesReturnType;
+            if (syncMethod.DeclaringType == typeof(Enumerable) && syncMethod.Name == nameof(Enumerable.ToList))
+            {
+                var elementType = syncMethod.GetGenericArguments()[0];
+                var itemsType = typeof(IEnumerable<>).MakeGenericType(elementType);
+                parameterTypes = [typeof(IQueryable<>).MakeGenericType(elementType), typeof(CancellationToken)];
+                matchesReturnType = t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Task<>) && itemsType.IsAssignableFrom(t.GetGenericArguments()[0]);
+            }
+            else
+            {
+                var taskType = typeof(Task<>).MakeGenericType(syncMethod.ReturnType);
+                parameterTypes = [.. syncMethod.GetParameters().Select(p => p.ParameterType), typeof(CancellationToken)];
+                matchesReturnType = t => t == taskType;
+            }
+
+            var typeArguments = syncMethod.GetGenericArguments();
+            MethodInfo match = null;
+            foreach (var candidate in candidates)
+            {
+                if (candidate.GetGenericArguments().Length != typeArguments.Length) continue;
+
+                var method = candidate;
+                if (method.IsGenericMethodDefinition)
+                {
+                    try
+                    {
+                        method = method.MakeGenericMethod(typeArguments);
+                    }
+                    catch (ArgumentException)
+                    {
+                        continue;   // Violates a generic constraint
+                    }
+                }
+
+                if (!matchesReturnType(method.ReturnType) || !method.GetParameters().Select(p => p.ParameterType).SequenceEqual(parameterTypes)) continue;
+                if (match != null) return null;     // More than one fits: too ambiguous to pick, so run synchronously
+                match = method;
+            }
+
+            return match;
+        }
+
+        // Uses the provider's matching *Async method(Count, Sum, Average, Min or Max) when useAsync is true and the provider has one; otherwise runs the query synchronously.
+        private static async Task<object> ExecuteAsync(IQueryable source, MethodInfo queryableMethod, LambdaExpression selector, bool useAsync, CancellationToken cancellationToken)
+        {
+            var asyncMethod = useAsync ? FindAsyncMethod(source.Provider.GetType(), queryableMethod) : null;
+            if (asyncMethod == null)
+            {
+                // Sync queries take no token, so check it here
+                cancellationToken.ThrowIfCancellationRequested();
+
+                var callExpr = Expression.Call(null, queryableMethod, selector == null ? [source.Expression] : [source.Expression, Expression.Quote(selector)]);
+
+                // Same call Queryable.Sum and friends make. Some providers, e.g. MongoDB, throw on the non-generic Execute(Expression).
+                return s_executeMethod.MakeGenericMethod(queryableMethod.ReturnType).Invoke(source.Provider, BindingFlags.DoNotWrapExceptions, null, [callExpr], null);
+            }
+
+            object[] arguments = selector == null ? [source, cancellationToken] : [source, selector, cancellationToken];
+            return await InvokeAsync(asyncMethod, arguments).ConfigureAwait(false);
+        }
+
+        private static async Task<object> InvokeAsync(MethodInfo asyncMethod, object[] arguments)
+        {
+            var task = (Task)asyncMethod.Invoke(null, BindingFlags.DoNotWrapExceptions, null, arguments, null);
+            await task.ConfigureAwait(false);
+            return task.GetType().GetProperty(nameof(Task<object>.Result)).GetValue(task);
+        }
+
+        /// <summary>
+        /// Group fields are appended to the sort order, since grouping needs the data sorted by them.
+        /// </summary>
+        private static IQueryable<T> ApplySortAndPaging<T>(IQueryable<T> queryable, int take, int skip, IEnumerable<Group> groups, IEnumerable<Sort> sorts)
+        {
+            if (groups?.Any() == true)
+            {
+                //if(sorts == null) sorts = GetDefaultSort(queryable.ElementType, sorts);
+                if (sorts == null) sorts = new List<Sort>();
+
+                foreach (var source in groups.Reverse())
+                {
+                    sorts = sorts.Append(new Sort
+                    {
+                        Field = source.Field,
+                        Dir = source.Dir
+                    });
+                }
+            }
+
             if (sorts?.Any() == true)
             {
-                // Create ordering expression e.g. Field1 asc, Field2 desc
                 var ordering = string.Join(",", sorts.Select(s => s.ToExpression()));
+                queryable = queryable.OrderBy(ordering);
+            }
 
-                // Use the OrderBy method of Dynamic Linq to sort the data
-                return queryable.OrderBy(ordering);
+            if (take > 0)
+            {
+                queryable = queryable.Skip(skip).Take(take);
             }
 
             return queryable;
-        }
-
-        private static IQueryable<T> Page<T>(IQueryable<T> queryable, int take, int skip)
-        {
-            return queryable.Skip(skip).Take(take);
         }
 
         /// <summary>
