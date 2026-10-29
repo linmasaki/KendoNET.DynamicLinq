@@ -1,59 +1,64 @@
 # Change Log
 
-### V10.2.0 (2026/10/02)
+## V10.3.0 (2026/10/27)
+
+- [#6](https://github.com/linmasaki/KendoNET.DynamicLinq/issues/6) [#23](https://github.com/linmasaki/KendoNET.DynamicLinq/pull/23) [#28](https://github.com/linmasaki/KendoNET.DynamicLinq/pull/28) `ToDataSourceResultAsync` is truly asynchronous and no longer experimental: it uses the provider's own `*Async` methods (e.g. EF Core, MongoDB), else queries synchronously, and gains a `CancellationToken` parameter and a `DataSourceRequest` overload.
+- Fixed `Groups` throwing `ObjectDisposedException` once the `DbContext` is disposed, and aggregates throwing `NotImplementedException` on MongoDB.
+
+## V10.2.0 (2026/10/02)
 
 - **Breaking**: [#20](https://github.com/linmasaki/KendoNET.DynamicLinq/pull/20) [#28](https://github.com/linmasaki/KendoNET.DynamicLinq/pull/28) `DataSourceResult` is now generic (`DataSourceResult<T>`), with `Data`/`Groups` strongly typed. Code naming `DataSourceResult` explicitly must add the type argument and recompile.
 - **Breaking**: `ToDataSourceResult`/`ToDataSourceResultAsync` parameters are reordered to `take, skip, filter, groups, aggregates, sorts`; named arguments `sort:`/`group:` become `sorts:`/`groups:`. A call that passes `null` for `sort` and a group list as the last argument still compiles, but the groups are now treated as sorts.
 - Fixed `GetKnownTypes()`'s assembly check, which had stopped matching `System.Linq.Dynamic.Core`'s current output — this was silently breaking `DataContractSerializer`/WCF support for `Aggregates`.
 
-### V10.1.0 (2026/09/14)
+## V10.1.0 (2026/09/14)
 
 - **Breaking**: An `eq` filter on a date column matches that exact instant instead of the whole calendar day; filter with a `gte`/`lt` range instead, as the [README](README.md#date-and-time-handling) shows.
 - [#20](https://github.com/linmasaki/KendoNET.DynamicLinq/pull/20) `DateTime` filter values are read as instants in UTC instead of being converted to the server's time zone, so results no longer depend on where the application runs.
 - Date filter values are now coerced for `DateTime?`, `DateTimeOffset` and `DateTimeOffset?` columns, which previously received no date handling at all.
 
-### V10.0.0 (2026/09/01)
+## V10.0.0 (2026/09/01)
 
 - **Breaking**: Target .NET 10 exclusively. Support for .NET Standard 1.6/2.0/2.1, .NET Framework, .NET Core 1.x ~ 3.x, and .NET 5 ~ 9 ends here; those consumers should stay on the 3.x releases, maintained on the `release/3.x` branch.
 - [#29](https://github.com/linmasaki/KendoNET.DynamicLinq/issues/29) Report invalid filters through `DataSourceResult.Errors` instead of throwing.
 
-### V3.2.0 (2026/08/17)
+## V3.2.0 (2026/08/17)
 
 - [#15](https://github.com/linmasaki/KendoNET.DynamicLinq/issues/15) Add `IgnoreCase` option to `Filter` for case-insensitive string filtering (`eq`, `neq`, `contains`, `doesnotcontain`, `startswith`, `endswith`), defaults to `false` for backward compatibility.
 - [#24](https://github.com/linmasaki/KendoNET.DynamicLinq/pull/24) Document in the README that this package was previously published as `Kendo.DynamicLinqCore` and was renamed due to a trademark concern.
 
-### V3.1.2 (2022/07/14)
+## V3.1.2 (2022/07/14)
 
 -[#22](https://github.com/linmasaki/KendoNET.DynamicLinq/discussions/22) Rename this repository.
 
-### V3.1.1 (2020/11/05)
+## V3.1.1 (2020/11/05)
 
 - [#13](https://github.com/linmasaki/KendoNET.DynamicLinq/issues/13) Fix the issue that filter will throw exception if decimal property is optional.
 - [#6](https://github.com/linmasaki/KendoNET.DynamicLinq/issues/6) Add asynchronous method of retrieving data(This feature is still in the experimental stage, not recommend using it on your product).
 
-### V3.1.0 (2020/02/11)
+## V3.1.0 (2020/02/11)
 
 - [#10](https://github.com/linmasaki/KendoNET.DynamicLinq/issues/10) Fix the issue that the LINQ query with sub-property can't be translated and will be evaluated locally.
 - [#12](https://github.com/linmasaki/KendoNET.DynamicLinq/issues/12) Amend the issue that the method `ToDataSourceResult<T>(this IQueryable<T> queryable, DataSourceRequest request)` would ignore the
   aggregator parameter.
 
-### V2.2.2 (2019/09/17)
+## V2.2.2 (2019/09/17)
 
 - Remove `Append` and `Prepend` method of IEnumeration extension(.NET Standard built-in).
 - Remove the duplicate `Aggregates` method.
 
-### V2.2.0 (2019/07/05)
+## V2.2.0 (2019/07/05)
 
 - Change the property `Group` of DataSourceResult to `Groups`.
 - [#5](https://github.com/linmasaki/KendoNET.DynamicLinq/issues/5) Add new property `Aggregate` to DataSourceRequest.
 - [#5](https://github.com/linmasaki/KendoNET.DynamicLinq/issues/5) Fixed getting wrong grouping data in the request using aggregates in grouping configuration.
 
-### V2.1.0 (2019/05/16)
+## V2.1.0 (2019/05/16)
 
 - [#3](https://github.com/linmasaki/KendoNET.DynamicLinq/issues/3) Support new filtering operators of `is null`, `is not null`, `is empty`, `is not empty`, `has value`, and `has no value` in grid.
 - [#3](https://github.com/linmasaki/KendoNET.DynamicLinq/issues/3) Filtering operators of `is empty`, `is not empty`, `has value`, and `has no value` doesn't support non-string types.
 
-### V2.0.2 (2019/04/12)
+## V2.0.2 (2019/04/12)
 
 - Fix the problem that when query with conditions for a large amount of data will throw exception.
 - Fix the query result will be unexpected when filter conditions are too much.
@@ -61,10 +66,10 @@
 - Optimize performance and remove unnecessary properties.
 - When the filter condition has a DateTime type value, the time will automatically change to the server's local time.
 
-### V2.0.0 (2018/09/10)
+## V2.0.0 (2018/09/10)
 
 - [#2](https://github.com/linmasaki/KendoNET.DynamicLinq/issues/2) Support .Net Standard 2.0.
 
-### V1.0.3 (2017/02/069)
+## V1.0.3 (2017/02/069)
 
 - [#1](https://github.com/linmasaki/KendoNET.DynamicLinq/issues/1) Add `Errors` property in **`DataSourceResult`** class.

@@ -38,7 +38,7 @@ schema: {
 }
 ```
 
-4. The completed code like below.
+4. The complete code looks like this.
 
 ```javascript
 ..... Other kendo grid code .....
@@ -88,7 +88,7 @@ dataSource: {
 6. Use the `ToDataSourceResult` extension method to apply paging, filtering, grouping, aggregating and sorting.
 
 ```c#
-using KendoNET.DynamicLinq
+using KendoNET.DynamicLinq;
 
 [WebMethod]
 public static DataSourceResult<ProductViewModel> Products(int take, int skip, Filter filter, IEnumerable<Group> groups, IEnumerable<Aggregator> aggregates, IEnumerable<Sort> sorts)
@@ -113,26 +113,63 @@ public static DataSourceResult<ProductViewModel> Products(int take, int skip, Fi
 or from Kendo UI request
 
 ```c#
-using KendoNET.DynamicLinq
+using KendoNET.DynamicLinq;
 
 [HttpPost]
 public IActionResult Products([FromBody] DataSourceRequest requestModel)
 {
     using (var northwind = new Northwind())
     {
-        return northwind.Products
-               .Select(p => new ProductViewModel // Use a view model to avoid serializing internal Entity Framework properties as JSON
-               {
-                   ProductID = p.ProductID,
-                   ProductName = p.ProductName,
-                   UnitPrice = p.UnitPrice,
-                   UnitsInStock = p.UnitsInStock,
-                   Discontinued = p.Discontinued
-               })
-               .ToDataSourceResult(requestModel.Take, requestModel.Skip, requestModel.Filter, requestModel.Group, requestModel.Aggregate, requestModel.Sort);
+        var result = northwind.Products.Select(p => new ProductViewModel // Use a view model to avoid serializing internal Entity Framework properties as JSON
+            {
+                ProductID = p.ProductID,
+                ProductName = p.ProductName,
+                UnitPrice = p.UnitPrice,
+                UnitsInStock = p.UnitsInStock,
+                Discontinued = p.Discontinued
+            }).ToDataSourceResult(requestModel);
+
+        return Ok(result);
     }
 }
 ```
+
+## Asynchronous Usage
+
+`ToDataSourceResultAsync` takes the same arguments, or a `DataSourceRequest`, plus an optional `CancellationToken`.
+
+```c#
+[HttpPost]
+public async Task<IActionResult> Products([FromBody] DataSourceRequest requestModel, CancellationToken cancellationToken)
+{
+    var result = await _northwind.Products
+        .Select(p => new ProductViewModel
+        {
+            ProductID = p.ProductID,
+            ProductName = p.ProductName
+        })
+        .ToDataSourceResultAsync(requestModel, cancellationToken);
+
+    return Ok(result);
+}
+```
+
+### Provider Async Support
+
+| Async method   | EF Core | MongoDB | EF6 | NHibernate | linq2db |
+|----------------|:-------:|:-------:|:---:|:----------:|:-------:|
+| `CountAsync`   |    ✓   |    ✓   |  –  |     –      |    –    |
+| `SumAsync`     |    ✓   |    ✓   |  –  |     –      |    –    |
+| `AverageAsync` |    ✓   |    ✓   |  –  |     –      |    –    |
+| `MinAsync`     |    ✓   |    ✓   |  –  |     –      |    –    |
+| `MaxAsync`     |    ✓   |    ✓   |  –  |     –      |    –    |
+| `ToListAsync`  |    ✓   |    ✓   |  –  |     –      |    –    |
+
+✓ Tested.
+
+– Not tested yet; tests are planned.
+
+ℹ️ A query whose provider lacks the matching async method **runs synchronously**, with the same results.
 
 ## Date and Time Handling
 
@@ -264,9 +301,7 @@ For a user in UTC+8 picking 2025-11-30, this sends `gte 2025-11-29T16:00:00.000Z
 
 ## Known Issues
 
-When server-side filterable options are enabled and apply a query with filter condition that contains `DateTime` type column, then EntityFramework Core would throw an
-exception  `System.Data.SqlClient.SqlException (0x80131904): Conversion failed when converting date and/or time from character string`. The error is caused by a known issue in some old EntityFramework
-Core versions. The workaround is adding `datetime` value to the related column in DbContext. e.g.
+With server-side filtering enabled, a filter on a `DateTime` column can make Entity Framework Core throw `System.Data.SqlClient.SqlException (0x80131904): Conversion failed when converting date and/or time from character string`. This is a known issue in some old Entity Framework Core versions. The workaround is setting the column type to `datetime` in your `DbContext`, e.g.
 
 ```c#
 public class MyContext : DbContext
@@ -282,14 +317,6 @@ public class MyContext : DbContext
 }
 ```
 
-## How To Build NuGet Package
-
-1. Open command line console
-2. Switch to project root directory(src\KendoNET.DynamicLinq).
-3. Run "dotnet restore"
-4. Run "dotnet pack --configuration Release"
-5. Add `<repository type="git" url="https://github.com/linmasaki/KendoNET.DynamicLinq.git" />` to package metadata of nupkg to show repository URL at Nuget
-
 ## Note
 
 1. KendoNET.DynamicLinq is a reference to [Ali Sarkis's](https://github.com/mshtawythug/dlinq-helpers) Kendo.DynamicLinq.
@@ -297,9 +324,9 @@ public class MyContext : DbContext
 
 ## Kendo UI Documentation
 
-The following links are Kendo UI online docs(related to this package) and you can refer to.
+The following Kendo UI docs are related to this package.
 
 - [Kendo UI Grid](https://docs.telerik.com/kendo-ui/api/javascript/ui/grid)
 - [Kendo DataSource](https://docs.telerik.com/kendo-ui/api/javascript/data/datasource)
 
-More Kendo UI configuration can refer to [here](https://demos.telerik.com/kendo-ui/)
+For more Kendo UI configuration, see the [demos](https://demos.telerik.com/kendo-ui/).
