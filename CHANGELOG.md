@@ -1,5 +1,10 @@
 # Change Log
 
+## V10.4.0 (2026/11/20)
+
+- **Breaking**: `ToDataSourceResultAsync(take, skip, filter, groups, aggregates, sorts)` no longer has default values, so all arguments must be passed. A new `ToDataSourceResultAsync(take, skip, filter, sorts)` overload matches the sync one. A call that passed only `groups` as the fourth argument still compiles, but the groups are now used as sorts.
+- Fixed grouped results being sorted by the caller's sorts before the group fields. One group could be split across pages, and the group's `dir` often had no effect.
+
 ## V10.3.0 (2026/10/27)
 
 - [#6](https://github.com/linmasaki/KendoNET.DynamicLinq/issues/6) [#23](https://github.com/linmasaki/KendoNET.DynamicLinq/pull/23) [#28](https://github.com/linmasaki/KendoNET.DynamicLinq/pull/28) `ToDataSourceResultAsync` is truly asynchronous and no longer experimental: it uses the provider's own `*Async` methods (e.g. EF Core, MongoDB), else queries synchronously, and gains a `CancellationToken` parameter and a `DataSourceRequest` overload.

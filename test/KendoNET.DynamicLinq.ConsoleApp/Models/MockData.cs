@@ -42,8 +42,8 @@ namespace KendoNET.DynamicLinq.ConsoleApp.Models
             {
                 Number = 35,
                 Identification = Guid.Parse("CCAB16DB-070B-4A93-846A-81AEEFDD42EE"),
-                Name = "Rock",
-                Introduce = "I'm Rock",
+                Name = "Lauren",
+                Introduce = "I'm Lauren",
                 Salary = 1750,
                 Weight = 82.8F,
                 Height = 185,

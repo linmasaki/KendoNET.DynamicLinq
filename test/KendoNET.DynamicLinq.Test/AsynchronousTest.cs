@@ -19,7 +19,7 @@ namespace KendoNET.DynamicLinq.Test
         // Uses every step at once, so every kind of query runs.
         // - filter: Weight > 40 drops #7 (Weight 0), so Total = 6
         // - aggregates: over those 6 rows; Birthday count = 5 (Kirin has none), Number count = 6
-        // - sort, skip 1, take 4: #2 to #5, grouped into M (#2, #3, #4) and P (#5)
+        // - group then sort (M: #2, #3, #6; F: #1, #4; P: #5), skip 1, take 4: grouped into M (#3, #6) and F (#1, #4)
         private const string AllFeaturesRequest = "{\"take\":4,\"skip\":1,\"sort\":[{\"field\":\"Number\",\"dir\":\"asc\"}]," +
                                                   "\"filter\":{\"logic\":\"and\",\"filters\":[{\"field\":\"Weight\",\"operator\":\"gt\",\"value\":40}]}," +
                                                   "\"group\":[{\"field\":\"Gender\",\"dir\":\"asc\"}]," +

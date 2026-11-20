@@ -38,7 +38,7 @@ namespace KendoNET.DynamicLinq.ConsoleApp
             result = MockData.Employees.AsQueryable().ToDataSourceResult(10, 0, filter, null, null, sort);
 
             Console.WriteLine("\r\n/********** Test 2 (DateTime) **********/");
-            Console.WriteLine("Expectation: Kirin, Rock");
+            Console.WriteLine("Expectation: Kirin, Lauren");
             Console.WriteLine("ResultValue: " + string.Join(", ", result.Data.Cast<Employee>().Select(em => em.Name)));
 
 
@@ -51,7 +51,7 @@ namespace KendoNET.DynamicLinq.ConsoleApp
             result = MockData.Employees.AsQueryable().ToDataSourceResult(10, 0, filter, null, null, sort);
 
             Console.WriteLine("\r\n/********** Test 3 (String Method) **********/");
-            Console.WriteLine("Expectation: CoCo, Rock");
+            Console.WriteLine("Expectation: CoCo, Lauren");
             Console.WriteLine("ResultValue: " + string.Join(", ", result.Data.Cast<Employee>().Select(em => em.Name)));
 
 
@@ -77,7 +77,7 @@ namespace KendoNET.DynamicLinq.ConsoleApp
             result = MockData.Employees.AsQueryable().ToDataSourceResult(10, 0, filter, null, null, sort);
 
             Console.WriteLine("\r\n/********** Test 5 (Float) **********/");
-            Console.WriteLine("Expectation: CoCo, Kirin, Pikachu, Rock");
+            Console.WriteLine("Expectation: CoCo, Kirin, Lauren, Pikachu");
             Console.WriteLine("ResultValue: " + string.Join(", ", result.Data.Cast<Employee>().Select(em => em.Name)));
 
             Console.ReadKey();

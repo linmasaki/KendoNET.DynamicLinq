@@ -19,33 +19,6 @@ namespace KendoNET.DynamicLinq
         private static readonly ConcurrentDictionary<Assembly, ILookup<string, MethodInfo>> s_assemblyAsyncMethods = new ConcurrentDictionary<Assembly, ILookup<string, MethodInfo>>();
 
         /// <summary>
-        /// Applies data processing (paging, filtering and sorting) over IQueryable using Dynamic Linq.
-        /// </summary>
-        /// <typeparam name="T">The type of the IQueryable.</typeparam>
-        /// <param name="queryable">The IQueryable which should be processed.</param>
-        /// <param name="take">Specifies how many items to take. Configurable via the pageSize setting of the Kendo DataSource.</param>
-        /// <param name="skip">Specifies how many items to skip.</param>
-        /// <param name="filter">Specifies the current filter.</param>
-        /// <param name="sorts">Specifies the current sort order.</param>
-        /// <returns>A DataSourceResult&lt;T&gt; object populated from the processed IQueryable.</returns>
-        public static DataSourceResult<T> ToDataSourceResult<T>(this IQueryable<T> queryable, int take, int skip, Filter filter, IEnumerable<Sort> sorts)
-        {
-            return queryable.ToDataSourceResult(take, skip, filter, null, null, sorts);
-        }
-
-        /// <summary>
-        ///  Applies data processing (paging, sorting and filtering) over IQueryable using Dynamic Linq.
-        /// </summary>
-        /// <typeparam name="T">The type of the IQueryable.</typeparam>
-        /// <param name="queryable">The IQueryable which should be processed.</param>
-        /// <param name="request">The DataSourceRequest object containing take, skip, sort, filter, aggregates, and groups data.</param>
-        /// <returns>A DataSourceResult&lt;T&gt; object populated from the processed IQueryable.</returns>
-        public static DataSourceResult<T> ToDataSourceResult<T>(this IQueryable<T> queryable, DataSourceRequest request)
-        {
-            return queryable.ToDataSourceResult(request.Take, request.Skip, request.Filter, request.Group, request.Aggregate, request.Sort);
-        }
-
-        /// <summary>
         /// Applies data processing (paging, filtering, grouping, aggregates and sorting) over IQueryable using Dynamic Linq.
         /// </summary>
         /// <typeparam name="T">The type of the IQueryable.</typeparam>
@@ -97,6 +70,33 @@ namespace KendoNET.DynamicLinq
         }
 
         /// <summary>
+        /// Applies data processing (paging, filtering and sorting) over IQueryable using Dynamic Linq.
+        /// </summary>
+        /// <typeparam name="T">The type of the IQueryable.</typeparam>
+        /// <param name="queryable">The IQueryable which should be processed.</param>
+        /// <param name="take">Specifies how many items to take. Configurable via the pageSize setting of the Kendo DataSource.</param>
+        /// <param name="skip">Specifies how many items to skip.</param>
+        /// <param name="filter">Specifies the current filter.</param>
+        /// <param name="sorts">Specifies the current sort order.</param>
+        /// <returns>A DataSourceResult&lt;T&gt; object populated from the processed IQueryable.</returns>
+        public static DataSourceResult<T> ToDataSourceResult<T>(this IQueryable<T> queryable, int take, int skip, Filter filter, IEnumerable<Sort> sorts)
+        {
+            return queryable.ToDataSourceResult(take, skip, filter, null, null, sorts);
+        }
+
+        /// <summary>
+        ///  Applies data processing (paging, sorting and filtering) over IQueryable using Dynamic Linq.
+        /// </summary>
+        /// <typeparam name="T">The type of the IQueryable.</typeparam>
+        /// <param name="queryable">The IQueryable which should be processed.</param>
+        /// <param name="request">The DataSourceRequest object containing take, skip, sort, filter, aggregates, and groups data.</param>
+        /// <returns>A DataSourceResult&lt;T&gt; object populated from the processed IQueryable.</returns>
+        public static DataSourceResult<T> ToDataSourceResult<T>(this IQueryable<T> queryable, DataSourceRequest request)
+        {
+            return queryable.ToDataSourceResult(request.Take, request.Skip, request.Filter, request.Group, request.Aggregate, request.Sort);
+        }
+
+        /// <summary>
         /// Asynchronously applies data processing (paging, filtering, grouping, aggregates and sorting) over IQueryable using Dynamic Linq.
         /// Queries run through the provider's own *Async methods when it follows that naming convention, otherwise synchronously.
         /// </summary>
@@ -110,7 +110,7 @@ namespace KendoNET.DynamicLinq
         /// <param name="sorts">Specifies the current sort order.</param>
         /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>A DataSourceResult&lt;T&gt; object populated from the processed IQueryable.</returns>
-        public static async Task<DataSourceResult<T>> ToDataSourceResultAsync<T>(this IQueryable<T> queryable, int take, int skip, Filter filter, IEnumerable<Group> groups = null, IEnumerable<Aggregator> aggregates = null, IEnumerable<Sort> sorts = null, CancellationToken cancellationToken = default)
+        public static async Task<DataSourceResult<T>> ToDataSourceResultAsync<T>(this IQueryable<T> queryable, int take, int skip, Filter filter, IEnumerable<Group> groups, IEnumerable<Aggregator> aggregates, IEnumerable<Sort> sorts, CancellationToken cancellationToken = default)
         {
             var errors = new List<object>();
 
@@ -166,6 +166,22 @@ namespace KendoNET.DynamicLinq
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Asynchronously applies data processing (paging, filtering and sorting) over IQueryable using Dynamic Linq.
+        /// </summary>
+        /// <typeparam name="T">The type of the IQueryable.</typeparam>
+        /// <param name="queryable">The IQueryable which should be processed.</param>
+        /// <param name="take">Specifies how many items to take. Configurable via the pageSize setting of the Kendo DataSource.</param>
+        /// <param name="skip">Specifies how many items to skip.</param>
+        /// <param name="filter">Specifies the current filter.</param>
+        /// <param name="sorts">Specifies the current sort order.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
+        /// <returns>A DataSourceResult&lt;T&gt; object populated from the processed IQueryable.</returns>
+        public static Task<DataSourceResult<T>> ToDataSourceResultAsync<T>(this IQueryable<T> queryable, int take, int skip, Filter filter, IEnumerable<Sort> sorts, CancellationToken cancellationToken = default)
+        {
+            return queryable.ToDataSourceResultAsync(take, skip, filter, null, null, sorts, cancellationToken);
         }
 
         /// <summary>
@@ -400,23 +416,14 @@ namespace KendoNET.DynamicLinq
         }
 
         /// <summary>
-        /// Group fields are appended to the sort order, since grouping needs the data sorted by them.
+        /// Group fields sort first, so that paging keeps each group's rows together.
         /// </summary>
         private static IQueryable<T> ApplySortAndPaging<T>(IQueryable<T> queryable, int take, int skip, IEnumerable<Group> groups, IEnumerable<Sort> sorts)
         {
             if (groups?.Any() == true)
             {
-                //if(sorts == null) sorts = GetDefaultSort(queryable.ElementType, sorts);
-                if (sorts == null) sorts = new List<Sort>();
-
-                foreach (var source in groups.Reverse())
-                {
-                    sorts = sorts.Append(new Sort
-                    {
-                        Field = source.Field,
-                        Dir = source.Dir
-                    });
-                }
+                // if(sorts == null) sorts = GetDefaultSort(queryable.ElementType, sorts);
+                sorts = groups.Concat(sorts ?? []);
             }
 
             if (sorts?.Any() == true)

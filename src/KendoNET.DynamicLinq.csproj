@@ -21,8 +21,8 @@ Full changelog: https://github.com/linmasaki/KendoNET.DynamicLinq/blob/main/CHAN
     <PackageIconUrl>https://raw.githubusercontent.com/linmasaki/KendoNET.DynamicLinq/main/icon.png</PackageIconUrl>
     <PackageIcon>icon.png</PackageIcon>
     <PackageTags>net dotnet kendo kendo-ui linq dynamic-linq</PackageTags>
-    <PackageVersion>10.3.0</PackageVersion>
-    <Version>10.3.0</Version>
+    <PackageVersion>10.4.0</PackageVersion>
+    <Version>10.4.0</Version>
     <Copyright>Copyright © 2016-2026 CoCo Lin</Copyright>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>

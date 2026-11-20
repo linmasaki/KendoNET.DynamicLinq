@@ -53,11 +53,11 @@ namespace KendoNET.DynamicLinq.Test.Data
             {
                 Number = 4,
                 Identification = Guid.Parse("a4e918a9-46f9-4a13-8f37-e8771bf7dc5c"),
-                Name = "Rock",
-                Introduce = "I'm Rock",
+                Name = "Lauren",
+                Introduce = "I'm Lauren",
                 Salary = 1750,
                 Weight = 82.1,
-                Gender = Gender.M,
+                Gender = Gender.F,
                 Birthday = new DateTime(1976, 11, 5, 0, 0, 0, DateTimeKind.Utc),
                 CreatedOn = new DateTimeOffset(2019, 6, 20, 6, 0, 0, TimeSpan.Zero),
                 CompanyId = Guid.Parse("80a6570c-ca98-4661-adde-e4d5a8637ee5")

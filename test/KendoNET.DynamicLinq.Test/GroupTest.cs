@@ -34,6 +34,27 @@ namespace KendoNET.DynamicLinq.Test
         }
 
         [Test]
+        public void ToDataSourceResult_Should_SortByGroupFieldsBeforeCallerSorts()
+        {
+            var result = _dbContext.Employee.AsQueryable().ToDataSourceResult(3, 0, null, [new Group { Field = "Gender", Dir = "desc" }], null, [new Sort { Field = "Number", Dir = "desc" }]);
+            var groups = result.Groups.ToList();
+
+            Assert.AreEqual(new object[] { Gender.P, Gender.F }, groups.Select(g => g.Value).ToArray());
+            Assert.AreEqual(new long[] { 4, 1 }, ((IEnumerable<Employee>)groups[1].Items).Select(e => e.Number).ToArray());
+        }
+
+        [Test]
+        public void ToDataSourceResult_Should_SortByGroupFieldsInGroupOrder()
+        {
+            var result = _dbContext.Employee.AsQueryable().ToDataSourceResult(4, 0, null, [new Group { Field = "Gender", Dir = "asc" }, new Group { Field = "Name", Dir = "asc" }], null, null);
+            var groups = result.Groups.ToList();
+
+            Assert.AreEqual(1, groups.Count);
+            Assert.AreEqual(Gender.M, groups[0].Value);
+            Assert.AreEqual(4, ((IEnumerable<GroupResult>)groups[0].Items).Count());
+        }
+
+        [Test]
         public void ToDataSourceResult_Should_KeepGroupsReadableAfterContextDisposed()
         {
             // The README's pattern: the method disposes its own context and the caller serializes the result afterwards.
